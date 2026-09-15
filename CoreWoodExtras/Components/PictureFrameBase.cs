@@ -1,0 +1,307 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using BepInEx;
+using CoreWoodExtras.TextureUtils;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace CoreWoodExtras;
+
+public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable, TextReceiver
+{
+	private static char pds = Path.DirectorySeparatorChar;
+
+	private static readonly string _basePath = Paths.ConfigPath + pds + "CoreWoodExtras" + pds + "Images";
+
+	private Renderer _frameRenderer;
+
+	private int _characterLimit = 100;
+
+	private float _interval = 5f;
+
+	private TextureCache textureCache;
+
+	private ZNetView _nview;
+
+	private string[] _textureNames = new string[0];
+
+	private int _nextIndex;
+
+	public Text TextWidget { get; set; }
+
+	public abstract Vector3 PivotOffset { get; set; }
+
+	public abstract string Name { get; set; }
+
+    public float m_hoverOffset;
+
+    private static Dictionary<string, string> ParseOptions(string[] args)
+	{
+		Dictionary<string, string> dictionary = new Dictionary<string, string>();
+		for (int i = 0; i < args.Length; i++)
+		{
+			string[] array = args[i].Split(new char[1] { '=' });
+			if (array.Length == 2)
+			{
+				dictionary.Add(array[0], array[1]);
+			}
+		}
+		return dictionary;
+	}
+
+	public string GetHoverName()
+	{
+		return Name;
+	}
+
+	public string GetHoverText()
+	{
+		if (!PrivateArea.CheckAccess(base.transform.position, 0f, flash: false))
+		{
+			return Localization.instance.Localize("$piece_mm_first_pictureframe");
+		}
+		return Localization.instance.Localize("$piece_mm_first_pictureframe\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use");
+	}
+
+	public string GetText()
+	{
+		return _nview.GetZDO().GetString("text");
+	}
+
+	public bool Interact(Humanoid user, bool hold, bool alt)
+	{
+		if (hold)
+		{
+			return false;
+		}
+		if (!PrivateArea.CheckAccess(base.transform.position))
+		{
+			return false;
+		}
+		TextInput.instance.RequestText(this, "$piece_sign_input", _characterLimit);
+		return true;
+	}
+
+	public void SetText(string text)
+	{
+		if (PrivateArea.CheckAccess(base.transform.position))
+		{
+			_nview.ClaimOwnership();
+			TextWidget.text = text;
+			UpdatePicture();
+			_nview.GetZDO().Set("text", text);
+		}
+	}
+
+	public void SetTexture(string fileName)
+	{
+		Renderer pictureRenderer = base.transform.Find("Pivot/New/Picture").gameObject.GetComponent<Renderer>();
+		if (IsUrl(fileName))
+		{
+			StartCoroutine(textureCache.FetchFromWeb(fileName, delegate(Texture texture)
+			{
+				pictureRenderer.material.mainTexture = texture;
+			}));
+		}
+		pictureRenderer.material.mainTexture = textureCache.Load(fileName);
+	}
+
+	public void StartAnimation(string[] textureNames)
+	{
+		_textureNames = textureNames;
+		_nextIndex = 0;
+		StartCoroutine("NextPicture");
+	}
+
+	public void StopAnimation()
+	{
+		StopCoroutine("NextPicture");
+	}
+
+	public bool UseItem(Humanoid user, ItemDrop.ItemData item)
+	{
+		return false;
+	}
+
+	private void Awake()
+	{
+		_frameRenderer = base.transform.Find("Pivot/New/PictureFrame").gameObject.GetComponent<Renderer>();
+		TextWidget = base.transform.Find("Pivot/Canvas/Text").GetComponent<Text>();
+		textureCache = new TextureCache(_basePath);
+		_nview = GetComponent<ZNetView>();
+		if (_nview.GetZDO() != null)
+		{
+			UpdateText();
+			InvokeRepeating("UpdateText", 2f, 2f);
+		}
+	}
+
+	private IEnumerator NextPicture()
+	{
+		while (_textureNames != null && _textureNames.Length != 0)
+		{
+			_nextIndex %= _textureNames.Length;
+			SetTexture(_textureNames[_nextIndex]);
+			_nextIndex++;
+			yield return new WaitForSeconds(_interval);
+		}
+	}
+
+	private void UpdatePicture()
+	{
+		string[] array = TextWidget.text.Split(new char[1] { ':' });
+		Transform transform = base.transform.Find("Pivot");
+		base.transform.localScale = Vector3.one;
+		transform.transform.localPosition = Vector3.zero;
+		_frameRenderer.enabled = true;
+		string text = array[0].Trim();
+		if (text.StartsWith("http"))
+		{
+			text = array[0] + ":" + array[1];
+		}
+		StopAnimation();
+		if (array.Length == 2 || array.Length == 3)
+		{
+			int num = array.Length - 1;
+			Dictionary<string, string> dictionary = ParseOptions(array[num].Split(new char[1] { ' ' }));
+			Vector3 vector = new Vector3(0f, 0f, 0f);
+			if (dictionary.ContainsKey("pivot") || dictionary.ContainsKey("p"))
+			{
+				string key = (dictionary.ContainsKey("pivot") ? "pivot" : "p");
+				string[] array2 = dictionary[key].Split(new char[1] { ',' });
+				foreach (string text2 in array2)
+				{
+					if (text2 == null)
+					{
+						continue;
+					}
+					switch (text2.Length)
+					{
+					case 1:
+					{
+						char c = text2[0];
+						if (c <= 'l')
+						{
+							if (c != 'b')
+							{
+								if (c != 'l')
+								{
+									continue;
+								}
+								break;
+							}
+							goto IL_021b;
+						}
+						if (c != 'r')
+						{
+							if (c != 't')
+							{
+								continue;
+							}
+							goto IL_01f0;
+						}
+						goto IL_0240;
+					}
+					case 3:
+						if (!(text2 == "top"))
+						{
+							continue;
+						}
+						goto IL_01f0;
+					case 4:
+						if (!(text2 == "left"))
+						{
+							continue;
+						}
+						break;
+					case 5:
+						if (!(text2 == "right"))
+						{
+							continue;
+						}
+						goto IL_0240;
+					case 6:
+						if (!(text2 == "bottom"))
+						{
+							continue;
+						}
+						goto IL_021b;
+					default:
+						continue;
+						IL_0240:
+						vector += new Vector3(PivotOffset.x, 0f, 0f);
+						continue;
+						IL_01f0:
+						vector += new Vector3(0f, 0f - PivotOffset.y, 0f);
+						continue;
+						IL_021b:
+						vector += new Vector3(0f, PivotOffset.y, 0f);
+						continue;
+					}
+					vector += new Vector3(0f - PivotOffset.x, 0f, 0f);
+				}
+				vector += new Vector3(0f, 0f, 0.023f);
+			}
+			if (dictionary.ContainsKey("scale") || dictionary.ContainsKey("s"))
+			{
+				string key2 = (dictionary.ContainsKey("scale") ? "scale" : "s");
+				float num2 = Math.Max(Math.Min(float.Parse(dictionary[key2]), 10f), 0.1f);
+				transform.transform.localPosition = vector;
+				base.transform.localScale = Vector3.one * num2;
+				transform.transform.localPosition -= vector / num2;
+			}
+			if (dictionary.ContainsKey("interval") || dictionary.ContainsKey("i"))
+			{
+				string key3 = (dictionary.ContainsKey("interval") ? "interval" : "i");
+				float interval = Math.Max(float.Parse(dictionary[key3]), 0.01f);
+				_interval = interval;
+			}
+			if (dictionary.ContainsKey("frame") || dictionary.ContainsKey("f"))
+			{
+				string key4 = (dictionary.ContainsKey("frame") ? "frame" : "f");
+				if (dictionary[key4] == "none")
+				{
+					_frameRenderer.enabled = false;
+				}
+			}
+		}
+		if (textureCache.IsDirectory(text))
+		{
+			StartAnimation(textureCache.LoadTextureNames(text));
+		}
+		else
+		{
+			SetTexture(text);
+		}
+	}
+
+	private void UpdateText()
+	{
+		string text = GetText();
+		if (!(TextWidget.text == text))
+		{
+			TextWidget.text = text;
+			UpdatePicture();
+		}
+	}
+
+	private static bool IsUrl(string text)
+	{
+		if (Uri.TryCreate(text, UriKind.Absolute, out var result))
+		{
+			if (!(result.Scheme == Uri.UriSchemeHttp))
+			{
+				return result.Scheme == Uri.UriSchemeHttps;
+			}
+			return true;
+		}
+		return false;
+    }
+
+    public float GetHoverOffset()
+    {
+        return m_hoverOffset;
+    }
+}
