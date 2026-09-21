@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using BepInEx;
 using CoreWoodExtras.TextureUtils;
@@ -45,7 +46,7 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 			string[] array = args[i].Split(new char[1] { '=' });
 			if (array.Length == 2)
 			{
-				dictionary.Add(array[0], array[1]);
+				dictionary[array[0]] = array[1];
 			}
 		}
 		return dictionary;
@@ -157,7 +158,7 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 		transform.transform.localPosition = Vector3.zero;
 		_frameRenderer.enabled = true;
 		string text = array[0].Trim();
-		if (text.StartsWith("http"))
+		if (text.StartsWith("http") && array.Length > 1)
 		{
 			text = array[0] + ":" + array[1];
 		}
@@ -247,16 +248,21 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 			if (dictionary.ContainsKey("scale") || dictionary.ContainsKey("s"))
 			{
 				string key2 = (dictionary.ContainsKey("scale") ? "scale" : "s");
-				float num2 = Math.Max(Math.Min(float.Parse(dictionary[key2]), 10f), 0.1f);
-				transform.transform.localPosition = vector;
-				base.transform.localScale = Vector3.one * num2;
-				transform.transform.localPosition -= vector / num2;
+				if (TryParseFloat(dictionary[key2], out float scale))
+				{
+					float num2 = Math.Max(Math.Min(scale, 10f), 0.1f);
+					transform.transform.localPosition = vector;
+					base.transform.localScale = Vector3.one * num2;
+					transform.transform.localPosition -= vector / num2;
+				}
 			}
 			if (dictionary.ContainsKey("interval") || dictionary.ContainsKey("i"))
 			{
 				string key3 = (dictionary.ContainsKey("interval") ? "interval" : "i");
-				float interval = Math.Max(float.Parse(dictionary[key3]), 0.01f);
-				_interval = interval;
+				if (TryParseFloat(dictionary[key3], out float parsedInterval))
+				{
+					_interval = Math.Max(parsedInterval, 0.01f);
+				}
 			}
 			if (dictionary.ContainsKey("frame") || dictionary.ContainsKey("f"))
 			{
@@ -285,6 +291,12 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 			TextWidget.text = text;
 			UpdatePicture();
 		}
+	}
+
+	// Sign text is user input (and synced from other players), so parse it culture-independently and never throw.
+	private static bool TryParseFloat(string text, out float value)
+	{
+		return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
 	}
 
 	private static bool IsUrl(string text)

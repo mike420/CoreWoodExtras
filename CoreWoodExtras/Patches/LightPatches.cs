@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 
@@ -12,286 +14,121 @@ public class LightPatches
 		[HarmonyPostfix]
 		public static void Postfix(ZNetScene __instance)
 		{
-			ModifySkullCandles(__instance, "mm_corewood_skull_candles", MainConfig.skullLightIntensity.Value, MainConfig.skullLightRange.Value);
-			ModifyDeerChandelier(__instance, "mm_deerchandelier", MainConfig.chandelierLightIntensity.Value, MainConfig.chandelierLightRange.Value);
-			ModifySurtlingLantern(__instance, "mm_corewood_surtling_lantern", MainConfig.surtlingLanternLightIntensity.Value, MainConfig.surtlingLanternLightRange.Value);
-			ModifySurtlingSingle(__instance, "mm_corewood_surtling_lamppost_single", MainConfig.surtlingSingleLightIntensity.Value, MainConfig.surtlingSingleLightRange.Value);
-			ModifySurtlingDouble(__instance, "mm_corewood_surtling_lamppost_double", MainConfig.surtlingDoubleLightIntensity.Value, MainConfig.surtlingDoubleLightRange.Value);
-			ModifyWallLights(__instance, "mm_horn_walltorch", MainConfig.wallLightIntensity.Value, MainConfig.wallLightRange.Value);
-			ModifyLavaLights(__instance, "mm_corewood_lavalantern", MainConfig.lavaLightIntensity.Value, MainConfig.lavaLightRange.Value);
-			ModifyCrystalLights(__instance, "mm_corewood_crystal_light", MainConfig.crystalLightIntensity.Value, MainConfig.crystalLightRange.Value);
-			ModifyRopeLights(__instance, "mm_corewood_rope_lights", MainConfig.ropeLightIntensity.Value, MainConfig.ropeLightRange.Value);
-			ModifyBrazierLights(__instance, "mm_corewood_brazier", MainConfig.brazierLightIntensity.Value, MainConfig.brazierLightRange.Value);
-			ModifyBeaconLights(__instance, "mm_corewood_palisade_beacon", MainConfig.beaconLightIntensity.Value, MainConfig.beaconLightRange.Value);
+			ApplyAll(__instance.GetPrefab);
 		}
 	}
 
-	public static void ModifySkullCandles(ZNetScene instance, string prefab, float intensity, float range)
+	private class LightEntry
 	{
-		GameObject prefab2 = instance.GetPrefab(prefab);
-		if (!prefab2)
+		public readonly string PrefabName;
+		public readonly float Intensity;
+		public readonly float Range;
+		public readonly LightShadows Shadows;
+		public readonly bool AllChildren;
+
+		public LightEntry(string prefabName, float intensity, float range, MainConfig.ShadowsType shadows, bool allChildren)
+		{
+			PrefabName = prefabName;
+			Intensity = intensity;
+			Range = range;
+			Shadows = ToLightShadows(shadows);
+			AllChildren = allChildren;
+		}
+	}
+
+	private static LightEntry[] GetEntries()
+	{
+		return new LightEntry[]
+		{
+			new LightEntry("mm_corewood_skull_candles", MainConfig.skullLightIntensity.Value, MainConfig.skullLightRange.Value, MainConfig.skullLightShadows.Value, allChildren: true),
+			new LightEntry("mm_deerchandelier", MainConfig.chandelierLightIntensity.Value, MainConfig.chandelierLightRange.Value, MainConfig.chandelierLightShadows.Value, allChildren: true),
+			new LightEntry("mm_corewood_surtling_lantern", MainConfig.surtlingLanternLightIntensity.Value, MainConfig.surtlingLanternLightRange.Value, MainConfig.surtlingLanternLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_surtling_lamppost_single", MainConfig.surtlingSingleLightIntensity.Value, MainConfig.surtlingSingleLightRange.Value, MainConfig.surtlingSingleLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_surtling_lamppost_double", MainConfig.surtlingDoubleLightIntensity.Value, MainConfig.surtlingDoubleLightRange.Value, MainConfig.surtlingDoubleLightShadows.Value, allChildren: true),
+			new LightEntry("mm_horn_walltorch", MainConfig.wallLightIntensity.Value, MainConfig.wallLightRange.Value, MainConfig.wallLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_lavalantern", MainConfig.lavaLightIntensity.Value, MainConfig.lavaLightRange.Value, MainConfig.lavaLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_crystal_light", MainConfig.crystalLightIntensity.Value, MainConfig.crystalLightRange.Value, MainConfig.crystalLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_rope_lights", MainConfig.ropeLightIntensity.Value, MainConfig.ropeLightRange.Value, MainConfig.ropeLightShadows.Value, allChildren: true),
+			new LightEntry("mm_corewood_brazier", MainConfig.brazierLightIntensity.Value, MainConfig.brazierLightRange.Value, MainConfig.brazierLightShadows.Value, allChildren: false),
+			new LightEntry("mm_corewood_palisade_beacon", MainConfig.beaconLightIntensity.Value, MainConfig.beaconLightRange.Value, MainConfig.beaconLightShadows.Value, allChildren: false),
+		};
+	}
+
+	// Writes the current light config onto every Core Wood light prefab.
+	internal static void ApplyAll(Func<string, GameObject> getPrefab)
+	{
+		foreach (LightEntry entry in GetEntries())
+		{
+			ApplyToObject(getPrefab(entry.PrefabName), entry);
+		}
+	}
+
+	// Writes the current light config onto every Core Wood light that is already placed in the world.
+	internal static void ApplyToLiveInstances()
+	{
+		Dictionary<string, LightEntry> entries = new Dictionary<string, LightEntry>();
+		foreach (LightEntry entry in GetEntries())
+		{
+			entries[entry.PrefabName] = entry;
+		}
+		foreach (ZNetView nview in UnityEngine.Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
+		{
+			if (entries.TryGetValue(Utils.GetPrefabName(nview.gameObject), out LightEntry entry))
+			{
+				ApplyToObject(nview.gameObject, entry);
+			}
+		}
+	}
+
+	private static void ApplyToObject(GameObject target, LightEntry entry)
+	{
+		if (!target)
 		{
 			return;
 		}
-		Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-		foreach (Light light in componentsInChildren)
+		if (entry.AllChildren)
 		{
-			light.intensity = intensity;
-			light.range = range;
-			if (MainConfig.skullLightShadows.Value == MainConfig.ShadowsType.None)
+			foreach (Light light in target.GetComponentsInChildren<Light>(includeInactive: true))
 			{
-				light.shadows = LightShadows.None;
+				ApplyLight(light, entry);
 			}
-			else if (MainConfig.skullLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				light.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.skullLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				light.shadows = LightShadows.Soft;
-			}
+		}
+		else
+		{
+			ApplyLight(target.GetComponentInChildren<Light>(includeInactive: true), entry);
 		}
 	}
 
-	public static void ModifyDeerChandelier(ZNetScene instance, string prefab, float intensity, float range)
+	private static void ApplyLight(Light light, LightEntry entry)
 	{
-		GameObject prefab2 = instance.GetPrefab(prefab);
-		if (!prefab2)
+		if (!light)
 		{
 			return;
 		}
-		Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-		foreach (Light light in componentsInChildren)
+		light.intensity = entry.Intensity;
+		light.range = entry.Range;
+		light.shadows = entry.Shadows;
+
+		// These components cache the light's values in Awake and would overwrite a live change.
+		LightFlicker flicker = light.GetComponent<LightFlicker>();
+		if (flicker)
 		{
-			light.intensity = intensity;
-			light.range = range;
-			if (MainConfig.chandelierLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				light.shadows = LightShadows.None;
-			}
-			else if (MainConfig.chandelierLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				light.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.chandelierLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				light.shadows = LightShadows.Soft;
-			}
+			Traverse.Create(flicker).Field("m_baseIntensity").SetValue(entry.Intensity);
+		}
+		LightLod lod = light.GetComponent<LightLod>();
+		if (lod)
+		{
+			Traverse.Create(lod).Field("m_baseRange").SetValue(entry.Range);
 		}
 	}
 
-	public static void ModifySurtlingDouble(ZNetScene instance, string prefab, float intensity, float range)
+	private static LightShadows ToLightShadows(MainConfig.ShadowsType type)
 	{
-		GameObject prefab2 = instance.GetPrefab(prefab);
-		if (!prefab2)
+		return type switch
 		{
-			return;
-		}
-		Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-		foreach (Light light in componentsInChildren)
-		{
-			light.intensity = intensity;
-			light.range = range;
-			if (MainConfig.surtlingDoubleLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				light.shadows = LightShadows.None;
-			}
-			else if (MainConfig.surtlingDoubleLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				light.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.surtlingDoubleLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				light.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyRopeLights(ZNetScene instance, string prefab, float intensity, float range)
-	{
-		GameObject prefab2 = instance.GetPrefab(prefab);
-		if (!prefab2)
-		{
-			return;
-		}
-		Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-		foreach (Light light in componentsInChildren)
-		{
-			light.intensity = intensity;
-			light.range = range;
-			if (MainConfig.ropeLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				light.shadows = LightShadows.None;
-			}
-			else if (MainConfig.ropeLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				light.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.ropeLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				light.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifySurtlingLantern(ZNetScene instance, string slprefab, float slintensity, float slrange)
-	{
-		GameObject prefab = instance.GetPrefab(slprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = slintensity;
-			componentInChildren.range = slrange;
-			if (MainConfig.surtlingLanternLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.surtlingLanternLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.surtlingLanternLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifySurtlingSingle(ZNetScene instance, string ssprefab, float ssintensity, float ssrange)
-	{
-		GameObject prefab = instance.GetPrefab(ssprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = ssintensity;
-			componentInChildren.range = ssrange;
-			if (MainConfig.surtlingSingleLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.surtlingSingleLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.surtlingSingleLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyWallLights(ZNetScene instance, string wlprefab, float wlintensity, float wlrange)
-	{
-		GameObject prefab = instance.GetPrefab(wlprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = wlintensity;
-			componentInChildren.range = wlrange;
-			if (MainConfig.wallLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.wallLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.wallLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyLavaLights(ZNetScene instance, string llprefab, float llintensity, float llrange)
-	{
-		GameObject prefab = instance.GetPrefab(llprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = llintensity;
-			componentInChildren.range = llrange;
-			if (MainConfig.lavaLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.lavaLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.lavaLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyCrystalLights(ZNetScene instance, string clprefab, float clintensity, float clrange)
-	{
-		GameObject prefab = instance.GetPrefab(clprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = clintensity;
-			componentInChildren.range = clrange;
-			if (MainConfig.crystalLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.crystalLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.crystalLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyBrazierLights(ZNetScene instance, string bprefab, float bintensity, float brange)
-	{
-		GameObject prefab = instance.GetPrefab(bprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = bintensity;
-			componentInChildren.range = brange;
-			if (MainConfig.brazierLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.brazierLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.brazierLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
-	}
-
-	public static void ModifyBeaconLights(ZNetScene instance, string bcprefab, float bcintensity, float bcrange)
-	{
-		GameObject prefab = instance.GetPrefab(bcprefab);
-		if ((bool)prefab)
-		{
-			Light componentInChildren = prefab.GetComponentInChildren<Light>(includeInactive: true);
-			componentInChildren.intensity = bcintensity;
-			componentInChildren.range = bcrange;
-			if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.None)
-			{
-				componentInChildren.shadows = LightShadows.None;
-			}
-			else if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.Hard)
-			{
-				componentInChildren.shadows = LightShadows.Hard;
-			}
-			else if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.Soft)
-			{
-				componentInChildren.shadows = LightShadows.Soft;
-			}
-		}
+			MainConfig.ShadowsType.Hard => LightShadows.Hard,
+			MainConfig.ShadowsType.Soft => LightShadows.Soft,
+			_ => LightShadows.None,
+		};
 	}
 }

@@ -25,16 +25,21 @@ namespace CoreWoodExtras {
 			{
 				return;
 			}
-			if (m_nview.GetZDO().GetBool(_isFishEnabled))
+			SyncState();
+			// Pick up changes made by other players.
+			InvokeRepeating(nameof(SyncState), 0.5f, 0.5f);
+		}
+
+		private void SyncState()
+		{
+			if (m_nview == null || !m_nview.IsValid())
 			{
-				if (!m_fxobject.activeSelf)
-				{
-					m_fxobject.SetActive(value: true);
-				}
+				return;
 			}
-			else if (m_fxobject.activeSelf)
+			bool enabled = m_nview.GetZDO().GetBool(_isFishEnabled);
+			if (m_fxobject.activeSelf != enabled)
 			{
-				m_fxobject.SetActive(value: false);
+				m_fxobject.SetActive(enabled);
 			}
 		}
 
@@ -71,6 +76,8 @@ namespace CoreWoodExtras {
 			{
 				return false;
 			}
+			// Only the owner's ZDO changes are kept, so take ownership before writing.
+			m_nview.ClaimOwnership();
 			if (!m_fxobject.activeSelf)
 			{
 				m_nview.GetZDO().Set(_isFishEnabled, value: true);

@@ -7,6 +7,74 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.2.6</td>
+    <td>
+    Added an "Auto Harvest" setting to the Seed Bed settings (off by default). When on, the Seed Bed harvests itself as soon as the seeds finish germinating. No Farming or Herbalist XP is given for automatic harvests.<br>
+    Added an "Auto Store" setting to the Seed Bed settings (on by default, needs "Auto Harvest"). The produce of an automatic harvest is stored in the nearest chest with room (then the next nearest), or appears at the Seed Bed if there is no chest in range or they are all full. Feeding troughs count for the food they accept, so the Seed Bed can keep your tames fed.<br>
+    Added an "Auto Replant" setting to the Seed Bed settings (off by default). When on, the Seed Bed starts growing again after each harvest. Items that give themselves back (like Barley or Dandelion) are replanted from the harvest. Items like CarrotSeeds -> Carrot take their seeds from a chest near the Seed Bed and wait until the chest has enough. Only chests the builder of the Seed Bed could open are used.<br>
+    Added a "Chest Range" setting to the Seed Bed settings, how far away the Seed Bed looks for chests to take seeds from and store harvests in. Only chests the builder of the Seed Bed could open are used. It never takes seeds from feeding troughs or tombstones.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.5</td>
+    <td>
+    Added the Seed Bed (Corewood-Greenhouse category). Plant seeds or produce, wait for them to germinate, then harvest more than you put in.<br>
+    Added "Seed Bed Settings" to the config: "Germination Duration", "Harvest Delay", "Farming XP" and "Herbalist XP" (the XP settings need the Farming / Herbalist mods).<br>
+    What the Seed Bed can germinate, and which harvested items count as herbs for Herbalist XP, is stored in SeedBedItems.json in your "BepInEx\config\CoreWoodExtras" folder. The file is created for you and reloads when you save it.<br>
+    Elevators are now properly network synced. They move the same for every player and the start sound plays for everyone nearby. Existing elevators keep their position.<br>
+    Fixed elevator sounds not being routed to the ambient mixer.<br>
+    Fixed the moving platform becoming removable while someone was still standing on it.<br>
+    Scarecrow, light, toilet effects and "Disable HD" settings now apply straight away, including to pieces that are already placed. No restart or rebuild needed.<br>
+    Fixed the Scarecrow forcefield still keeping monsters away after it was switched off, and not working again after being switched back on. The "No Monsters" status effect is now only given to players.<br>
+    Fixed changing light settings sometimes not updating the other lights when a shadow type was set to None or Hard.<br>
+    Fixed "Disable HD" not switching back off without a restart.<br>
+    Fixed translation files not reloading when edited.<br>
+    Fixed the feeding trough feeding animals for free when another player owned the trough, and tidied up destroyed troughs.<br>
+    Fixed the fish pond toggle not showing for other players.<br>
+    Fixed picture frames throwing errors on some text (decimal commas, repeated options, text starting with "http").<br>
+    Fixed a few missing null checks (elevator, trough, school bubbles) and image loading on Linux.<br>
+    A piece that fails to load no longer stops the rest of its category from loading, the log now names the piece that failed.<br>
+    Fixed the trader store: buying the Mystical Seed (or one of Burt's items) threw an error and left the list stale, and the selected item jumped back to the top after each purchase. Made the trader code safer for other mods that add to the trader window (such as EpicLoot).<br>
+    Fixed "requiredGlobalKey" in BurtItems.json not being applied, items are now hidden until that key is set.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.4</td>
+    <td>
+    Added a protection forcefield to the Scarecrow that can be toggled on and off. It can be found in the Corewood-Greenhouse category.<br>
+    The scarecrow will show "No Access" when you cannot use it because of a ward.<br>
+    Added "Scarecrow Settings" to the config: "Enable Protection Toggle" (if Off, the scarecrow does nothing) and "Show Forcefield" (hides the forcefield visual).<br>
+    Optimised more code, Elevators should now be network synced.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.3</td>
+    <td>
+    Optimised trader code and enabled editing a json file to update Burts items. You will need to delete your config file and let the game regenerate it. Burts list for adding/removing items is stored in your "BepInEx\config\CoreWoodExtras" folder.<br>
+    Updated category usage tags for build menu.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.2</td>
+    <td>
+    Missed some changes!
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.1</td>
+    <td>
+    Updated for Valheim 1.0.14<br>
+    Updated Jotunn 2.30.1<br>
+    Added auto feeder trough for tamed creatures. It can be found in the storage category or Corewood-Decor category.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.0</td>
+    <td>
+    Fixed trader issues.
+	</td>
+  </tr>
+  <tr>
     <td>2.1.9</td>
     <td>
     Updated for Valheim 1.0.12<br>

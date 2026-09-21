@@ -5,21 +5,39 @@ namespace CoreWoodExtras.Updates;
 
 internal class UpdateMainSettings
 {
+	private const string ToiletPrefab = "mm_corewood_outhouse";
+
 	public static void MainSettingsChanged()
 	{
-		GameObject prefab = PrefabManager.Instance.GetPrefab("mm_corewood_outhouse");
-		Transform transform = Utils.FindChild(prefab.transform, "Effects");
-		if (MainConfig.disableHDTextures.Value)
+		TexturePatches.ChangeTextureFilter();
+		ApplyToiletEffects();
+	}
+
+	private static void ApplyToiletEffects()
+	{
+		bool enabled = MainConfig.toiletEffects.Value;
+
+		// Prefab covers toilets placed from now on, live instances cover toilets already in the world.
+		SetToiletEffects(PrefabManager.Instance.GetPrefab(ToiletPrefab), enabled);
+		foreach (ZNetView nview in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
 		{
-			TexturePatches.ChangeTextureFilter();
+			if (Utils.GetPrefabName(nview.gameObject) == ToiletPrefab)
+			{
+				SetToiletEffects(nview.gameObject, enabled);
+			}
 		}
-		if (MainConfig.toiletEffects.Value && prefab != null)
+	}
+
+	private static void SetToiletEffects(GameObject toilet, bool enabled)
+	{
+		if (!toilet)
 		{
-			transform.gameObject.SetActive(value: true);
+			return;
 		}
-		else
+		Transform effects = Utils.FindChild(toilet.transform, "Effects");
+		if (effects)
 		{
-			transform.gameObject.SetActive(value: false);
+			effects.gameObject.SetActive(enabled);
 		}
 	}
 }

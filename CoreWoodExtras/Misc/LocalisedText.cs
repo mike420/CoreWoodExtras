@@ -284,7 +284,8 @@ internal class LocalisedText
 			{ "piece_mm_rug_02", "Rug 02" },
 			{ "piece_mm_rug_03", "Rug 03" },
 			{ "piece_mm_scarecrow", "Scarecrow" },
-			{ "piece_mm_wood_carving_01", "Viking Wood Carving" },
+            { "piece_mm_scarecrow_desc", "Protect your crops from monsters!" },
+            { "piece_mm_wood_carving_01", "Viking Wood Carving" },
 			{ "piece_mm_wood_carving_02", "Owl Wood Carving" },
 			{ "piece_mm_corewood_stuffed_boar", "Stuffed Boar" },
 			{ "piece_mm_corewood_stuffed_deer", "Stuffed Deer" },
@@ -334,7 +335,11 @@ internal class LocalisedText
 			{ "piece_mm_corewood_noticeboard", "Large Noticeboard" },
 			{ "piece_mm_corewood_rope_fence", "Rope Fence" },
 			{ "piece_mm_corewood_rope_fence_angled", "Rope Fence Angled" },
-            { "piece_mm_swimming_pool", "Swimming Pool" }
+            { "piece_mm_swimming_pool", "Swimming Pool" },
+            { "piece_mm_corewood_trough", "Feeding Trough" },
+            { "piece_mm_corewood_trough_desc", "Automaticaly feed your hungry tames!" },
+            { "piece_mm_corewood_seedbed", "Seed Bed" },
+            { "piece_mm_corewood_seedbed_desc", "Lets seedlings germinate in a safe environment." }
         });
 		Localization.AddTranslation("English", new Dictionary<string, string>
 		{
@@ -358,7 +363,19 @@ internal class LocalisedText
 			{ "text_disable_fish", "Disable Fish" },
 			{ "text_use_elevator", "Use Elevator" },
 			{ "text_written_by", "Written by" },
-			{ "npc_bartender_talk", "????" }
+            { "text_no_monsters_mm", "No Monsters" },
+            { "text_monster_spawns_mm", "Monsters Spawn Here!" },
+            { "text_no_monster_spawns_mm", "No Monsters Spawn Here!" },
+            { "text_forcefield_enable_mm", "Forcefield Enabled!" },
+            { "text_forcefield_disable_mm", "Forcefield Disabled!" },
+            { "text_no_access_mm", "No Access" },
+            { "text_seedbed_empty_mm", "Empty" },
+            { "text_seedbed_add_mm", "Plant Seeds" },
+            { "text_seedbed_germinating_mm", "Germinating" },
+            { "text_seedbed_ready_mm", "Ready to Harvest" },
+            { "text_seedbed_harvest_mm", "Harvest" },
+            { "text_seedbed_no_seeds_mm", "Not enough seeds." },
+            { "npc_bartender_talk", "????" }
 		});
 	}
 }

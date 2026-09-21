@@ -1,494 +1,105 @@
-using CoreWoodExtras.Containers;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System.Collections.Generic;
 using UnityEngine;
+using static CoreWoodExtras.PieceAssets;
 
 namespace CoreWoodExtras;
 
 internal class AddBuilding
 {
-	public static EffectList buildWood;
-
-	public static EffectList breakWood;
-
-	public static EffectList hitWood;
-
-	public static EffectList chestOpen;
-
-	public static EffectList chestClose;
-
-	public static EffectList wdOpen;
-
-	public static EffectList wdClose;
-
-	public static EffectList breakGlass;
-
-	public static EffectList buildMetal;
-
-	public static EffectList breakMetal;
-
-	public static EffectList hitMetal;
-
-	public static EffectList buildStone;
-
-	public static EffectList breakStone;
-
-	public static EffectList hitStone;
-
-	public static EffectList bridgeOC;
-
-	public static EffectList towerOC;
-
-	public static EffectList gateOpen;
-
-	public static EffectList gateClose;
-
-	public static EffectList elevator;
-
-	public static EffectList elevatorLong;
-
-	public static EffectList addFuel;
-
-	public static ItemDrop fuelCoal;
-
-	public static ItemDrop fuelResin;
-
 	public static void LoadPieces()
 	{
-		AddFX();
-		AddCoreWoodStack();
-		AddCoreWoodStackDynamic();
-		AddSteakWall();
-		AddSharpSteaks01();
-		AddSharpSteaks02();
-		AddSharpSteaks03();
-		AddSharpSteaks04();
-		AddCoreWoodPalisade();
-		AddCoreWoodPalisadeTall();
-		AddCoreWoodPalisadeGates();
-		AddCoreWoodPalisadeTower();
-		AddCoreWoodPalisadeEntrance();
-		AddCoreWoodPalisadeWall();
-		AddCoreWoodPalisadeCorner();
-		AddPalisadeBeacon();
-		AddCoreWoodBridgePart();
-		AddCoreWoodBridgePart02();
-		AddCoreWoodBridgeTjunction();
-		AddCoreWoodBridgeCrossjunction();
-		AddCoreWoodBridgeFoundation();
-		AddCoreWoodBridgeFoundation02();
-		AddCoreWoodBridgeRamp();
-		AddCoreWoodBridgeDrawbridge();
-		AddCoreWoodTowerDrawbridge();
-		AddCoreWoodDrawbridge();
-		AddCoreWoodDrawbridge2();
-		AddCoreWoodLiftGate();
-		if (MainConfig.enableElevators.Value)
-		{
-			AddCoreWoodElevatorSmall();
-			AddCoreWoodElevatorSmall9();
-			AddCoreWoodElevatorLarge();
-			AddCoreWoodElevatorLarge9();
-			AddCoreWoodElevator01();
-			AddCoreWoodElevator02();
-			AddCoreWoodElevator03();
-			AddCoreWoodElevator04();
-		}
-		AddCoreWoodDecking2m();
-		AddCoreWoodDecking();
-		AddCoreWoodFloorHalf();
-		AddCoreWoodFloor();
-		AddCoreWoodFloor4m();
-		AddCoreWoodPlanks();
-		AddCoreWoodPlanks4m();
-		AddCoreWoodPavingStraight();
-		AddCoreWoodPavingCross();
-		AddCoreWoodPavingCorner();
-		AddCoreWoodPavingCurve();
-		AddCoreWoodCross26();
-		AddCoreWoodCross45();
-		AddCoreWoodWallRoof26();
-		AddCoreWoodWallRoof45();
-		AddCoreWoodWallRoofUpsidedown26();
-		AddCoreWoodWallRoofUpsidedown45();
-		AddCoreWoodRoof26();
-		AddCoreWoodRoof45();
-		AddCoreWoodRoofICorner26();
-		AddCoreWoodRoofICorner45();
-		AddCoreWoodRoofOCorner26();
-		AddCoreWoodRoofOCorner45();
-		AddCoreWoodRoofTop26();
-		AddCoreWoodRoofTop45();
-		AddCoreWoodWallQuarter();
-		AddCoreWoodWallHalf();
-		AddCoreWoodWallV();
-		AddCoreWoodWall4m();
-		AddCoreWoodGateLeft();
-		AddCoreWoodGateRight();
-		AddCoreWoodGateSmallLeft();
-		AddCoreWoodGateSmallRight();
-		AddCoreWoodTrapdoor();
-		AddCoreWoodWindowSingle();
-		AddCoreWoodWindowDouble();
-		AddCoreWoodWindowTall();
-		AddCoreWoodWindowSmallAnimated();
-		AddCoreWoodWindowMediumAnimated();
-		AddCoreWoodWindowLargeAnimated();
-		AddCoreWoodShutterSmallAnimated();
-		AddCoreWoodShutterMediumAnimated();
-		AddCoreWoodShutterLargeAnimated();
-		AddLargeStainedWindow01();
-		AddLargeStainedWindow02();
-		AddLargeStainedWindow03();
-		AddMediumStainedWindow01();
-		AddMediumStainedWindow02();
-		AddMediumStainedWindow03();
-		AddSmallStainedWindow01();
-		AddSmallStainedWindow02();
-		AddSmallStainedWindow03();
-		AddCoreWoodWattleFence();
-		AddCoreWoodPost();
-		AddCoreWoodFenceLarge();
-		AddCoreWoodFenceSmall();
-		AddCoreWoodFenceSmallAlt();
-		AddCoreWoodFenceSmallGate();
-		AddCoreWoodRopeFence();
-		AddCoreWoodRopeFenceAngled();
-		AddCoreWoodStairs();
-		AddCoreWoodStepladder();
-		AddFootbridgeSmall();
-		AddFootbridgeLarge();
-		AddWoodPoleLog1();
-		AddWoodPoleLog2();
-		AddWoodPoleLog3();
-		AddWoodPoleLog4();
-		AddWoodWallLog1();
-		AddWoodWallLog2();
-		AddWoodWallLog3();
-		AddWoodWallLog4();
-		AddWoodPoleLog1Thin();
-		AddWoodPoleLog2Thin();
-		AddWoodPoleLog3Thin();
-		AddWoodPoleLog4Thin();
-		AddWoodWallLog1Thin();
-		AddWoodWallLog2Thin();
-		AddWoodWallLog3Thin();
-		AddWoodWallLog4Thin();
-		AddWoodLog26();
-		AddWoodLog45();
-		AddCoreWoodGreenhouseDoor();
-		AddCoreWoodGreenhousePanel();
-		AddCoreWoodGreenhouseRoof();
-		AddCoreWoodGreenhouseRoofTop();
-		AddCoreWoodGreenhouseRoofWallCorner();
-		AddCoreWoodGreenhouseRoofWallHalf();
-	}
-
-	public static void AddFX()
-	{
-		GameObject prefab = PrefabManager.Cache.GetPrefab<GameObject>("sfx_build_hammer_wood");
-		GameObject prefab2 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_wood_break");
-		GameObject prefab3 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_wood_hit");
-		GameObject prefab4 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_chest_open");
-		GameObject prefab5 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_chest_close");
-		GameObject prefab6 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_break_glass_mm");
-		GameObject prefab7 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_build_hammer_metal");
-		GameObject prefab8 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_metal_blocked");
-		GameObject prefab9 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_build_hammer_stone");
-		GameObject prefab10 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_rock_destroyed");
-		GameObject prefab11 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_rock_hit");
-		GameObject prefab12 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_open_bridge_mm");
-		GameObject prefab13 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_tower_bridge_mm");
-		GameObject prefab14 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_open_gate_mm");
-		GameObject prefab15 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_close_gate_mm");
-		GameObject prefab16 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_elevator_mm");
-		GameObject prefab17 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_elevator_long_mm");
-		GameObject prefab18 = PrefabManager.Cache.GetPrefab<GameObject>("vfx_walltorch_addFuel");
-		GameObject prefab19 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_FireAddFuel");
-        GameObject prefab20 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_door_open");
-        GameObject prefab21 = PrefabManager.Cache.GetPrefab<GameObject>("sfx_door_close");
-
-
-        buildWood = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab
-                    }
-                }
-        };
-        breakWood = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab2
-                    }
-                }
-        };
-        hitWood = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab3
-                    }
-                }
-        };
-
-        buildMetal = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab7
-                    }
-                }
-        };
-        breakMetal = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab8
-                    }
-                }
-        };
-        hitMetal = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab8
-                    }
-                }
-        };
-
-        buildStone = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab9
-                    }
-                }
-        };
-        breakStone = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab10
-                    }
-                }
-        };
-        hitStone = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab11
-                    }
-                }
-        };
-
-        breakGlass = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab6
-                    }
-                }
-        };
-
-        chestOpen = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab4
-                    }
-                }
-        };
-        chestClose = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab5
-                    }
-                }
-        };
-
-        wdOpen = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab4
-                    }
-                }
-        };
-        wdClose = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab5
-                    }
-                }
-        };
-
-        gateOpen = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab14
-                    }
-                }
-        };
-        gateClose = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab15
-                    }
-                }
-        };
-
-        bridgeOC = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab12
-                    }
-                }
-        };
-        towerOC = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab13
-                    }
-                }
-        };
-
-        elevator = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab16
-                    }
-                }
-        };
-        elevatorLong = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab17
-                    }
-                }
-        };
-
-        addFuel = new EffectList
-        {
-            m_effectPrefabs = new EffectList.EffectData[]
-                {
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab18
-                    },
-                    new EffectList.EffectData
-                    {
-                        m_prefab = prefab19
-                    }
-                }
-        };
-
-		fuelCoal = PrefabManager.Cache.GetPrefab<GameObject>("Coal").GetComponent<ItemDrop>();
-		fuelResin = PrefabManager.Cache.GetPrefab<GameObject>("Resin").GetComponent<ItemDrop>();
-	}
-
-	public static void AddCoreWoodStack()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_stack");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 50,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodStackDynamic()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_dynamic_stack");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-		CoreWoodPlugin.PrepareContainer(gameObject);
-        RestrictContainers._allowedItemsByContainer.Add(gameObject.GetComponent<Container>().m_name, new HashSet<string> { "RoundLog" });
+		PieceAssets.Init();
+		CoreWoodPlugin.TryAddPiece(AddSteakWall);
+		CoreWoodPlugin.TryAddPiece(AddSharpSteaks01);
+		CoreWoodPlugin.TryAddPiece(AddSharpSteaks02);
+		CoreWoodPlugin.TryAddPiece(AddSharpSteaks03);
+		CoreWoodPlugin.TryAddPiece(AddSharpSteaks04);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPalisade);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPalisadeTall);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodDecking2m);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodDecking);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloorHalf);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor4m);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks4m);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingStraight);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCross);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCorner);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCurve);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodCross26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodCross45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallRoof26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallRoof45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallRoofUpsidedown26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallRoofUpsidedown45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoof26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoof45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofICorner26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofICorner45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofOCorner26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofOCorner45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofTop26);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRoofTop45);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallQuarter);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallHalf);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWallV);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWall4m);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodGateLeft);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodGateRight);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodGateSmallLeft);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodGateSmallRight);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodTrapdoor);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowSingle);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowDouble);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowTall);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowSmallAnimated);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowMediumAnimated);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWindowLargeAnimated);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodShutterSmallAnimated);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodShutterMediumAnimated);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodShutterLargeAnimated);
+		CoreWoodPlugin.TryAddPiece(AddLargeStainedWindow01);
+		CoreWoodPlugin.TryAddPiece(AddLargeStainedWindow02);
+		CoreWoodPlugin.TryAddPiece(AddLargeStainedWindow03);
+		CoreWoodPlugin.TryAddPiece(AddMediumStainedWindow01);
+		CoreWoodPlugin.TryAddPiece(AddMediumStainedWindow02);
+		CoreWoodPlugin.TryAddPiece(AddMediumStainedWindow03);
+		CoreWoodPlugin.TryAddPiece(AddSmallStainedWindow01);
+		CoreWoodPlugin.TryAddPiece(AddSmallStainedWindow02);
+		CoreWoodPlugin.TryAddPiece(AddSmallStainedWindow03);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodWattleFence);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodPost);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFenceLarge);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFenceSmall);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFenceSmallAlt);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodFenceSmallGate);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRopeFence);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodRopeFenceAngled);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodStairs);
+		CoreWoodPlugin.TryAddPiece(AddCoreWoodStepladder);
+		CoreWoodPlugin.TryAddPiece(AddFootbridgeSmall);
+		CoreWoodPlugin.TryAddPiece(AddFootbridgeLarge);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog1);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog2);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog3);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog4);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog1);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog2);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog3);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog4);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog1Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog2Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog3Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodPoleLog4Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog1Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog2Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog3Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodWallLog4Thin);
+		CoreWoodPlugin.TryAddPiece(AddWoodLog26);
+		CoreWoodPlugin.TryAddPiece(AddWoodLog45);
 	}
 
 	public static void AddSteakWall()
@@ -499,7 +110,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -524,7 +136,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -549,7 +162,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -574,7 +188,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -599,7 +214,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -624,7 +240,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -649,880 +266,13 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Defense },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
 					Item = "RoundLog",
 					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodPalisadeGates()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisadefence_gates");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 10,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodPalisadeTower()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisade_tower");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 20,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 4,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodPalisadeEntrance()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisade_entrance");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 30,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodPalisadeWall()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisade_wall");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 40,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodPalisadeCorner()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisade_corner");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 30,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddPalisadeBeacon()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_palisade_beacon");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[4]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 4,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 2,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 2,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Coal",
-					Amount = 5,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Fireplace component2 = gameObject.GetComponent<Fireplace>();
-		component2.m_fuelItem = fuelCoal;
-		component2.m_fuelAddedEffects = addFuel;
-		Light componentInChildren = gameObject.GetComponentInChildren<Light>(includeInactive: true);
-		componentInChildren.intensity = MainConfig.beaconLightIntensity.Value;
-		componentInChildren.range = MainConfig.beaconLightRange.Value;
-		if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.None)
-		{
-			componentInChildren.shadows = LightShadows.None;
-			return;
-		}
-		if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.Hard)
-		{
-			componentInChildren.shadows = LightShadows.Hard;
-			return;
-		}
-		if (MainConfig.beaconLightShadows.Value == MainConfig.ShadowsType.Soft)
-		{
-			componentInChildren.shadows = LightShadows.Soft;
-		}
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgePart()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_part");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 10,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgePart02()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_part_02");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeTjunction()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_tjunction");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 25,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeCrossjunction()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_cross_junction");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 32,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeFoundation()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_foundation");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeFoundation02()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_foundation_02");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 4,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeRamp()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_ramp");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodBridgeDrawbridge()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_bridge_drawbridge");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 12,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 5,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = bridgeOC;
-		component2.m_closeEffects = bridgeOC;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodTowerDrawbridge()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_tower_drawbridge");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 40,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 10,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = towerOC;
-		component2.m_closeEffects = towerOC;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodDrawbridge()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_drawbridge");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 20,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = bridgeOC;
-		component2.m_closeEffects = bridgeOC;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodDrawbridge2()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_drawbridge2");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 20,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = bridgeOC;
-		component2.m_closeEffects = bridgeOC;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodLiftGate()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_liftgate");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 10,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 20,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Bronze",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = gateOpen;
-		component2.m_closeEffects = gateClose;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevatorSmall()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_small");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 4,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 5,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 4,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = elevator;
-		component2.m_closeEffects = elevator;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevatorSmall9()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_small_9m");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 4,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 5,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = elevatorLong;
-		component2.m_closeEffects = elevatorLong;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevatorLarge()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_large");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 10,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 4,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = elevator;
-		component2.m_closeEffects = elevator;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevatorLarge9()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_large_9m");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[3]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 10,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Iron",
-					Amount = 8,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = elevatorLong;
-		component2.m_closeEffects = elevatorLong;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevator01()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_01");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 4,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevator02()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_02");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 8,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 4,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevator03()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_03");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 12,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 6,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodElevator04()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_elevator_04");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 16,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Wood",
-					Amount = 8,
 					Recover = true
 				}
 			}
@@ -1542,7 +292,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1567,7 +318,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1592,7 +344,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1617,7 +370,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1642,7 +396,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1667,7 +422,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1698,7 +454,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1729,7 +486,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1760,7 +518,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1791,7 +550,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1822,7 +582,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -1853,7 +614,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1878,7 +640,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1903,7 +666,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1928,7 +692,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1953,7 +718,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -1978,7 +744,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2003,7 +770,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2028,7 +796,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2053,7 +822,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2078,7 +848,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2103,7 +874,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2128,7 +900,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2153,7 +926,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2178,7 +952,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2203,7 +978,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Wall },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2228,7 +1004,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Roof },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2253,7 +1030,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Wall },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2278,7 +1056,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Wall },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2303,7 +1082,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2318,8 +1098,8 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2331,7 +1111,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2346,8 +1127,8 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2359,7 +1140,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2374,8 +1156,8 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2387,7 +1169,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2402,8 +1185,8 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2415,7 +1198,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2430,8 +1214,8 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2443,7 +1227,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2474,7 +1259,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2505,7 +1291,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2536,7 +1323,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2557,8 +1345,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakGlass;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2570,7 +1358,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2591,8 +1380,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakGlass;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2604,7 +1393,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2625,8 +1415,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakGlass;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2638,7 +1428,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2653,8 +1444,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2666,7 +1457,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2681,8 +1473,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2694,7 +1486,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -2709,8 +1502,8 @@ internal class AddBuilding
 		component.m_hitEffect = hitWood;
 		component.m_destroyedEffect = breakWood;
 		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
+		component2.m_openEffects = doorOpen;
+		component2.m_closeEffects = doorClose;
 		PieceManager.Instance.AddPiece(customPiece);
 	}
 
@@ -2722,7 +1515,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2753,7 +1547,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2784,7 +1579,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2815,7 +1611,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2846,7 +1643,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2877,7 +1675,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2908,7 +1707,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2939,7 +1739,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -2970,7 +1771,8 @@ internal class AddBuilding
 			CraftingStation = "forge",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Doors },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3001,7 +1803,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3032,7 +1835,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3057,7 +1861,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3082,7 +1887,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3107,7 +1913,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3132,7 +1939,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3157,7 +1965,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3188,7 +1997,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3219,7 +2029,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Stairs },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3238,13 +2049,14 @@ internal class AddBuilding
 
 	public static void AddCoreWoodStepladder()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_stepladder");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_stepladder");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building, PieceUsages.Stairs },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3269,7 +2081,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3300,7 +2113,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[2]
 			{
 				new RequirementConfig
 				{
@@ -3331,7 +2145,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3356,7 +2171,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3381,7 +2197,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3406,7 +2223,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3431,7 +2249,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3456,7 +2275,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3481,7 +2301,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3506,7 +2327,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3531,7 +2353,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3556,7 +2379,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3581,7 +2405,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3606,7 +2431,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3631,7 +2457,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3656,7 +2483,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3681,7 +2509,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3706,7 +2535,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3731,7 +2561,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3756,7 +2587,8 @@ internal class AddBuilding
 			CraftingStation = "piece_workbench",
 			PieceTable = "_HammerPieceTable",
 			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
+            Usage = new[] { PieceUsages.Building },
+            Requirements = new RequirementConfig[1]
 			{
 				new RequirementConfig
 				{
@@ -3769,183 +2601,6 @@ internal class AddBuilding
 		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
 		WearNTear component = gameObject.GetComponent<WearNTear>();
 		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhouseDoor()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_door");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 2,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Crystal",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakGlass;
-		component.m_hitEffect = hitWood;
-		Door component2 = gameObject.GetComponent<Door>();
-		component2.m_openEffects = wdOpen;
-		component2.m_closeEffects = wdClose;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhousePanel()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_panel");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 2,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Crystal",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakGlass;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhouseRoof()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_roof_greenhouse");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhouseRoofTop()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_roofTop_greenhouse");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "piece_workbench",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakWood;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhouseRoofWallCorner()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_corner");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 1,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Crystal",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakGlass;
-		component.m_hitEffect = hitWood;
-		PieceManager.Instance.AddPiece(customPiece);
-	}
-
-	public static void AddCoreWoodGreenhouseRoofWallHalf()
-	{
-		GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_half");
-		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
-		{
-			CraftingStation = "forge",
-			PieceTable = "_HammerPieceTable",
-			Category = "CoreWood-Building",
-			Requirements = new RequirementConfig[2]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 1,
-					Recover = true
-				},
-				new RequirementConfig
-				{
-					Item = "Crystal",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
-		WearNTear component = gameObject.GetComponent<WearNTear>();
-		component.m_destroyedEffect = breakGlass;
 		component.m_hitEffect = hitWood;
 		PieceManager.Instance.AddPiece(customPiece);
 	}

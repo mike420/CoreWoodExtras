@@ -20,6 +20,19 @@ internal static class RestrictContainers
         _allowedItemsByContainer = allowedItemByContainer;
     }
 
+    // Registers the items a container may hold. Restrictions are keyed by container name, so if two containers
+    // share a name their allowed items are merged instead of throwing on the duplicate key.
+    public static void SetRestriction(string containerName, HashSet<string> allowedItems)
+    {
+        if (_allowedItemsByContainer.TryGetValue(containerName, out HashSet<string> existing))
+        {
+            Jotunn.Logger.LogWarning("[CoreWoodExtras] Container name '" + containerName + "' is used by more than one container, merging their allowed items.");
+            existing.UnionWith(allowedItems);
+            return;
+        }
+        _allowedItemsByContainer[containerName] = allowedItems;
+    }
+
     public static bool IsRestrictedContainer(string containerName, out HashSet<string> allowedItems)
     {
         return _allowedItemsByContainer.TryGetValue(containerName, out allowedItems);

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using CoreWoodExtras.Containers;
@@ -11,6 +7,9 @@ using Jotunn;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using System;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.1.9";
+	public const string PluginVersion = "2.2.6";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -38,8 +37,10 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static AssetBundle cwextras;
 	public static string extrasBundle = "corewoodextras";
+    public static AssetBundle cwextras_new;
+    public static string newBundle = "corewood_new"; 
 
-	private Harmony harmony = new Harmony(PluginGUID);
+    private Harmony harmony = new Harmony(PluginGUID);
 
 	internal static ConfigFile ConfigFile;
 	internal static ConfigFileWatcher ConfigFileWatcher;
@@ -47,8 +48,11 @@ public class CoreWoodPlugin : BaseUnityPlugin
 	public static bool MainConfigChanged = false;
 	public static bool ChestConfigChanged = false;
 	public static bool LightConfigChanged = false;
+    public static bool ScarecrowConfigChanged = false;
 
-	public void Awake()
+    public static CustomStatusEffect noMonstersStatus;
+
+    public void Awake()
 	{
 		plugininstance = this;
 		ConfigFile = base.Config;
@@ -67,17 +71,23 @@ public class CoreWoodPlugin : BaseUnityPlugin
 				LoadLocalisationData(TranslationFilePath);
 			});
 
-            LoadAssetBundle();
+            LoadAssetBundles();
             AddFXAssets();
+
             AddTraderItems();
+            CustomTraderItems.Load();
+            SeedBedConversions.Load();
+
+            LoadStatusEffects();
 
             PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodItems;
 			PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodBuilding;
-			PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodStructures;
-			PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodDecor;
-			PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodMisc;
+            PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodDecor;
+            PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodGreenhouse;
+            PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodMarket;
+            PrefabManager.OnVanillaPrefabsAvailable += LoadCoreWoodStructures;
 
-			harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), "MagicMike.CoreWoodExtras");
+            harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), PluginGUID);
 
 			ConfigFileWatcher.OnConfigFileReloaded += delegate
 			{
@@ -98,7 +108,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public void OnDestroy()
 	{
-	}
+    }
 
     public static void CheckForFolders()
 	{
@@ -125,12 +135,17 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		}
     }
 
-    public static void LoadAssetBundle()
+    public static void LoadAssetBundles()
     {
         cwextras = AssetUtils.LoadAssetBundleFromResources(extrasBundle, Assembly.GetExecutingAssembly());
         if (cwextras == null)
         {
             Jotunn.Logger.LogError("Failed to load asset bundle with name: " + extrasBundle);
+        }
+        cwextras_new = AssetUtils.LoadAssetBundleFromResources(newBundle, Assembly.GetExecutingAssembly());
+        if (cwextras_new == null)
+        {
+            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + newBundle);
         }
     }
 
@@ -185,9 +200,29 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     private void AddTraderItems()
     {
-        CustomItem customItem = new CustomItem(cwextras.LoadAsset<GameObject>("mm_mystical_seed"), fixReference: true);
+        GameObject seed = cwextras != null ? cwextras.LoadAsset<GameObject>("mm_mystical_seed") : null;
+        if (seed == null)
+        {
+            Jotunn.Logger.LogError("Could not load 'mm_mystical_seed' from the '" + extrasBundle + "' asset bundle, skipping the mystical seed.");
+            return;
+        }
+        CustomItem customItem = new CustomItem(seed, fixReference: true);
         ItemManager.Instance.AddItem(customItem);
     }
+
+    public static void LoadStatusEffects()
+    {
+        SE_Stats sE_Stats = cwextras_new != null ? cwextras_new.LoadAsset<SE_Stats>("NoMonstersStatusEffect") : null;
+        if (sE_Stats == null)
+        {
+            Jotunn.Logger.LogError("Could not load 'NoMonstersStatusEffect' from the '" + newBundle + "' asset bundle, the scarecrow will not keep monsters away.");
+            return;
+        }
+        sE_Stats.name = "NoMonstersStatusEffect";
+        noMonstersStatus = new CustomStatusEffect(sE_Stats, fixReference: false);
+        ItemManager.Instance.AddStatusEffect(noMonstersStatus);
+    }
+
 
     private void LoadCoreWoodItems()
 	{
@@ -219,9 +254,57 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		{
 			PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodBuilding;
 		}
-	}
+    }
 
-	private void LoadCoreWoodStructures()
+    private void LoadCoreWoodDecor()
+    {
+        try
+        {
+            AddDecor.LoadPieces();
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError("Exception caught while loading Core Wood Decor Prefabs: " + ex.Message);
+        }
+        finally
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodDecor;
+        }
+    }
+
+    private void LoadCoreWoodGreenhouse()
+    {
+        try
+        {
+            AddGreenhouse.LoadPieces();
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError("Exception caught while loading Core Wood Greenhouse Prefabs: " + ex.Message);
+        }
+        finally
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodGreenhouse;
+        }
+    }
+
+    private void LoadCoreWoodMarket()
+    {
+        try
+        {
+            AddMarket.LoadPieces();
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError("Exception caught while loading Core Wood Market Prefabs: " + ex.Message);
+        }
+        finally
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodMarket;
+        }
+    }
+
+    private void LoadCoreWoodStructures()
 	{
 		try
 		{
@@ -237,39 +320,8 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		}
 	}
 
-	private void LoadCoreWoodDecor()
-	{
-		try
-		{
-			AddDecor.LoadPieces();
-		}
-		catch (Exception ex)
-		{
-			Jotunn.Logger.LogError("Exception caught while loading Core Wood Decor Prefabs: " + ex.Message);
-		}
-		finally
-		{
-			PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodDecor;
-		}
-	}
 
-	private void LoadCoreWoodMisc()
-	{
-		try
-		{
-			AddMisc.LoadPieces();
-		}
-		catch (Exception ex)
-		{
-			Jotunn.Logger.LogError("Exception caught while loading Core Wood Misc Prefabs: " + ex.Message);
-		}
-		finally
-		{
-			PrefabManager.OnVanillaPrefabsAvailable -= LoadCoreWoodMisc;
-		}
-	}
-
-	public static void OnMainConfigChanged(object obj, EventArgs args)
+    public static void OnMainConfigChanged(object obj, EventArgs args)
 	{
 		if (!MainConfigChanged)
 		{
@@ -303,9 +355,21 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		{
 			UpdateLightSettings.LightSettingsChanged();
 		}
-	}
+    }
 
-	private void UpdatePlugin(bool saveConfig = true, bool initialUpdate = false)
+    public static void OnScarecrowConfigChanged(object obj, EventArgs args)
+    {
+        if (!ScarecrowConfigChanged)
+        {
+            ScarecrowConfigChanged = true;
+        }
+        if (SceneManager.GetActiveScene().name.Equals("main"))
+        {
+            UpdateScarecrowSettings.ScarecrowSettingsChanged();
+        }
+    }
+
+    private void UpdatePlugin(bool saveConfig = true, bool initialUpdate = false)
 	{
 		if (MainConfigChanged || initialUpdate)
 		{
@@ -319,10 +383,27 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		{
 			LightConfigChanged = false;
 		}
+		if (ScarecrowConfigChanged || initialUpdate)
+		{
+			ScarecrowConfigChanged = false;
+		}
 		if (saveConfig)
 		{
 			base.Config.Save();
 		}
+    }
+
+    // Registers one piece. A failure is logged and never stops the remaining pieces from loading.
+    internal static void TryAddPiece(Action addPiece)
+    {
+        try
+        {
+            addPiece();
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError("Exception caught while adding " + addPiece.Method.Name + ": " + ex);
+        }
     }
 
     public static GameObject PrepareContainer(GameObject prefab)

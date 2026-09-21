@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 
@@ -19,30 +20,63 @@ public class TexturePatches
 		}
 	}
 
+	private class TextureState
+	{
+		public FilterMode Filter;
+		public int AnisoLevel;
+	}
+
 	public static ZNetScene zNetScene;
 
+	// Original settings of every texture switched to point filtering, so it can be undone.
+	private static readonly Dictionary<Texture, TextureState> OriginalStates = new Dictionary<Texture, TextureState>();
+
+	// Applies the "Disable HD" setting: point filtering when on, the original filtering when off.
 	public static void ChangeTextureFilter()
 	{
+		if (!MainConfig.disableHDTextures.Value)
+		{
+			RestoreTextureFilter();
+			return;
+		}
+		if (!zNetScene)
+		{
+			return;
+		}
 		foreach (GameObject prefab in zNetScene.m_prefabs)
 		{
-			if (!prefab.name.ToLower().Contains("mm_corewood"))
+			if (!prefab || !prefab.name.ToLower().Contains("mm_corewood"))
 			{
 				continue;
 			}
-			MeshRenderer[] componentsInChildren = prefab.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
-			if (componentsInChildren == null)
+			foreach (MeshRenderer meshRenderer in prefab.GetComponentsInChildren<MeshRenderer>(includeInactive: true))
 			{
-				continue;
-			}
-			MeshRenderer[] array = componentsInChildren;
-			foreach (MeshRenderer meshRenderer in array)
-			{
-				if (meshRenderer.material.mainTexture != null)
+				Material material = meshRenderer.sharedMaterial;
+				Texture texture = material ? material.mainTexture : null;
+				if (!texture)
 				{
-					meshRenderer.material.mainTexture.anisoLevel = 0;
-					meshRenderer.material.mainTexture.filterMode = FilterMode.Point;
+					continue;
 				}
+				if (!OriginalStates.ContainsKey(texture))
+				{
+					OriginalStates[texture] = new TextureState { Filter = texture.filterMode, AnisoLevel = texture.anisoLevel };
+				}
+				texture.anisoLevel = 0;
+				texture.filterMode = FilterMode.Point;
 			}
 		}
+	}
+
+	private static void RestoreTextureFilter()
+	{
+		foreach (KeyValuePair<Texture, TextureState> entry in OriginalStates)
+		{
+			if (entry.Key)
+			{
+				entry.Key.filterMode = entry.Value.Filter;
+				entry.Key.anisoLevel = entry.Value.AnisoLevel;
+			}
+		}
+		OriginalStates.Clear();
 	}
 }

@@ -1,0 +1,940 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using CoreWoodExtras.Containers;
+using UnityEngine;
+
+namespace CoreWoodExtras
+{
+	internal class SeedBed : MonoBehaviour, Hoverable, Interactable
+	{
+		private enum Status
+		{
+			Empty,
+			Germinating,
+			Ready
+		}
+
+		private enum Layout
+		{
+			None,
+			Grid5x5,
+			Grid3x1,
+			Vine
+		}
+
+		private class Conversion
+		{
+			public ItemDrop From;
+
+			public ItemDrop To;
+
+			public int SeedAmount;
+
+			public int ProducedItems;
+		}
+
+		private const string RpcAdd = "RPC_MM_SeedBed_Add";
+
+		private const string RpcHarvest = "RPC_MM_SeedBed_Harvest";
+
+		private const string RpcRefund = "RPC_MM_SeedBed_Refund";
+
+		private const string FallbackName = "$piece_mm_corewood_seedbed";
+
+		private static readonly int s_content = "mm_seedbed_content".GetStableHashCode();
+
+		private static readonly int s_startTime = "mm_seedbed_start".GetStableHashCode();
+
+		// What the bed last grew, kept after a harvest so it can be refilled from a nearby chest.
+		private static readonly int s_lastContent = "mm_seedbed_last".GetStableHashCode();
+
+		private const float ReplantRetrySeconds = 5f;
+
+		private const int ClaimAttempts = 5;
+
+		private static readonly Color SaplingColor = new Color(0f, 1f, 0.45f);
+
+		public float m_hoverOffset = 0f;
+
+		public EffectList m_addEffects = new EffectList();
+
+		public EffectList m_harvestEffects = new EffectList();
+
+		public EffectList m_spawnEffects = new EffectList();
+
+		private ZNetView m_nview;
+
+		private Piece m_piece;
+
+		private Transform m_sapling;
+
+		private Transform m_grown;
+
+		private Transform m_sapling5x5;
+
+		private Transform m_grown5x5;
+
+		private Transform m_sapling3x1;
+
+		private Transform m_grown3x1;
+
+		private Transform m_saplingVine;
+
+		private Transform m_grownVine;
+
+		private Transform m_saplingDeco;
+
+		private Transform m_grownDeco;
+
+		private Transform m_spawnPoint;
+
+		private readonly List<GameObject> m_visuals = new List<GameObject>();
+
+		// Source material -> its green copy, shared by every sapling of this bed.
+		private readonly Dictionary<Material, Material> m_tintedMaterials = new Dictionary<Material, Material>();
+
+		private string m_visualContent = "";
+
+		private int m_visualVersion = -1;
+
+		private float m_nextReplantCheck;
+
+		private bool IsValid => m_nview != null && m_nview.IsValid();
+
+		private string DisplayName => m_piece != null ? m_piece.m_name : FallbackName;
+
+		private void Awake()
+		{
+			m_nview = GetComponent<ZNetView>();
+			m_piece = GetComponent<Piece>();
+			FindChildren();
+			
+			if (!IsValid)
+			{
+				return;
+			}
+
+			m_nview.Register<string, int>(RpcAdd, RPC_Add);
+			m_nview.Register(RpcHarvest, RPC_Harvest);
+			m_nview.Register<string, int>(RpcRefund, RPC_Refund);
+
+			WearNTear wearNTear = GetComponent<WearNTear>();
+			if (wearNTear != null)
+			{
+				wearNTear.m_onDestroyed += OnDestroyed;
+			}
+
+			SyncVisuals();
+			InvokeRepeating(nameof(SyncVisuals), 0.5f, 0.5f);
+			InvokeRepeating(nameof(AutoHarvest), 1f, 1f);
+			InvokeRepeating(nameof(ReplantFromContainers), 1f, 1f);
+		}
+
+		private void FindChildren()
+		{
+			m_sapling = FindByName(transform, "_sapling");
+			m_grown = FindByName(transform, "_grown");
+			m_sapling5x5 = FindByName(m_sapling, "_sapling5x5");
+			m_sapling3x1 = FindByName(m_sapling, "_sapling3x1");
+			m_saplingVine = FindByName(m_sapling, "_saplingvine");
+			m_saplingDeco = FindByName(m_sapling, "deco");
+			m_grown5x5 = FindByName(m_grown, "_grown5x5");
+			m_grown3x1 = FindByName(m_grown, "_grown3x1");
+			m_grownVine = FindByName(m_grown, "_grownvine");
+			m_grownDeco = FindByName(m_grown, "deco");
+			m_spawnPoint = FindByName(transform, "spawnpoint");
+
+			if (m_sapling == null || m_grown == null)
+			{
+				Jotunn.Logger.LogWarning($"[CoreWoodExtras] SeedBed on '{gameObject.name}' is missing its '_sapling' or '_grown' child, no plants will be shown.");
+			}
+
+			DestroySwitch(FindByName(transform, "add_seeds"));
+			DestroySwitch(FindByName(transform, "collect_produce"));
+		}
+
+		private static Transform FindByName(Transform root, string name)
+		{
+			return root != null ? Utils.FindChild(root, name) : null;
+		}
+
+		private static void DestroySwitch(Transform child)
+		{
+			Switch component = child != null ? child.GetComponent<Switch>() : null;
+			if (component != null)
+			{
+				Destroy(component);
+			}
+		}
+
+		// ---- conversions ----------------------------------------------------------------------------------------
+
+		private static List<Conversion> s_conversions = new List<Conversion>();
+
+		private static int s_conversionsVersion = -1;
+
+		private static ObjectDB s_conversionsDb;
+
+		private static List<Conversion> GetConversions()
+		{
+			ObjectDB db = ObjectDB.instance;
+			if (db == null)
+			{
+				return s_conversions;
+			}
+			if (s_conversionsVersion != SeedBedConversions.Version || s_conversionsDb != db)
+			{
+				s_conversionsVersion = SeedBedConversions.Version;
+				s_conversionsDb = db;
+				List<Conversion> list = new List<Conversion>();
+				foreach (SeedBedConversions.Conversion entry in SeedBedConversions.Items)
+				{
+					ItemDrop from = GetItemDrop(db, entry.from);
+					ItemDrop to = GetItemDrop(db, entry.to);
+					if (from == null || to == null)
+					{
+						Jotunn.Logger.LogWarning($"[CoreWoodExtras] Seed bed conversion '{entry.from}' -> '{entry.to}' skipped, unknown item.");
+						continue;
+					}
+					list.Add(new Conversion
+					{
+						From = from,
+						To = to,
+						SeedAmount = entry.seedAmount,
+						ProducedItems = entry.producedItems,
+					});
+				}
+				s_conversions = list;
+			}
+			return s_conversions;
+		}
+
+		private static ItemDrop GetItemDrop(ObjectDB db, string prefabName)
+		{
+			GameObject prefab = db.GetItemPrefab(prefabName);
+			return prefab != null ? prefab.GetComponent<ItemDrop>() : null;
+		}
+
+		private static Conversion FindConversion(string prefabName)
+		{
+			return GetConversions().Find(conversion => conversion.From.gameObject.name == prefabName);
+		}
+
+		// Counts every stack, so seeds split over several stacks still add up.
+		private static bool HasSeeds(Inventory inventory, Conversion conversion)
+		{
+			return inventory.CountItems(conversion.From.m_itemData.m_shared.m_name) >= conversion.SeedAmount;
+		}
+
+		private static bool FindPlantableSeed(Inventory inventory, out Conversion conversion)
+		{
+			foreach (Conversion candidate in GetConversions())
+			{
+				if (HasSeeds(inventory, candidate))
+				{
+					conversion = candidate;
+					return true;
+				}
+			}
+			conversion = null;
+			return false;
+		}
+
+		// ---- state ----------------------------------------------------------------------------------------------
+
+		private string GetContent()
+		{
+			return m_nview.GetZDO().GetString(s_content, "");
+		}
+
+		private double GetElapsedSeconds()
+		{
+			long ticks = m_nview.GetZDO().GetLong(s_startTime, 0L);
+			if (ticks == 0L)
+			{
+				return -1.0;
+			}
+			return (ZNet.instance.GetTime() - new DateTime(ticks)).TotalSeconds;
+		}
+
+		private Status GetStatus()
+		{
+			if (string.IsNullOrEmpty(GetContent()))
+			{
+				return Status.Empty;
+			}
+			return GetElapsedSeconds() >= MainConfig.SeedBedGerminationDuration.Value ? Status.Ready : Status.Germinating;
+		}
+
+		// ---- hover / interact -----------------------------------------------------------------------------------
+
+		public string GetHoverName()
+		{
+			return DisplayName;
+		}
+
+		public string GetHoverText()
+		{
+			if (!IsValid)
+			{
+				return "";
+			}
+			if (!PrivateArea.CheckAccess(transform.position, 0f, flash: false))
+			{
+				return Localization.instance.Localize(DisplayName + "\n$text_no_access_mm");
+			}
+			switch (GetStatus())
+			{
+				case Status.Ready:
+					return Localization.instance.Localize(DisplayName + "\n( " + GetHarvestName() + ", $text_seedbed_ready_mm )\n[<color=yellow><b>$KEY_Use</b></color>] $text_seedbed_harvest_mm");
+				case Status.Germinating:
+					return Localization.instance.Localize(DisplayName + " <color=orange><b>" + GetTimeLeft() + "</b></color>\n( " + GetHarvestName() + ", $text_seedbed_germinating_mm )");
+				default:
+					return Localization.instance.Localize(DisplayName + " ( $text_seedbed_empty_mm )\n[<color=yellow><b>$KEY_Use</b></color>] $text_seedbed_add_mm");
+			}
+		}
+
+		private string GetHarvestName()
+		{
+			Conversion conversion = FindConversion(GetContent());
+			return conversion != null ? conversion.To.m_itemData.m_shared.m_name : "";
+		}
+
+		private string GetTimeLeft()
+		{
+			int seconds = Mathf.Max(0, Mathf.CeilToInt((float)(MainConfig.SeedBedGerminationDuration.Value - GetElapsedSeconds())));
+			return $"({seconds / 60:00}:{seconds % 60:00})";
+		}
+
+		public bool Interact(Humanoid user, bool hold, bool alt)
+		{
+			if (hold || !IsValid || !PrivateArea.CheckAccess(transform.position))
+			{
+				return false;
+			}
+			switch (GetStatus())
+			{
+				case Status.Empty:
+					if (!FindPlantableSeed(user.GetInventory(), out Conversion conversion))
+					{
+						user.Message(MessageHud.MessageType.Center, "$text_seedbed_no_seeds_mm");
+						return false;
+					}
+					return Plant(user, conversion);
+				case Status.Ready:
+					// Read what is growing before the harvest clears it.
+					Conversion harvested = FindConversion(GetContent());
+					m_nview.InvokeRPC(RpcHarvest);
+					RaiseHarvestSkills(user, harvested);
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		// The Farming and Herbalist mods register their skills under the hash of the skill name.
+		private static readonly Skills.SkillType FarmingSkill = (Skills.SkillType)Mathf.Abs("Farming".GetStableHashCode());
+
+		private static readonly Skills.SkillType HerbalistSkill = (Skills.SkillType)Mathf.Abs("Herbalist".GetStableHashCode());
+
+		private static void RaiseHarvestSkills(Humanoid user, Conversion harvested)
+		{
+			RaiseSkill(user, FarmingSkill, MainConfig.SeedBedFarmingExp.Value);
+			// Which harvested items count as herbs is set by the "herbs" list in SeedBedItems.json.
+			if (harvested != null && SeedBedConversions.IsHerb(harvested.To.gameObject.name, harvested.To.m_itemData.m_shared.m_name))
+			{
+				RaiseSkill(user, HerbalistSkill, MainConfig.SeedBedHerbalistExp.Value);
+			}
+		}
+
+		private static void RaiseSkill(Humanoid user, Skills.SkillType skill, float amount)
+		{
+			Skills skills = user.GetSkills();
+			// Without the mod there is no such skill, and raising an unknown skill would throw.
+			if (skills == null || skills.GetSkillDef(skill) == null)
+			{
+				return;
+			}
+			user.RaiseSkill(skill, amount);
+		}
+
+		public bool UseItem(Humanoid user, ItemDrop.ItemData item)
+		{
+			if (!IsValid || item == null || item.m_dropPrefab == null || !PrivateArea.CheckAccess(transform.position))
+			{
+				return false;
+			}
+			Conversion conversion = FindConversion(item.m_dropPrefab.name);
+			if (conversion == null)
+			{
+				return false;
+			}
+			if (!HasSeeds(user.GetInventory(), conversion))
+			{
+				user.Message(MessageHud.MessageType.Center, "$text_seedbed_no_seeds_mm");
+				return false;
+			}
+			return Plant(user, conversion);
+		}
+
+		public float GetHoverOffset()
+		{
+			return m_hoverOffset;
+		}
+
+		private bool Plant(Humanoid user, Conversion conversion)
+		{
+			Inventory inventory = user.GetInventory();
+			if (GetStatus() != Status.Empty || !HasSeeds(inventory, conversion))
+			{
+				return false;
+			}
+			// Takes from as many stacks as it needs.
+			inventory.RemoveItem(conversion.From.m_itemData.m_shared.m_name, conversion.SeedAmount);
+			m_nview.InvokeRPC(RpcAdd, conversion.From.gameObject.name, conversion.SeedAmount);
+			return true;
+		}
+
+		// ---- rpc (run on the owner, except refund which runs on the planting player) ----------------------------
+
+		private void RPC_Add(long sender, string prefabName, int amount)
+		{
+			if (!m_nview.IsOwner())
+			{
+				return;
+			}
+			Conversion conversion = FindConversion(prefabName);
+			if (conversion == null || GetStatus() != Status.Empty || amount < conversion.SeedAmount)
+			{
+				// Someone else planted first, or the item is not allowed: give the seeds back.
+				m_nview.InvokeRPC(sender, RpcRefund, prefabName, amount);
+				return;
+			}
+			if (amount > conversion.SeedAmount)
+			{
+				m_nview.InvokeRPC(sender, RpcRefund, prefabName, amount - conversion.SeedAmount);
+			}
+			StartGrowing(prefabName);
+			m_addEffects.Create(transform.position, transform.rotation);
+		}
+
+		private void RPC_Refund(long sender, string prefabName, int amount)
+		{
+			GameObject prefab = ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(prefabName) : null;
+			if (prefab == null || amount <= 0)
+			{
+				return;
+			}
+			GameObject drop = Instantiate(prefab, GetSpawnPosition(), Quaternion.identity);
+			ItemDrop.OnCreateNew(drop);
+			ItemDrop itemDrop = drop.GetComponent<ItemDrop>();
+			if (itemDrop != null)
+			{
+				itemDrop.SetStack(amount);
+			}
+		}
+
+		private void RPC_Harvest(long sender)
+		{
+			HarvestAsOwner(store: false);
+		}
+
+		// Only the owner checks, so the bed is harvested once however many players are nearby.
+		private void AutoHarvest()
+		{
+			if (MainConfig.SeedBedAutoHarvest.Value)
+			{
+				HarvestAsOwner(store: MainConfig.SeedBedAutoStore.Value);
+			}
+		}
+
+		// With store set the produce goes into the nearest chest, otherwise it drops at the bed for whoever harvested it.
+		private void HarvestAsOwner(bool store)
+		{
+			if (!IsValid || !m_nview.IsOwner() || GetStatus() != Status.Ready)
+			{
+				return;
+			}
+			string content = GetContent();
+			Conversion conversion = FindConversion(content);
+			m_harvestEffects.Create(transform.position, transform.rotation);
+
+			int replanted = CanReplant(conversion) ? conversion.SeedAmount : 0;
+			if (replanted > 0)
+			{
+				StartGrowing(content);
+				m_addEffects.Create(transform.position, transform.rotation);
+			}
+			else
+			{
+				ClearContent();
+				if (MainConfig.SeedBedAutoReplant.Value && conversion != null)
+				{
+					// Not enough of its own produce to replant: ReplantFromContainers refills the bed from a chest.
+					m_nview.GetZDO().Set(s_lastContent, content);
+					m_nextReplantCheck = 0f;
+				}
+			}
+			if (conversion != null)
+			{
+				StartCoroutine(SpawnProduce(conversion, conversion.ProducedItems - replanted, store));
+			}
+		}
+
+		// The bed replants from its own produce when the conversion gives back what was planted (Barley -> Barley) with
+		// more produced than planted. Anything else (CarrotSeeds -> Carrot) is replanted from a chest instead.
+		private static bool CanReplant(Conversion conversion)
+		{
+			return MainConfig.SeedBedAutoReplant.Value
+				&& conversion != null
+				&& conversion.From.gameObject.name == conversion.To.gameObject.name
+				&& conversion.ProducedItems > conversion.SeedAmount;
+		}
+
+		private IEnumerator SpawnProduce(Conversion conversion, int amount, bool store)
+		{
+			yield return new WaitForSeconds(MainConfig.SeedBedHarvestDelay.Value);
+			m_spawnEffects.Create(transform.position, Quaternion.identity);
+
+			if (store && Player.m_localPlayer != null)
+			{
+				// Nearest chest first, then the next nearest once one is full. Whatever does not fit drops at the bed.
+				foreach (Container chest in GetNearbyContainers(includeTroughs: true))
+				{
+					if (amount <= 0)
+					{
+						break;
+					}
+					if (!CanHold(chest, conversion.To))
+					{
+						continue;
+					}
+					// Only the owner may change a chest's inventory, so claim it and give the claim a moment to land.
+					for (int attempt = 0; attempt < ClaimAttempts && chest != null && !chest.IsOwner(); attempt++)
+					{
+						chest.m_nview.ClaimOwnership();
+						if (!chest.IsOwner())
+						{
+							yield return new WaitForSeconds(0.2f);
+						}
+					}
+					if (chest != null && chest.IsOwner() && !chest.IsInUse())
+					{
+						amount -= StoreInContainer(chest, conversion.To, amount);
+					}
+				}
+			}
+
+			for (int i = 0; i < amount; i++)
+			{
+				ItemDrop.OnCreateNew(Instantiate(conversion.To.gameObject, GetSpawnPosition(), Quaternion.identity));
+			}
+		}
+
+		// Restricted containers (the feeding trough, the market crates) only take certain items, and complain to the local
+		// player when offered anything else, so those are skipped up front.
+		private static bool CanHold(Container chest, ItemDrop item)
+		{
+			return !RestrictContainers.IsRestrictedContainer(chest.GetInventory().m_name, out HashSet<string> allowed) || allowed.Contains(item.gameObject.name);
+		}
+
+		// Returns how many of the items fitted. Counting the chest before and after keeps this right when a stack is only
+		// partly added.
+		private static int StoreInContainer(Container chest, ItemDrop item, int amount)
+		{
+			Inventory inventory = chest.GetInventory();
+			string sharedName = item.m_itemData.m_shared.m_name;
+			int maxStack = Mathf.Max(1, item.m_itemData.m_shared.m_maxStackSize);
+			int before = inventory.CountItems(sharedName);
+			for (int added = 0; added < amount; added += maxStack)
+			{
+				ItemDrop.ItemData data = item.m_itemData.Clone();
+				// A chest saves the prefab name with each item, without it the item is lost when the chest reloads.
+				data.m_dropPrefab = item.gameObject;
+				data.m_stack = Mathf.Min(maxStack, amount - added);
+				if (!inventory.AddItem(data))
+				{
+					break;
+				}
+			}
+			int stored = inventory.CountItems(sharedName) - before;
+			if (stored > 0)
+			{
+				chest.Save();
+			}
+			return stored;
+		}
+
+		private void StartGrowing(string prefabName)
+		{
+			ZDO zdo = m_nview.GetZDO();
+			zdo.Set(s_content, prefabName);
+			zdo.Set(s_startTime, ZNet.instance.GetTime().Ticks);
+			zdo.Set(s_lastContent, "");
+		}
+
+		// Runs on the owner. An empty bed that last grew something takes the seeds for it from a nearby chest, so it also
+		// picks up again when someone refills a chest that ran out.
+		private void ReplantFromContainers()
+		{
+			if (!MainConfig.SeedBedAutoReplant.Value || !IsValid || !m_nview.IsOwner() || Time.time < m_nextReplantCheck)
+			{
+				return;
+			}
+			// Chest access (wards) is checked for the local player, so there is nothing to check without one.
+			string last = m_nview.GetZDO().GetString(s_lastContent, "");
+			if (string.IsNullOrEmpty(last) || Player.m_localPlayer == null || GetStatus() != Status.Empty)
+			{
+				return;
+			}
+			Conversion conversion = FindConversion(last);
+			if (conversion == null)
+			{
+				return;
+			}
+
+			string sharedName = conversion.From.m_itemData.m_shared.m_name;
+			// The closest chest with enough seeds is used.
+			Container nearest = GetNearbyContainers(includeTroughs: false).Find(chest => chest.GetInventory().CountItems(sharedName) >= conversion.SeedAmount);
+			if (nearest == null)
+			{
+				m_nextReplantCheck = Time.time + ReplantRetrySeconds;
+				return;
+			}
+			if (!nearest.IsOwner())
+			{
+				// Only the owner may change a chest's inventory. Claim it and try again on the next check.
+				nearest.m_nview.ClaimOwnership();
+				return;
+			}
+			nearest.GetInventory().RemoveItem(sharedName, conversion.SeedAmount);
+			nearest.Save();
+			StartGrowing(last);
+			m_addEffects.Create(transform.position, transform.rotation);
+		}
+
+		// The chests the bed may use, nearest first: in range, not open, and openable by the person who built the bed.
+		// Tombstones are always left alone. Feeding troughs only count when storing produce, seeds are never taken from
+		// them because that would empty the food for the tames.
+		private List<Container> GetNearbyContainers(bool includeTroughs)
+		{
+			float range = MainConfig.SeedBedChestRange.Value;
+			long creator = m_piece != null ? m_piece.GetCreator() : 0L;
+			List<Container> chests = new List<Container>();
+			foreach (Container container in UtilityMethods.RegisteredContainers)
+			{
+				if (container != null
+					&& container.m_nview != null
+					&& container.m_nview.IsValid()
+					&& !container.IsInUse()
+					&& (container.transform.position - transform.position).sqrMagnitude <= range * range
+					&& container.GetInventory() != null
+					&& (includeTroughs || !UtilityMethods.IsTrough(container))
+					&& container.GetComponent<TombStone>() == null
+					&& container.CheckAccess(creator))
+				{
+					chests.Add(container);
+				}
+			}
+			chests.Sort((a, b) => (a.transform.position - transform.position).sqrMagnitude.CompareTo((b.transform.position - transform.position).sqrMagnitude));
+			return chests;
+		}
+
+		private void ClearContent()
+		{
+			ZDO zdo = m_nview.GetZDO();
+			zdo.Set(s_content, "");
+			zdo.Set(s_startTime, 0L);
+		}
+
+		private Vector3 GetSpawnPosition()
+		{
+			Vector3 origin = m_spawnPoint != null ? m_spawnPoint.position : transform.position;
+			return origin + Vector3.up * 0.3f;
+		}
+
+		// Removing the bed drops what is in it: the produce when it is ready, the seeds otherwise.
+		private void OnDestroyed()
+		{
+			if (!IsValid || !m_nview.IsOwner())
+			{
+				return;
+			}
+			Conversion conversion = FindConversion(GetContent());
+			if (conversion == null)
+			{
+				return;
+			}
+			bool ready = GetStatus() == Status.Ready;
+			ItemDrop item = ready ? conversion.To : conversion.From;
+			int amount = ready ? conversion.ProducedItems : conversion.SeedAmount;
+			for (int i = 0; i < amount; i++)
+			{
+				Vector3 position = transform.position + Vector3.up + UnityEngine.Random.insideUnitSphere * 0.3f;
+				Quaternion rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0, 360), 0f);
+				ItemDrop.OnCreateNew(Instantiate(item.gameObject, position, rotation));
+			}
+			ClearContent();
+		}
+
+		// ---- visuals --------------------------------------------------------------------------------------------
+
+		// Runs on every client so the bed looks the same for everyone, whoever planted or harvested.
+		private void SyncVisuals()
+		{
+			if (!IsValid)
+			{
+				return;
+			}
+			string content = GetContent();
+			if (content != m_visualContent || m_visualVersion != SeedBedConversions.Version)
+			{
+				m_visualContent = content;
+				m_visualVersion = SeedBedConversions.Version;
+				ClearVisuals();
+				if (!string.IsNullOrEmpty(content))
+				{
+					BuildVisuals(content);
+				}
+			}
+
+			Status status = string.IsNullOrEmpty(content) ? Status.Empty : GetStatus();
+			SetActive(m_sapling, status == Status.Germinating);
+			SetActive(m_grown, status == Status.Ready);
+		}
+
+		private static void SetActive(Transform target, bool active)
+		{
+			if (target != null && target.gameObject.activeSelf != active)
+			{
+				target.gameObject.SetActive(active);
+			}
+		}
+
+		private void ClearVisuals()
+		{
+			foreach (GameObject visual in m_visuals)
+			{
+				if (visual != null)
+				{
+					Destroy(visual);
+				}
+			}
+			m_visuals.Clear();
+
+			// The tinted copies are ours, Unity does not free them along with the renderers that used them.
+			foreach (Material tinted in m_tintedMaterials.Values)
+			{
+				Destroy(tinted);
+			}
+			m_tintedMaterials.Clear();
+		}
+
+		private void OnDestroy()
+		{
+			ClearVisuals();
+		}
+
+		private void BuildVisuals(string prefabName)
+		{
+			Conversion conversion = FindConversion(prefabName);
+			GameObject plant = conversion != null ? FindPlant(conversion.From.m_itemData.m_shared.m_name) : null;
+			if (plant == null)
+			{
+				return;
+			}
+
+			switch (GetLayout(plant.name))
+			{
+				case Layout.Grid5x5:
+					Place(m_sapling5x5, plant, sapling: true, 1f, resetPosition: true);
+					Place(m_grown5x5, plant, sapling: false, 1f, resetPosition: true);
+					SetDeco(false);
+					break;
+				case Layout.Grid3x1:
+					Place(m_sapling3x1, plant, sapling: true, 1f, resetPosition: true);
+					Place(m_grown3x1, plant, sapling: false, 1f, resetPosition: true);
+					SetDeco(false);
+					break;
+				case Layout.Vine:
+					Place(m_saplingVine, plant, sapling: true, 0.4f, resetPosition: false);
+					Place(m_grownVine, plant, sapling: false, 1f, resetPosition: false);
+					SetDeco(true);
+					break;
+			}
+		}
+
+		private void SetDeco(bool active)
+		{
+			if (m_saplingDeco != null)
+			{
+				m_saplingDeco.gameObject.SetActive(active);
+			}
+			if (m_grownDeco != null)
+			{
+				m_grownDeco.gameObject.SetActive(active);
+			}
+		}
+
+		// Copies every visual part of the pickable into each slot of the container.
+		private void Place(Transform container, GameObject plant, bool sapling, float scale, bool resetPosition)
+		{
+			if (container == null)
+			{
+				return;
+			}
+			foreach (Transform slot in container)
+			{
+				foreach (Transform part in plant.transform)
+				{
+					GameObject visual = Instantiate(part.gameObject, slot);
+					if (resetPosition)
+					{
+						visual.transform.localPosition = Vector3.zero;
+					}
+					if (scale != 1f)
+					{
+						visual.transform.localScale = Vector3.one * scale;
+					}
+					if (sapling)
+					{
+						MakeSapling(visual);
+					}
+					m_visuals.Add(visual);
+				}
+			}
+		}
+
+		// Saplings are tinted green and lose their lights and particles.
+		private void MakeSapling(GameObject visual)
+		{
+			foreach (LightLod lightLod in visual.GetComponentsInChildren<LightLod>(true))
+			{
+				Destroy(lightLod);
+			}
+			foreach (LightFlicker flicker in visual.GetComponentsInChildren<LightFlicker>(true))
+			{
+				Destroy(flicker);
+			}
+			foreach (Light light in visual.GetComponentsInChildren<Light>(true))
+			{
+				Destroy(light);
+			}
+			foreach (ParticleSystem particles in visual.GetComponentsInChildren<ParticleSystem>(true))
+			{
+				Destroy(particles);
+			}
+			foreach (Renderer renderer in visual.GetComponentsInChildren<Renderer>(true))
+			{
+				// renderer.material would make a new copy per renderer, so the first material is swapped for a shared copy.
+				Material[] materials = renderer.sharedMaterials;
+				if (materials.Length == 0 || materials[0] == null || !materials[0].HasProperty("_Color"))
+				{
+					continue;
+				}
+				if (!m_tintedMaterials.TryGetValue(materials[0], out Material tinted))
+				{
+					tinted = new Material(materials[0]);
+					tinted.SetColor("_Color", SaplingColor);
+					m_tintedMaterials.Add(materials[0], tinted);
+				}
+				materials[0] = tinted;
+				renderer.sharedMaterials = materials;
+			}
+		}
+
+		private static Layout GetLayout(string plantName)
+		{
+			string name = plantName.ToLower();
+			if (name.Contains("pickable_"))
+			{
+				return Layout.Grid5x5;
+			}
+			if (name.Contains("blueberrybush") || name.Contains("raspberrybush") || name.EndsWith("plant"))
+			{
+				return Layout.Grid3x1;
+			}
+			if (name.Contains("cloudberrybush"))
+			{
+				return Layout.Grid5x5;
+			}
+			if (name.Contains("vineash"))
+			{
+				return Layout.Vine;
+			}
+			return Layout.None;
+		}
+
+		// ---- plant lookup ---------------------------------------------------------------------------------------
+
+		// Item name -> the vanilla pickable whose visuals are shown when that item is planted.
+		private static Dictionary<string, GameObject> s_plants;
+
+		private static ZNetScene s_plantsScene;
+
+		private static GameObject FindPlant(string sharedName)
+		{
+			ZNetScene scene = ZNetScene.instance;
+			if (scene == null)
+			{
+				return null;
+			}
+			if (s_plants == null || s_plantsScene != scene)
+			{
+				s_plants = BuildPlantLookup(scene);
+				s_plantsScene = scene;
+			}
+			s_plants.TryGetValue(sharedName, out GameObject plant);
+			return plant;
+		}
+
+		private static Dictionary<string, GameObject> BuildPlantLookup(ZNetScene scene)
+		{
+			Dictionary<string, GameObject> plants = new Dictionary<string, GameObject>();
+			foreach (GameObject prefab in scene.m_prefabs)
+			{
+				Pickable pickable = prefab != null ? prefab.GetComponent<Pickable>() : null;
+				if (pickable == null || pickable.m_itemPrefab == null)
+				{
+					continue;
+				}
+				string name = prefab.name.ToLower();
+				if (name.EndsWith("_wild") || name.Contains("_wild_") || name.Contains("dvergerthing"))
+				{
+					continue;
+				}
+				ItemDrop drop = pickable.m_itemPrefab.GetComponent<ItemDrop>();
+				if (drop == null)
+				{
+					continue;
+				}
+				string key = GetPlantKey(drop.m_itemData.m_shared.m_name);
+				if (!plants.ContainsKey(key))
+				{
+					plants.Add(key, prefab);
+				}
+			}
+			return plants;
+		}
+
+		// The grown carrot/onion/turnip plant yields the vegetable, but it is what you see when you plant the seeds
+		// (and the other way round), so those items are swapped.
+		private static string GetPlantKey(string sharedName)
+		{
+			switch (sharedName)
+			{
+				case "$item_carrot":
+				case "$item_onion":
+				case "$item_turnip":
+					return sharedName + "seeds";
+				case "$item_carrotseeds":
+				case "$item_onionseeds":
+				case "$item_turnipseeds":
+					return sharedName.Replace("seeds", "");
+				default:
+					return sharedName;
+			}
+		}
+	}
+}

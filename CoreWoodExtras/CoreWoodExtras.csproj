@@ -49,6 +49,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\corewoodextras" />
     <None Include="Assets\Translations\English\CoreWoodExtras.json" />
+    <EmbeddedResource Include="Resources\corewood_new" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\Elevator.cs" />
@@ -74,6 +75,16 @@
     <Compile Include="Containers\InventoryHelper.cs" />
     <Compile Include="Containers\RestrictContainers.cs" />
     <Compile Include="Containers\VisualStack.cs" />
+    <Compile Include="Containers\UtilityMethods.cs" />
+    <Compile Include="Containers\ContainerRegistration.cs" />
+    <Compile Include="Prefabs\PieceAssets.cs" />
+    <Compile Include="Components\TroughVisualState.cs" />
+    <Compile Include="Misc\FileWatcher.cs" />
+    <Compile Include="Misc\LocalisedText.cs" />
+    <Compile Include="Misc\CustomTraderItems.cs" />
+    <Compile Include="Misc\MiniJson.cs" />
+    <Compile Include="Misc\SeedBedConversions.cs" />
+    <Compile Include="Patches\FeedPatches.cs" />
     <Compile Include="Patches\ContainerPatches.cs" />
     <Compile Include="Patches\GamePatches.cs" />
     <Compile Include="Patches\LightPatches.cs" />
@@ -83,38 +94,42 @@
     <Compile Include="Prefabs\AddBuilding.cs" />
     <Compile Include="Prefabs\AddDecor.cs" />
     <Compile Include="Prefabs\AddItems.cs" />
-    <Compile Include="Prefabs\AddMisc.cs" />
     <Compile Include="Prefabs\AddStructures.cs" />
+    <Compile Include="Prefabs\AddGreenhouse.cs" />
+    <Compile Include="Prefabs\AddMarket.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Components\Scarecrow.cs" />
+    <Compile Include="Components\SeedBed.cs" />
     <Compile Include="TextureUtils\TextureCache.cs" />
     <Compile Include="Updates\UpdateChestSettings.cs" />
     <Compile Include="Updates\UpdateLightSettings.cs" />
     <Compile Include="Updates\UpdateMainSettings.cs" />
     <Compile Include="CoreWoodPlugin.cs" />
-    <Compile Include="FileWatcher.cs" />
-    <Compile Include="LocalisedText.cs" />
     <Compile Include="MainConfig.cs" />
+    <Compile Include="Updates\UpdateScarecrowSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\icon.png" />
     <Content Include="Package\manifest.json" />
     <Content Include="Package\CHANGELOG.md" />
     <Content Include="Package\README.md" />
-    <Content Include="UpdateManifest.ps1" />
+    <Content Include="UpdateManifest.ps1" Visible="false" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-    <None Include="README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="JotunnLib" Version="2.30.0" />
+    <None Include="app.config" Visible="false" />
+    <None Include="packages.config" Visible="false" />
+    <None Include="README.md" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="JotunnLib">
+      <Version>2.30.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GetAssemblyVersion" AfterTargets="$(AfterTargets)">

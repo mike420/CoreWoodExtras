@@ -16,7 +16,7 @@ public class SchoolBubbles : MonoBehaviour
 	{
 		if (_bubbleParticles == null)
 		{
-			base.transform.GetComponent<ParticleSystem>();
+			_bubbleParticles = base.transform.GetComponent<ParticleSystem>();
 		}
 	}
 

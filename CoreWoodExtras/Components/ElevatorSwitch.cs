@@ -16,6 +16,10 @@ public class ElevatorSwitch : MonoBehaviour, Hoverable, Interactable
 	{
 		m_piece = base.gameObject.GetComponentInParent<Piece>();
 		m_name = m_piece.m_name;
+		if (m_elevator != null)
+		{
+			m_elevator.RegisterSwitch(this);
+		}
 	}
 
 	public string GetHoverText()
@@ -30,24 +34,27 @@ public class ElevatorSwitch : MonoBehaviour, Hoverable, Interactable
 
 	public bool Interact(Humanoid human, bool hold, bool alt)
 	{
-		if (hold)
+		if (hold || m_elevator == null)
 		{
 			return false;
 		}
-		if (m_elevator.m_canMove)
+		// Already moving: nothing to do (and no sound).
+		if (m_elevator.Activate(2f, playSound: true))
 		{
-			return true;
+			PlayStartSound();
 		}
-		m_elevator.m_speed = 2f;
-		m_elevator.m_canMove = true;
-		m_elevatorSFX.Create(base.transform.position, base.transform.rotation);
 		return true;
+	}
+
+	public void PlayStartSound()
+	{
+		m_elevatorSFX?.Create(base.transform.position, base.transform.rotation);
 	}
 
 	public bool UseItem(Humanoid user, ItemDrop.ItemData item)
 	{
 		return false;
-	}	
+	}
 
 	public float GetHoverOffset()
 	{

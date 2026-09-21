@@ -1,5 +1,8 @@
+using CoreWoodExtras.Containers;
+using CoreWoodExtras.Updates;
 using HarmonyLib;
 using Jotunn;
+using Jotunn.Managers;
 using UnityEngine;
 
 namespace CoreWoodExtras;
@@ -11,29 +14,9 @@ internal class ContainerPatches
 	{
 		private static void Postfix(ZNetScene __instance)
 		{
-			GameObject prefab = __instance.GetPrefab("mm_corewood_chest_public");
-			GameObject prefab2 = __instance.GetPrefab("mm_corewood_chest_private");
-			GameObject prefab3 = __instance.GetPrefab("mm_corewood_stackable_chest");
 			try
 			{
-				if (prefab != null)
-				{
-					Container component = prefab.GetComponent<Container>();
-					component.m_width = MainConfig.chestColumns.Value;
-					component.m_height = MainConfig.chestRows.Value;
-				}
-				if (prefab2 != null)
-				{
-					Container component2 = prefab2.GetComponent<Container>();
-					component2.m_width = MainConfig.chestPrivateColumns.Value;
-					component2.m_height = MainConfig.chestPrivateRows.Value;
-				}
-				if (prefab3 != null)
-				{
-					Container component3 = prefab3.GetComponent<Container>();
-					component3.m_width = MainConfig.chestStackedColumns.Value;
-					component3.m_height = MainConfig.chestStackedRows.Value;
-				}
+				UpdateChestSettings.ApplyToPrefabs(__instance.GetPrefab);
 			}
 			catch
 			{
@@ -157,5 +140,24 @@ internal class ContainerPatches
 				}
 			}
 		}
-	}
+    }
+
+    // Visual Containers
+    [HarmonyPatch]
+    public class PlacementPatch
+    {
+        [HarmonyPatch(typeof(Player), "SetupPlacementGhost")]
+        [HarmonyPostfix]
+        public static void SetupPlacementGhostPatch(Player __instance)
+        {
+            if ((bool)__instance.m_placementGhost)
+            {
+                VisualStack[] componentsInChildren = __instance.m_placementGhost.GetComponentsInChildren<VisualStack>();
+                for (int i = 0; i < componentsInChildren.Length; i++)
+                {
+                    UnityEngine.Object.Destroy(componentsInChildren[i]);
+                }
+            }
+        }
+    }
 }

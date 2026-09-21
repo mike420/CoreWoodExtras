@@ -20,31 +20,38 @@ public class TextureCache
 		ImageBasePath = imageBasePath;
 	}
 
+	// Cache key: the name with a lowercase extension, so "a.PNG" and "a.png" share an entry.
+	// Only the key is normalised; files are always opened with the name as written, because paths are case sensitive on Linux.
+	private static string NormalizeKey(string name)
+	{
+		return Path.ChangeExtension(name, Path.GetExtension(name).ToLower());
+	}
+
 	public Texture Load(string name)
 	{
 		if (string.IsNullOrWhiteSpace(name))
 		{
 			return null;
 		}
-		string text = Path.ChangeExtension(name, Path.GetExtension(name).ToLower());
-		if (cache.ContainsKey(text))
+		string text = NormalizeKey(name);
+		if (cache.TryGetValue(text, out Texture cached))
 		{
-			return cache[text];
+			return cached;
 		}
 		if (!text.EndsWith(".jpg") && !text.EndsWith(".png"))
 		{
 			return null;
 		}
-		string path = Path.Combine(ImageBasePath, text);
+		string path = Path.Combine(ImageBasePath, name);
 		if (!File.Exists(path))
 		{
 			return null;
 		}
 		byte[] data = File.ReadAllBytes(path);
 		Texture2D texture2D = new Texture2D(2, 2);
-		texture2D.LoadImage(data);
-		if (texture2D == null)
+		if (!texture2D.LoadImage(data))
 		{
+			UnityEngine.Object.Destroy(texture2D);
 			return null;
 		}
 		texture2D.name = text;
@@ -54,20 +61,25 @@ public class TextureCache
 
 	public IEnumerator FetchFromWeb(string url, Action<Texture> callback)
 	{
-		string textureName = Path.ChangeExtension(url, Path.GetExtension(url).ToLower());
-		if (cache.ContainsKey(textureName))
+		string textureName = NormalizeKey(url);
+		if (cache.TryGetValue(textureName, out Texture cached))
 		{
+			callback(cached);
 			yield break;
 		}
 		using UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(url);
 		yield return webRequest.SendWebRequest();
-		if (webRequest.result == UnityWebRequest.Result.ProtocolError || webRequest.result == UnityWebRequest.Result.ConnectionError)
+		if (webRequest.result != UnityWebRequest.Result.Success)
 		{
 			Jotunn.Logger.LogError(webRequest.error);
 			yield break;
 		}
 		Texture texture = ((DownloadHandlerTexture)webRequest.downloadHandler).texture;
-		cache.Add(textureName, texture);
+		// Another request for the same url may have finished first.
+		if (!cache.ContainsKey(textureName))
+		{
+			cache.Add(textureName, texture);
+		}
 		callback(texture);
 	}
 

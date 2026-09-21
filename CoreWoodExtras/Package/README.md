@@ -2,6 +2,10 @@
 
 ![Main](https://imgup.uk/i/uAKTdABf.png)
 
+## ******  ==Before Updating to v2.2.3== ******
+
+<strong>Burt the trader now lists items from a json file stored in your "BepInEx\config\CoreWoodExtras" folder. The item configs have been removed from the config file, so you will need to delete your old config file and let the game create a new one.</strong>
+
 
 ## Donations: 
 
@@ -20,21 +24,23 @@ Thanks for being part of the adventure. Stay lifted, stay curious!
 ## Configuration:
 
 Configuration options can be modified in-game (using <a href="https://thunderstore.io/c/valheim/p/Azumatt/Official_BepInEx_ConfigurationManager/">Configuration Manager</a> plugin).
+
+Most settings apply straight away. Any setting that needs a restart or a rebuilt piece says so in its description.
   
 ## Installation:
 
 ### Automatic Install
 
-  * Plugin is created to be installed with r2modman.
+  * Plugin is created to be installed with r2modman or Gale.
 For Nexus downloads you will need to install manually.
 
 ### Manual Install
 
-  * Un-zip and place the `plugins` folder into your `BepInEx` folder.
+  * Un-zip and drag the `plugins` folder into your `BepInEx` folder.
 
   
 ## Credits: 
-  * blacks7ar for the original idea.
+  * blacks7ar for the original idea, and for the Seed Bed idea.
   * firstD for the Picture Frame code.
 
 
@@ -60,7 +66,38 @@ For Nexus downloads you will need to install manually.
     If you would like to run a slideshow of your images, you will need to create a new folder within the "BepInEx/config/CoreWoodExtras" directory. And then use the "i" abbreviation.<br><br>
     For example: horizontalimages:i=5 (Play the images in the horizontalimages folder at five-second intervals).
 </details>
-  
+
+<details>
+    <summary><strong> How do I add/remove items from Burt the trader?</strong></summary>
+Edit BurtItems.json in the BepInEx\config\CoreWoodExtras folder to add extra items for Burt to sell.
+<br><br>
+Each entry in the ""items"" array supports:<br><br>
+prefabName -------- the internal Valheim/mod prefab name for the item (not its display name).<br>
+stack ---------------- how many are sold per purchase.<br>
+price ---------------- coin price per stack.<br>
+requiredGlobalKey - leave empty to always be available, or set to a global key such as defeated_bonemass to gate it behind a boss kill.<br>
+enabled ------------set to false to keep an entry in the file without selling it.<br><br>
+Restart the game after editing BurtItems.json for changes to take effect.
+</details>  
+
+<details>
+    <summary><strong> How do I use the Seed Bed and change what it can grow?</strong></summary>
+    The Seed Bed is in the Corewood-Greenhouse category. Press your use key while carrying enough seeds (or produce) to plant them, or use an item on the bed. When the timer finishes, press use again to harvest. The time it takes is the "Germination Duration" setting.<br><br>
+    Turn on the "Auto Harvest" setting if you want the Seed Bed to harvest itself when it is ready. No Farming or Herbalist XP is given for automatic harvests. Harvesting by hand always drops the produce at the bed.<br><br>
+    With the "Auto Store" setting on (the default), the produce of an automatic harvest is stored in the nearest chest with room (within the "Chest Range" setting), moving on to the next nearest when one is full. Feeding troughs count too, for the food they accept (carrots, turnips, onions and berries), so the bed can keep your tames fed. If there is no chest in range, or they are all full, the produce appears at the bed instead. Turn "Auto Store" off if you always want it to drop at the bed.<br><br>
+    Turn on the "Auto Replant" setting to have the Seed Bed start growing again after each harvest (by hand or automatic).<br>
+    Items that give themselves back, like Barley or Dandelion, are replanted from the harvest, you get the rest.<br>
+    Any other item (CarrotSeeds -> Carrot, or one that gives back no more than you plant) takes its seeds from a chest within the "Chest Range" setting instead, the nearest one with enough is used. Keep a chest with seeds near the bed. If the chest runs out the bed waits empty, and starts again as soon as you add more seeds.<br>
+    The Seed Bed only uses chests that its builder could open, so a private chest belonging to someone else is left alone. Seeds are never taken from feeding troughs (that would empty the food for your tames), and tombstones are never used.<br><br>
+    Edit SeedBedItems.json in the BepInEx\config\CoreWoodExtras folder to change what it can grow. The file is created for you and reloads when you save it.<br><br>
+    Each entry in the ""conversions"" array supports:<br><br>
+    from ----------------- the prefab name of the item you plant (for example CarrotSeeds).<br>
+    to -------------------- the prefab name of the item you get back (for example Carrot).<br>
+    seedAmount ------ how many you plant.<br>
+    producedItems --- how many you harvest.<br><br>
+    The ""herbs"" array lists the harvested items that give Herbalist XP. Each entry can be a prefab name (Dandelion) or a shared name ($item_dandelion). Leave the array out to use the default list, or leave it empty for no Herbalist XP.<br><br>
+    If you play on a server, use the same SeedBedItems.json on the server and every client. Delete the file and restart if you want it regenerated with the defaults.
+</details>  
 
   
 ## Comments/Suggestions/Help: <a href="https://www.nexusmods.com/valheim/mods/2806">Nexus</a>.
