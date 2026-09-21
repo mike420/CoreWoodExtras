@@ -6,7 +6,8 @@ public class ParentPlatform : MonoBehaviour
 	private Piece m_piece;
 
 	// How many colliders of each rider are touching the platform (a player has several); the piece is only removable
-	// when nothing is left.
+	// when nothing is left. [NonSerialized] keeps Jotunn's mock scan from warning about the dictionary.
+	[System.NonSerialized]
 	private readonly Dictionary<Transform, int> m_riders = new Dictionary<Transform, int>();
 
 	private readonly List<Transform> m_gone = new List<Transform>();

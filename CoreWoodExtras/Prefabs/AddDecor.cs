@@ -25,7 +25,7 @@ internal class AddDecor
         CoreWoodPlugin.TryAddPiece(AddCoreWoodChest);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodPrivateChest);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStackableChest);
-        CoreWoodPlugin.TryAddPiece(AddCoreWoodFeeder);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodTrough);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStackDynamic);
 
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStack);
@@ -299,7 +299,7 @@ internal class AddDecor
         RestrictContainers.SetRestriction(gameObject.GetComponent<Container>().m_name, new HashSet<string> { "RoundLog" });
     }
 
-    public static void AddCoreWoodFeeder()
+    public static void AddCoreWoodTrough()
     {
         GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_trough");
         gameObject.AddComponent<TroughVisualState>();

@@ -7,6 +7,15 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.2.7</td>
+    <td>
+    Updated Jotunn 2.30.2<br>
+    The Seed Bed now stores produce in a feeding trough first (for the food the trough accepts), then in the nearest chest with room.<br>
+    Fixed the Seed Bed logging "Trying to add item to occupied slot" when the chest it stored in was full.<br>
+    Fixed Jotunn logging "Not fixing potential mock references" warnings for the Seed Bed and moving platform.
+	</td>
+  </tr>
+  <tr>
     <td>2.2.6</td>
     <td>
     Added an "Auto Harvest" setting to the Seed Bed settings (off by default). When on, the Seed Bed harvests itself as soon as the seeds finish germinating. No Farming or Herbalist XP is given for automatic harvests.<br>

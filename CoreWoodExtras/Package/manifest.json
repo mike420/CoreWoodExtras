@@ -1,7 +1,7 @@
 {
   "name": "CoreWoodExtras",
   "description": "Adds a large variety of HD core wood build pieces, core wood furniture, greenhouse pieces, market stalls and more!",
-  "version_number": "2.2.6",
+  "version_number": "2.2.7",
   "website_url": "https://www.nexusmods.com/valheim/mods/2806?tab=posts",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2350",

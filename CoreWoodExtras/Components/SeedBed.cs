@@ -91,7 +91,9 @@ namespace CoreWoodExtras
 
 		private readonly List<GameObject> m_visuals = new List<GameObject>();
 
-		// Source material -> its green copy, shared by every sapling of this bed.
+		// Source material -> its green copy, shared by every sapling of this bed. [NonSerialized] also keeps Jotunn's mock
+		// scan from warning about the dictionary.
+		[NonSerialized]
 		private readonly Dictionary<Material, Material> m_tintedMaterials = new Dictionary<Material, Material>();
 
 		private string m_visualContent = "";
@@ -499,7 +501,8 @@ namespace CoreWoodExtras
 
 			if (store && Player.m_localPlayer != null)
 			{
-				// Nearest chest first, then the next nearest once one is full. Whatever does not fit drops at the bed.
+				// Feeding troughs first (they only take their own food), then the nearest chest, moving on once one is full.
+				// Whatever does not fit drops at the bed.
 				foreach (Container chest in GetNearbyContainers(includeTroughs: true))
 				{
 					if (amount <= 0)
@@ -553,6 +556,17 @@ namespace CoreWoodExtras
 				// A chest saves the prefab name with each item, without it the item is lost when the chest reloads.
 				data.m_dropPrefab = item.gameObject;
 				data.m_stack = Mathf.Min(maxStack, amount - added);
+				// AddItem logs "Trying to add item to occupied slot" when nothing fits, so with no empty slot only what the
+				// existing stacks can take is added, and a full chest is skipped.
+				if (!inventory.HaveEmptySlot())
+				{
+					int room = inventory.FindFreeStackSpace(sharedName, data.m_worldLevel);
+					if (room <= 0)
+					{
+						break;
+					}
+					data.m_stack = Mathf.Min(data.m_stack, room);
+				}
 				if (!inventory.AddItem(data))
 				{
 					break;
@@ -614,9 +628,9 @@ namespace CoreWoodExtras
 			m_addEffects.Create(transform.position, transform.rotation);
 		}
 
-		// The chests the bed may use, nearest first: in range, not open, and openable by the person who built the bed.
-		// Tombstones are always left alone. Feeding troughs only count when storing produce, seeds are never taken from
-		// them because that would empty the food for the tames.
+		// The chests the bed may use, feeding troughs first and then nearest first: in range, not open, and openable by the
+		// person who built the bed. Tombstones are always left alone. Feeding troughs only count when storing produce, seeds
+		// are never taken from them because that would empty the food for the tames.
 		private List<Container> GetNearbyContainers(bool includeTroughs)
 		{
 			float range = MainConfig.SeedBedChestRange.Value;
@@ -637,7 +651,15 @@ namespace CoreWoodExtras
 					chests.Add(container);
 				}
 			}
-			chests.Sort((a, b) => (a.transform.position - transform.position).sqrMagnitude.CompareTo((b.transform.position - transform.position).sqrMagnitude));
+			chests.Sort((a, b) =>
+			{
+				bool troughA = UtilityMethods.IsTrough(a);
+				if (troughA != UtilityMethods.IsTrough(b))
+				{
+					return troughA ? -1 : 1;
+				}
+				return (a.transform.position - transform.position).sqrMagnitude.CompareTo((b.transform.position - transform.position).sqrMagnitude);
+			});
 			return chests;
 		}
 
