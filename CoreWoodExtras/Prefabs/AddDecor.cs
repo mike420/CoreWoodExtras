@@ -303,6 +303,7 @@ internal class AddDecor
     {
         GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_trough");
         gameObject.AddComponent<TroughVisualState>();
+        gameObject.AddComponent<TroughAutoCollect>();
 
         CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
         {

@@ -12,7 +12,9 @@
     Updated Jotunn 2.30.2<br>
     The Seed Bed now stores produce in a feeding trough first (for the food the trough accepts), then in the nearest chest with room.<br>
     Fixed the Seed Bed logging "Trying to add item to occupied slot" when the chest it stored in was full.<br>
-    Fixed Jotunn logging "Not fixing potential mock references" warnings for the Seed Bed and moving platform.
+    Fixed Jotunn logging "Not fixing potential mock references" warnings for the Seed Bed and moving platform.<br>
+    Feeding troughs now automatically pick up items they accept (Carrot, Turnip, Onion, Raspberry, Blueberries) when dropped on the ground within "Container Range" of the trough.<br>
+    Added a "Trough Auto Collect" setting to the Auto-Feed settings (on by default) to turn this off.
 	</td>
   </tr>
   <tr>

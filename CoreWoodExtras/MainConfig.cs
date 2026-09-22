@@ -89,6 +89,7 @@ internal static class MainConfig
     // "Auto-Feed Settings";
     public static ConfigEntry<float> ContainerRange = null!;
     public static ConfigEntry<float> FeedCheckCooldown = null!;
+    public static ConfigEntry<bool> TroughAutoCollectEnabled = null!;
 
     // "Scarecrow Settings";
     public static ConfigEntry<bool> EnableProtectionToggle = null!;
@@ -106,14 +107,14 @@ internal static class MainConfig
 
     public static void InitConfigs(ConfigFile config)
 	{
-		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n");
-		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this will set the textures look more vanilla like.\n(using point filter instead of trilinear).\n", synced: false);
+		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n", synced: true, sectionOrder: true, settingOrder: true);
+		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this will set the textures look more vanilla like.\n(using point filter instead of trilinear).\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
-		toiletEffects = config.BindConfigInOrder("General Settings", "Toilet Effects", defaultValue: true, "Enable the toilet effects.\n", synced: false);
+		toiletEffects = config.BindConfigInOrder("General Settings", "Toilet Effects", defaultValue: true, "Enable the toilet effects.\n", synced: true, sectionOrder: true, settingOrder: true);
 		toiletEffects.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
-		enableElevators = config.BindConfigInOrder("General Settings", "Enable Elevators", defaultValue: true, "If Off, elevators will be disabled.\n(Restart required).\n");
-		autoTriggers = config.BindConfigInOrder("General Settings", "Automatic Elevators", defaultValue: true, "If On, elevators will move automatically when a player steps on it.\n", synced: false);
-        traderEnabled = config.BindConfigInOrder("General Settings", "Enable Trader", defaultValue: true, "Enable Burt the barman.\n(Restart required).\n");
+		enableElevators = config.BindConfigInOrder("General Settings", "Enable Elevators", defaultValue: true, "If Off, elevators will be disabled.\n(Restart required).\n", synced: true, sectionOrder: true, settingOrder: true);
+		autoTriggers = config.BindConfigInOrder("General Settings", "Automatic Elevators", defaultValue: true, "If On, elevators will move automatically when a player steps on it.\n", synced: true, sectionOrder: true, settingOrder: true);
+        traderEnabled = config.BindConfigInOrder("General Settings", "Enable Trader", defaultValue: true, "Enable Burt the barman.\n(Restart required).\n", synced: true, sectionOrder: true, settingOrder: true);
 
         chestColumns = config.BindConfigInOrder("Chest Settings", "Chest Columns", 6, "Amount of columns for core wood chest container.\n(Restart or rebuild chest).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<int>(1, 8));
 		chestColumns.SettingChanged += CoreWoodPlugin.OnChestConfigChanged;
@@ -134,75 +135,76 @@ internal static class MainConfig
 		skullLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		skullLightRange = config.BindConfigInOrder("Skull Light Settings", "Skulls Range", 6f, "The range of the Skull lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		skullLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		skullLightShadows = config.BindConfigInOrder("Skull Light Settings", "Skulls Shadow Type", ShadowsType.Soft, "Set Skull lighting Shadows.\n", synced: false);
+		skullLightShadows = config.BindConfigInOrder("Skull Light Settings", "Skulls Shadow Type", ShadowsType.Soft, "Set Skull lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		skullLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		chandelierLightIntensity = config.BindConfigInOrder("Chandelier Light Settings", "Chandelier Intensity", 1.8f, "The intensity of the Chandelier lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		chandelierLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		chandelierLightRange = config.BindConfigInOrder("Chandelier Light Settings", "Chandelier Range", 12f, "The range of the Chandelier lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		chandelierLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		chandelierLightShadows = config.BindConfigInOrder("Chandelier Light Settings", "Chandelier Shadow Type", ShadowsType.Soft, "Set Chandelier lighting Shadows.\n", synced: false);
+		chandelierLightShadows = config.BindConfigInOrder("Chandelier Light Settings", "Chandelier Shadow Type", ShadowsType.Soft, "Set Chandelier lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		chandelierLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		wallLightIntensity = config.BindConfigInOrder("Wall Light Settings", "Wall Light Intensity", 1.5f, "The intensity of the Wall lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		wallLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		wallLightRange = config.BindConfigInOrder("Wall Light Settings", "Wall Light Range", 12f, "The range of the Wall lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		wallLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		wallLightShadows = config.BindConfigInOrder("Wall Light Settings", "Wall Light Shadow Type", ShadowsType.Soft, "Set Wall lighting Shadows.\n", synced: false);
+		wallLightShadows = config.BindConfigInOrder("Wall Light Settings", "Wall Light Shadow Type", ShadowsType.Soft, "Set Wall lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		wallLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingLanternLightIntensity = config.BindConfigInOrder("Surtling Lantern Light Settings", "Surtling Lantern Intensity", 2f, "The intensity of the Surtling Lantern lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		surtlingLanternLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingLanternLightRange = config.BindConfigInOrder("Surtling Lantern Light Settings", "Surtling Lantern Range", 15f, "The range of the Surtling Lantern lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		surtlingLanternLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		surtlingLanternLightShadows = config.BindConfigInOrder("Surtling Lantern Light Settings", "Surtling Lantern Shadow Type", ShadowsType.Soft, "Set Surtling Lantern lighting Shadows.\n", synced: false);
+		surtlingLanternLightShadows = config.BindConfigInOrder("Surtling Lantern Light Settings", "Surtling Lantern Shadow Type", ShadowsType.Soft, "Set Surtling Lantern lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		surtlingLanternLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingSingleLightIntensity = config.BindConfigInOrder("Surtling Single Light Settings", "Surtling Single Intensity", 2f, "The intensity of the Surtling Single Lamppost lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		surtlingSingleLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingSingleLightRange = config.BindConfigInOrder("Surtling Single Light Settings", "Surtling Single Range", 15f, "The range of the Surtling Single Lamppost lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		surtlingSingleLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		surtlingSingleLightShadows = config.BindConfigInOrder("Surtling Single Light Settings", "Surtling Single Shadow Type", ShadowsType.Soft, "Set Surtling Single Lamppost lighting Shadows.\n", synced: false);
+		surtlingSingleLightShadows = config.BindConfigInOrder("Surtling Single Light Settings", "Surtling Single Shadow Type", ShadowsType.Soft, "Set Surtling Single Lamppost lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		surtlingSingleLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingDoubleLightIntensity = config.BindConfigInOrder("Surtling Double Light Settings", "Surtling Double Intensity", 2f, "The intensity of the Surtling Double Lamppost lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		surtlingDoubleLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		surtlingDoubleLightRange = config.BindConfigInOrder("Surtling Double Light Settings", "Surtling Double Range", 15f, "The range of the Surtling Double Lamppost lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		surtlingDoubleLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		surtlingDoubleLightShadows = config.BindConfigInOrder("Surtling Double Light Settings", "Surtling Double Shadow Type", ShadowsType.Soft, "Set Surtling Double Lamppost lighting Shadows.\n", synced: false);
+		surtlingDoubleLightShadows = config.BindConfigInOrder("Surtling Double Light Settings", "Surtling Double Shadow Type", ShadowsType.Soft, "Set Surtling Double Lamppost lighting Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		surtlingDoubleLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		lavaLightIntensity = config.BindConfigInOrder("Lava Light Settings", "Lava Light Intensity", 1.5f, "The intensity of the Lava Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		lavaLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		lavaLightRange = config.BindConfigInOrder("Lava Light Settings", "Lava Light Range", 12f, "The range of the Lava Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		lavaLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		lavaLightShadows = config.BindConfigInOrder("Lava Light Settings", "Lava Light Shadow Type", ShadowsType.Soft, "Set Lava Light Shadows.\n", synced: false);
+		lavaLightShadows = config.BindConfigInOrder("Lava Light Settings", "Lava Light Shadow Type", ShadowsType.Soft, "Set Lava Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		lavaLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		crystalLightIntensity = config.BindConfigInOrder("Crystal Light Settings", "Crystal Light Intensity", 2f, "The intensity of the Crystal Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		crystalLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		crystalLightRange = config.BindConfigInOrder("Crystal Light Settings", "Crystal Light Range", 12f, "The range of the Crystal Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		crystalLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		crystalLightShadows = config.BindConfigInOrder("Crystal Light Settings", "Crystal Light Shadow Type", ShadowsType.Soft, "Set Crystal Light Shadows.\n", synced: false);
+		crystalLightShadows = config.BindConfigInOrder("Crystal Light Settings", "Crystal Light Shadow Type", ShadowsType.Soft, "Set Crystal Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		crystalLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		ropeLightIntensity = config.BindConfigInOrder("Rope Light Settings", "Rope Light Intensity", 1.5f, "The intensity of the Rope Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		ropeLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		ropeLightRange = config.BindConfigInOrder("Rope Light Settings", "Rope Light Range", 12f, "The range of the Rope Light lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		ropeLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		ropeLightShadows = config.BindConfigInOrder("Rope Light Settings", "Rope Light Shadow Type", ShadowsType.Soft, "Set Rope Light Shadows.\n", synced: false);
+		ropeLightShadows = config.BindConfigInOrder("Rope Light Settings", "Rope Light Shadow Type", ShadowsType.Soft, "Set Rope Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		ropeLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		brazierLightIntensity = config.BindConfigInOrder("Brazier Light Settings", "Brazier Light Intensity", 2f, "The intensity of the Brazier lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		brazierLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		brazierLightRange = config.BindConfigInOrder("Brazier Light Settings", "Brazier Light Range", 10f, "The range of the Brazier lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		brazierLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		brazierLightShadows = config.BindConfigInOrder("Brazier Light Settings", "Brazier Light Shadow Type", ShadowsType.Soft, "Set Brazier Light Shadows.\n", synced: false);
+		brazierLightShadows = config.BindConfigInOrder("Brazier Light Settings", "Brazier Light Shadow Type", ShadowsType.Soft, "Set Brazier Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		brazierLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		beaconLightIntensity = config.BindConfigInOrder("Beacon Light Settings", "Beacon Light Intensity", 2f, "The intensity of the Beacon lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 4f));
 		beaconLightIntensity.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		beaconLightRange = config.BindConfigInOrder("Beacon Light Settings", "Beacon Light Range", 12f, "The range of the Beacon lighting.\n", synced: false, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 20f));
 		beaconLightRange.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
-		beaconLightShadows = config.BindConfigInOrder("Beacon Light Settings", "Beacon Light Shadow Type", ShadowsType.Soft, "Set Beacon Light Shadows.\n", synced: false);
+		beaconLightShadows = config.BindConfigInOrder("Beacon Light Settings", "Beacon Light Shadow Type", ShadowsType.Soft, "Set Beacon Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		beaconLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		
-		ContainerRange = config.BindConfigInOrder("Auto-Feed Settings", "Container Range", 15f, "Defines the range in meters within which containers are checked for food items.\n");
-        FeedCheckCooldown = config.BindConfigInOrder("Auto-Feed Settings", "Feed Check Cooldown", 2f, "Cooldown in seconds between feed checks. Checks only occur when the pet is hungry.\n");
+		ContainerRange = config.BindConfigInOrder("Auto-Feed Settings", "Container Range", 15f, "Defines the range in meters within which containers are checked for food items.\n", synced: true, sectionOrder: true, settingOrder: true);
+        FeedCheckCooldown = config.BindConfigInOrder("Auto-Feed Settings", "Feed Check Cooldown", 2f, "Cooldown in seconds between feed checks. Checks only occur when the pet is hungry.\n", synced: true, sectionOrder: true, settingOrder: true);
+        TroughAutoCollectEnabled = config.BindConfigInOrder("Auto-Feed Settings", "Trough Auto Collect", true, "If On, feeding troughs automatically pick up items they accept that are dropped on the ground within 'Container Range'.\n", synced: false, sectionOrder: true, settingOrder: true);
 
-        EnableProtectionToggle = config.BindConfigInOrder("Scarecrow Settings", "Enable Protection Toggle", true, "If On, the scarecrow protection can be toggled on and off. If Off, the scarecrow does nothing (no forcefield, no interaction).\n");
+        EnableProtectionToggle = config.BindConfigInOrder("Scarecrow Settings", "Enable Protection Toggle", true, "If On, the scarecrow protection can be toggled on and off. If Off, the scarecrow does nothing (no forcefield, no interaction).\n", synced: true, sectionOrder: true, settingOrder: true);
         EnableProtectionToggle.SettingChanged += CoreWoodPlugin.OnScarecrowConfigChanged;
-        ShowForcefield = config.BindConfigInOrder("Scarecrow Settings", "Show Forcefield", true, "If Off, the scarecrow forcefield is hidden but still active.\n", synced: false);
+        ShowForcefield = config.BindConfigInOrder("Scarecrow Settings", "Show Forcefield", true, "If Off, the scarecrow forcefield is hidden but still active.\n", synced: false, sectionOrder: true, settingOrder: true);
         ShowForcefield.SettingChanged += CoreWoodPlugin.OnScarecrowConfigChanged;
 
         // Read live by every seed bed, so changes apply without a restart.

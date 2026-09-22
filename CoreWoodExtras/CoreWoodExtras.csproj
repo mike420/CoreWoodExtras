@@ -79,6 +79,7 @@
     <Compile Include="Containers\ContainerRegistration.cs" />
     <Compile Include="Prefabs\PieceAssets.cs" />
     <Compile Include="Components\TroughVisualState.cs" />
+    <Compile Include="Components\TroughAutoCollect.cs" />
     <Compile Include="Misc\FileWatcher.cs" />
     <Compile Include="Misc\LocalisedText.cs" />
     <Compile Include="Misc\CustomTraderItems.cs" />
