@@ -203,12 +203,12 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Only fires a player can switch back on by hand are put out when the meat is done. The others (most vanilla
-		// fires) would stay out until more meat is added, taking their warmth and light with them, so they keep burning.
+		// Any fire under the roast is put out when the meat is done, so it stops burning fuel. Adding more meat lights it
+		// again, and so does removing the roast.
 		private void PutOutFire()
 		{
 			Fireplace fire = FindFire();
-			if (fire != null && fire.m_canTurnOff && GetFireState(fire) == FireOn)
+			if (fire != null && GetFireState(fire) == FireOn)
 			{
 				SetFireLit(fire, false);
 				m_nview.GetZDO().Set(s_putOut, true);
@@ -517,7 +517,7 @@ namespace CoreWoodExtras
 					break;
 			}
 			// Light the fire again when the roast put it out. Fires that cannot be switched by hand are always lit again,
-			// since older versions of the roast put those out too and nobody could light them.
+			// since nobody could light them otherwise (and older roasts did not remember putting them out).
 			Fireplace fire = FindFire();
 			if (fire != null && (!fire.m_canTurnOff || m_nview.GetZDO().GetBool(s_putOut)))
 			{
