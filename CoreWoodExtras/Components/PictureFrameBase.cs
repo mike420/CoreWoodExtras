@@ -22,7 +22,16 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 
 	private float _interval = 5f;
 
-	private TextureCache textureCache;
+	// Shared by every frame, so an image shown on several frames (or on a frame that is loaded again) is only read once.
+	private static TextureCache textureCache;
+
+	private Renderer _pictureRenderer;
+
+	// The picture's own copy of its material, made the first time a texture is set.
+	private Material _pictureMaterial;
+
+	// Bumped on every SetTexture, so a web image that arrives after the frame moved on is ignored.
+	private int _textureRequest;
 
 	private ZNetView _nview;
 
@@ -61,9 +70,9 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 	{
 		if (!PrivateArea.CheckAccess(base.transform.position, 0f, flash: false))
 		{
-			return Localization.instance.Localize("$piece_mm_first_pictureframe");
+			return Localization.instance.Localize(Name);
 		}
-		return Localization.instance.Localize("$piece_mm_first_pictureframe\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use");
+		return Localization.instance.Localize(Name + "\n[<color=yellow><b>$KEY_Use</b></color>] $piece_use");
 	}
 
 	public string GetText()
@@ -98,15 +107,46 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 
 	public void SetTexture(string fileName)
 	{
-		Renderer pictureRenderer = base.transform.Find("Pivot/New/Picture").gameObject.GetComponent<Renderer>();
+		int request = ++_textureRequest;
 		if (IsUrl(fileName))
 		{
-			StartCoroutine(textureCache.FetchFromWeb(fileName, delegate(Texture texture)
+			SetPicture(null);
+			// Sign text is set by other players, so each player can choose not to download images from their links.
+			if (MainConfig.pictureFrameWebImages.Value)
 			{
-				pictureRenderer.material.mainTexture = texture;
-			}));
+				StartCoroutine(textureCache.FetchFromWeb(fileName, delegate(Texture texture)
+				{
+					if (request == _textureRequest)
+					{
+						SetPicture(texture);
+					}
+				}));
+			}
+			return;
 		}
-		pictureRenderer.material.mainTexture = textureCache.Load(fileName);
+		SetPicture(textureCache.Load(fileName));
+	}
+
+	private void SetPicture(Texture texture)
+	{
+		if (!_pictureRenderer)
+		{
+			return;
+		}
+		if (!_pictureMaterial)
+		{
+			_pictureMaterial = _pictureRenderer.material;
+		}
+		_pictureMaterial.mainTexture = texture;
+	}
+
+	private void OnDestroy()
+	{
+		// Unity does not free the renderer's material copy along with the renderer.
+		if (_pictureMaterial)
+		{
+			Destroy(_pictureMaterial);
+		}
 	}
 
 	public void StartAnimation(string[] textureNames)
@@ -130,7 +170,8 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 	{
 		_frameRenderer = base.transform.Find("Pivot/New/PictureFrame").gameObject.GetComponent<Renderer>();
 		TextWidget = base.transform.Find("Pivot/Canvas/Text").GetComponent<Text>();
-		textureCache = new TextureCache(_basePath);
+		_pictureRenderer = base.transform.Find("Pivot/New/Picture").gameObject.GetComponent<Renderer>();
+		textureCache ??= new TextureCache(_basePath);
 		_nview = GetComponent<ZNetView>();
 		if (_nview.GetZDO() != null)
 		{

@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.2.7";
+	public const string PluginVersion = "2.2.8";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -66,9 +66,11 @@ public class CoreWoodPlugin : BaseUnityPlugin
             CheckForFolders();
 			LocalisedText.AddLocalisations();
 			LoadLocalisationData(TranslationFilePath);
+			// The watcher runs on a thread-pool thread and Jotunn's localization is not thread safe, so the reload is
+			// only flagged here and done in Update, on the main thread.
 			FileWatcher.WatchTranslationChanges(TranslationFilePath, delegate
 			{
-				LoadLocalisationData(TranslationFilePath);
+				translationsChanged = true;
 			});
 
             LoadAssetBundles();
@@ -103,6 +105,26 @@ public class CoreWoodPlugin : BaseUnityPlugin
 			};
 
 			Game.isModded = true;
+		}
+	}
+
+	private volatile bool translationsChanged;
+
+	public void Update()
+	{
+		if (!translationsChanged)
+		{
+			return;
+		}
+		translationsChanged = false;
+		try
+		{
+			LoadLocalisationData(TranslationFilePath);
+		}
+		catch (Exception ex)
+		{
+			// Usually the editor still holds the file; the next change event loads it.
+			Jotunn.Logger.LogWarning("[CoreWoodExtras] Failed to reload translations: " + ex.Message);
 		}
 	}
 

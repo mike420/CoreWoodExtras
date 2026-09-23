@@ -36,6 +36,17 @@ namespace CoreWoodExtras.Containers
             return container != null;
         }
 
+        // Container.IsInUse is only right on the chest's owner, and opening a chest makes the player who opened it the
+        // owner, so every other client has to read the in-use flag the owner writes to the ZDO.
+        internal static bool IsInUse(Container container)
+        {
+            if (container.IsInUse())
+            {
+                return true;
+            }
+            return container.m_nview != null && container.m_nview.IsValid() && container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) == 1;
+        }
+
         internal static bool IsTrough(Container container)
         {
             return container.name.StartsWith(NameFilter);
@@ -81,6 +92,8 @@ namespace CoreWoodExtras.Containers
         private static void FeedAnimal(MonsterAI animalAI, Tameable tamable, Character character, Container container, ItemDrop.ItemData item)
         {
             if (animalAI == null || tamable == null || character == null || container == null || item == null) return;
+            // Never take a trough from a player who has it open.
+            if (IsInUse(container)) return;
             if (!container.IsOwner())
             {
                 // Only the container's owner may change its inventory. Claim it and retry on the next feed check,
@@ -89,20 +102,34 @@ namespace CoreWoodExtras.Containers
                 return;
             }
 
-            animalAI.m_onConsumedItem?.Invoke(null);
-            Humanoid humanoid = character as Humanoid;
-            humanoid?.m_consumeItemEffects?.Create(character.transform.position, Quaternion.identity);
-            animalAI.m_animator?.SetTrigger(ConsumeTrigger);
-
+            // The item is taken first, and m_onConsumedItem ends up in Tameable.IsHungry, which is patched to feed from
+            // troughs again, so the guard keeps that from looping.
             if (container.GetInventory() != null)
             {
                 container.GetInventory().RemoveItem(item.m_shared.m_name, 1);
                 container.Save();
             }
 
+            s_feeding = true;
+            try
+            {
+                animalAI.m_onConsumedItem?.Invoke(null);
+            }
+            finally
+            {
+                s_feeding = false;
+            }
+            Humanoid humanoid = character as Humanoid;
+            humanoid?.m_consumeItemEffects?.Create(character.transform.position, Quaternion.identity);
+            animalAI.m_animator?.SetTrigger(ConsumeTrigger);
+
             if (tamable.m_nview.IsOwner())
                 tamable.ResetFeedingTimer();
         }
+
+        private static bool s_feeding;
+
+        internal static bool IsFeeding => s_feeding;
 
         internal static void SafeRemoveFeedCheckTime(Character character)
         {

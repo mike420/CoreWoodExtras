@@ -28,14 +28,10 @@ public class TroughAutoCollect : MonoBehaviour
         {
             return;
         }
-        if (m_container == null || m_container.m_nview == null || !m_container.m_nview.IsValid() || m_container.IsInUse())
+        // Every client that has the trough loaded runs this, so only its owner collects. Claiming it here would make the
+        // clients take it from each other every check, and take it from a player who has it open.
+        if (m_container == null || m_container.m_nview == null || !m_container.m_nview.IsValid() || !m_container.IsOwner() || UtilityMethods.IsInUse(m_container))
         {
-            return;
-        }
-        if (!m_container.IsOwner())
-        {
-            // Only the owner may change the trough's inventory. Claim it and try again on the next check.
-            m_container.m_nview.ClaimOwnership();
             return;
         }
         if (!RestrictContainers.IsRestrictedContainer(m_container.m_name, out HashSet<string> allowedItems))
@@ -59,8 +55,13 @@ public class TroughAutoCollect : MonoBehaviour
             }
             if (!itemDrop.m_nview.IsOwner())
             {
-                // Only the owner may despawn the dropped item. Claim it and pick it up on a later check.
-                itemDrop.m_nview.ClaimOwnership();
+                // Only the owner may despawn the dropped item. Ask its owner for it, the same way a player picking it up
+                // does (with the vanilla back-off), and pick it up on a later check.
+                itemDrop.RequestOwn();
+                continue;
+            }
+            if (!itemDrop.CanPickup())
+            {
                 continue;
             }
             CollectItem(itemDrop);

@@ -40,6 +40,14 @@ namespace CoreWoodExtras
 
 		private const string RpcRefund = "RPC_MM_SeedBed_Refund";
 
+		private const string RpcEffect = "RPC_MM_SeedBed_Effect";
+
+		private const int EffectAdd = 0;
+
+		private const int EffectHarvest = 1;
+
+		private const int EffectSpawn = 2;
+
 		private const string FallbackName = "$piece_mm_corewood_seedbed";
 
 		private static readonly int s_content = "mm_seedbed_content".GetStableHashCode();
@@ -48,6 +56,14 @@ namespace CoreWoodExtras
 
 		// What the bed last grew, kept after a harvest so it can be refilled from a nearby chest.
 		private static readonly int s_lastContent = "mm_seedbed_last".GetStableHashCode();
+
+		// Produce that was harvested but has not appeared yet. Kept in the ZDO so it is not lost when the bed is unloaded,
+		// removed or changes owner during the harvest delay.
+		private static readonly int s_pendingItem = "mm_seedbed_pending_item".GetStableHashCode();
+
+		private static readonly int s_pendingAmount = "mm_seedbed_pending_amount".GetStableHashCode();
+
+		private static readonly int s_pendingStore = "mm_seedbed_pending_store".GetStableHashCode();
 
 		private const float ReplantRetrySeconds = 5f;
 
@@ -102,6 +118,9 @@ namespace CoreWoodExtras
 
 		private float m_nextReplantCheck;
 
+		// True while this bed's SpawnProduce coroutine runs.
+		private bool m_spawning;
+
 		private bool IsValid => m_nview != null && m_nview.IsValid();
 
 		private string DisplayName => m_piece != null ? m_piece.m_name : FallbackName;
@@ -120,6 +139,7 @@ namespace CoreWoodExtras
 			m_nview.Register<string, int>(RpcAdd, RPC_Add);
 			m_nview.Register(RpcHarvest, RPC_Harvest);
 			m_nview.Register<string, int>(RpcRefund, RPC_Refund);
+			m_nview.Register<int>(RpcEffect, RPC_Effect);
 
 			WearNTear wearNTear = GetComponent<WearNTear>();
 			if (wearNTear != null)
@@ -418,7 +438,24 @@ namespace CoreWoodExtras
 				m_nview.InvokeRPC(sender, RpcRefund, prefabName, amount - conversion.SeedAmount);
 			}
 			StartGrowing(prefabName);
-			m_addEffects.Create(transform.position, transform.rotation);
+			PlayEffect(EffectAdd);
+		}
+
+		// Runs on every client, so everyone nearby sees and hears the bed, not just its owner.
+		private void RPC_Effect(long sender, int effect)
+		{
+			EffectList effects = effect switch
+			{
+				EffectHarvest => m_harvestEffects,
+				EffectSpawn => m_spawnEffects,
+				_ => m_addEffects,
+			};
+			effects?.Create(transform.position, effect == EffectSpawn ? Quaternion.identity : transform.rotation);
+		}
+
+		private void PlayEffect(int effect)
+		{
+			m_nview.InvokeRPC(ZNetView.Everybody, RpcEffect, effect);
 		}
 
 		private void RPC_Refund(long sender, string prefabName, int amount)
@@ -445,6 +482,7 @@ namespace CoreWoodExtras
 		// Only the owner checks, so the bed is harvested once however many players are nearby.
 		private void AutoHarvest()
 		{
+			ResumePendingProduce();
 			if (MainConfig.SeedBedAutoHarvest.Value)
 			{
 				HarvestAsOwner(store: MainConfig.SeedBedAutoStore.Value);
@@ -460,13 +498,13 @@ namespace CoreWoodExtras
 			}
 			string content = GetContent();
 			Conversion conversion = FindConversion(content);
-			m_harvestEffects.Create(transform.position, transform.rotation);
+			PlayEffect(EffectHarvest);
 
 			int replanted = CanReplant(conversion) ? conversion.SeedAmount : 0;
 			if (replanted > 0)
 			{
 				StartGrowing(content);
-				m_addEffects.Create(transform.position, transform.rotation);
+				PlayEffect(EffectAdd);
 			}
 			else
 			{
@@ -480,7 +518,67 @@ namespace CoreWoodExtras
 			}
 			if (conversion != null)
 			{
-				StartCoroutine(SpawnProduce(conversion, conversion.ProducedItems - replanted, store));
+				// Anything still waiting from an earlier harvest drops now, so it is not overwritten.
+				DropPendingProduce();
+				ZDO zdo = m_nview.GetZDO();
+				zdo.Set(s_pendingItem, conversion.To.gameObject.name);
+				zdo.Set(s_pendingAmount, conversion.ProducedItems - replanted);
+				zdo.Set(s_pendingStore, store);
+				StartSpawning();
+			}
+		}
+
+		private void StartSpawning()
+		{
+			if (!m_spawning)
+			{
+				m_spawning = true;
+				StartCoroutine(SpawnProduce());
+			}
+		}
+
+		// Picks up produce a harvest left behind: the bed was unloaded during the delay, or its owner changed.
+		private void ResumePendingProduce()
+		{
+			if (IsValid && m_nview.IsOwner() && !m_spawning && m_nview.GetZDO().GetInt(s_pendingAmount) > 0)
+			{
+				StartSpawning();
+			}
+		}
+
+		private bool GetPendingProduce(out ItemDrop item, out int amount, out bool store)
+		{
+			ZDO zdo = m_nview.GetZDO();
+			amount = zdo.GetInt(s_pendingAmount);
+			store = zdo.GetBool(s_pendingStore);
+			item = ObjectDB.instance != null ? GetItemDrop(ObjectDB.instance, zdo.GetString(s_pendingItem, "")) : null;
+			return item != null && amount > 0;
+		}
+
+		private void ClearPendingProduce()
+		{
+			ZDO zdo = m_nview.GetZDO();
+			zdo.Set(s_pendingItem, "");
+			zdo.Set(s_pendingAmount, 0);
+			zdo.Set(s_pendingStore, false);
+		}
+
+		// Drops whatever is waiting at the bed straight away.
+		private void DropPendingProduce()
+		{
+			bool found = GetPendingProduce(out ItemDrop item, out int amount, out _);
+			ClearPendingProduce();
+			if (found)
+			{
+				SpawnDrops(item, amount);
+			}
+		}
+
+		private void SpawnDrops(ItemDrop item, int amount)
+		{
+			for (int i = 0; i < amount; i++)
+			{
+				ItemDrop.OnCreateNew(Instantiate(item.gameObject, GetSpawnPosition(), Quaternion.identity));
 			}
 		}
 
@@ -494,10 +592,21 @@ namespace CoreWoodExtras
 				&& conversion.ProducedItems > conversion.SeedAmount;
 		}
 
-		private IEnumerator SpawnProduce(Conversion conversion, int amount, bool store)
+		// Only the owner hands out the produce. It stops without clearing anything when the bed changes owner, so the new
+		// owner picks it up from the ZDO instead of both spawning it.
+		private IEnumerator SpawnProduce()
 		{
 			yield return new WaitForSeconds(MainConfig.SeedBedHarvestDelay.Value);
-			m_spawnEffects.Create(transform.position, Quaternion.identity);
+			if (!IsValid || !m_nview.IsOwner() || !GetPendingProduce(out ItemDrop item, out int amount, out bool store))
+			{
+				if (IsValid && m_nview.IsOwner())
+				{
+					ClearPendingProduce();
+				}
+				m_spawning = false;
+				yield break;
+			}
+			PlayEffect(EffectSpawn);
 
 			if (store && Player.m_localPlayer != null)
 			{
@@ -509,12 +618,13 @@ namespace CoreWoodExtras
 					{
 						break;
 					}
-					if (!CanHold(chest, conversion.To))
+					if (!CanHold(chest, item))
 					{
 						continue;
 					}
-					// Only the owner may change a chest's inventory, so claim it and give the claim a moment to land.
-					for (int attempt = 0; attempt < ClaimAttempts && chest != null && !chest.IsOwner(); attempt++)
+					// Only the owner may change a chest's inventory, so claim it and give the claim a moment to land. A
+					// chest someone has open is never taken from them.
+					for (int attempt = 0; attempt < ClaimAttempts && chest != null && !chest.IsOwner() && !UtilityMethods.IsInUse(chest); attempt++)
 					{
 						chest.m_nview.ClaimOwnership();
 						if (!chest.IsOwner())
@@ -522,17 +632,25 @@ namespace CoreWoodExtras
 							yield return new WaitForSeconds(0.2f);
 						}
 					}
-					if (chest != null && chest.IsOwner() && !chest.IsInUse())
+					if (!IsValid || !m_nview.IsOwner())
 					{
-						amount -= StoreInContainer(chest, conversion.To, amount);
+						m_spawning = false;
+						yield break;
+					}
+					if (chest != null && chest.IsOwner() && !UtilityMethods.IsInUse(chest))
+					{
+						amount -= StoreInContainer(chest, item, amount);
+						m_nview.GetZDO().Set(s_pendingAmount, amount);
 					}
 				}
 			}
 
-			for (int i = 0; i < amount; i++)
+			if (IsValid && m_nview.IsOwner())
 			{
-				ItemDrop.OnCreateNew(Instantiate(conversion.To.gameObject, GetSpawnPosition(), Quaternion.identity));
+				ClearPendingProduce();
+				SpawnDrops(item, amount);
 			}
+			m_spawning = false;
 		}
 
 		// Restricted containers (the feeding trough, the market crates) only take certain items, and complain to the local
@@ -625,7 +743,7 @@ namespace CoreWoodExtras
 			nearest.GetInventory().RemoveItem(sharedName, conversion.SeedAmount);
 			nearest.Save();
 			StartGrowing(last);
-			m_addEffects.Create(transform.position, transform.rotation);
+			PlayEffect(EffectAdd);
 		}
 
 		// The chests the bed may use, feeding troughs first and then nearest first: in range, not open, and openable by the
@@ -641,7 +759,7 @@ namespace CoreWoodExtras
 				if (container != null
 					&& container.m_nview != null
 					&& container.m_nview.IsValid()
-					&& !container.IsInUse()
+					&& !UtilityMethods.IsInUse(container)
 					&& (container.transform.position - transform.position).sqrMagnitude <= range * range
 					&& container.GetInventory() != null
 					&& (includeTroughs || !UtilityMethods.IsTrough(container))
@@ -683,6 +801,8 @@ namespace CoreWoodExtras
 			{
 				return;
 			}
+			// Produce from a harvest that has not appeared yet.
+			DropPendingProduce();
 			Conversion conversion = FindConversion(GetContent());
 			if (conversion == null)
 			{

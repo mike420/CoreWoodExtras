@@ -48,7 +48,8 @@ namespace CoreWoodExtras
         {
             public static void Postfix(Tameable __instance, ref bool __result)
             {
-                if (!__result || !__instance.m_nview.IsOwner()) // If not hungry, return early
+                // Not hungry, or already feeding this tame from a trough (IsHungry is called again while it eats).
+                if (!__result || UtilityMethods.IsFeeding || !__instance.m_nview.IsOwner())
                     return;
 
                 if (__instance.m_monsterAI == null || __instance.m_character == null) return;

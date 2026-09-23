@@ -339,7 +339,9 @@ internal class LocalisedText
             { "piece_mm_corewood_trough", "Feeding Trough" },
             { "piece_mm_corewood_trough_desc", "Automaticaly feed your hungry tames!" },
             { "piece_mm_corewood_seedbed", "Seed Bed" },
-            { "piece_mm_corewood_seedbed_desc", "Lets seedlings germinate in a safe environment." }
+            { "piece_mm_corewood_seedbed_desc", "Lets seedlings germinate in a safe environment." },
+            { "piece_mm_corewood_hog_roast", "Boar Roaster" },
+            { "piece_mm_corewood_hog_roast_desc", "Roasts 5 raw boar meat at once over a fire." }
         });
 		Localization.AddTranslation("English", new Dictionary<string, string>
 		{
@@ -375,6 +377,14 @@ internal class LocalisedText
             { "text_seedbed_ready_mm", "Ready to Harvest" },
             { "text_seedbed_harvest_mm", "Harvest" },
             { "text_seedbed_no_seeds_mm", "Not enough seeds." },
+            { "text_hogroast_empty_mm", "Empty" },
+            { "text_hogroast_add_mm", "Add 5 Raw Meat" },
+            { "text_hogroast_cooking_mm", "Roasting" },
+            { "text_hogroast_no_fire_mm", "Needs a fire" },
+            { "text_hogroast_paused_mm", "Paused" },
+            { "text_hogroast_no_meat_mm", "You need 5 raw meat." },
+            { "text_hogroast_ready_mm", "Ready" },
+            { "text_hogroast_collect_mm", "Collect Cooked Meat" },
             { "npc_bartender_talk", "????" }
 		});
 	}

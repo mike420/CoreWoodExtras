@@ -27,8 +27,9 @@ internal class AddDecor
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStackableChest);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodTrough);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStackDynamic);
-
         CoreWoodPlugin.TryAddPiece(AddCoreWoodStack);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodRoaster);
+
         CoreWoodPlugin.TryAddPiece(AddWaterFountain);
         CoreWoodPlugin.TryAddPiece(AddWaterFountain02);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodBench);
@@ -329,7 +330,6 @@ internal class AddDecor
         RestrictContainers.SetRestriction(gameObject.GetComponent<Container>().m_name, troughItems);
     }
 
-
     public static void AddCoreWoodStack()
     {
         GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_stack");
@@ -353,6 +353,46 @@ internal class AddDecor
         WearNTear component = gameObject.GetComponent<WearNTear>();
         component.m_destroyedEffect = breakWood;
         component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
+
+    public static void AddCoreWoodRoaster()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_hog_roast");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            Name = "$piece_mm_corewood_hog_roast",
+            Description = "$piece_mm_corewood_hog_roast_desc",
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Decor",
+            Usage = new[] { PieceUsages.Crafting },
+            Requirements = new RequirementConfig[1]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 2,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        HogRoast hogRoast = gameObject.GetComponent<HogRoast>();
+        if (hogRoast == null)
+        {
+            hogRoast = gameObject.AddComponent<HogRoast>();
+        }
+        // Borrow the sizzle and done sounds from the vanilla cooking station.
+        CookingStation cookingStation = PrefabManager.Instance.GetPrefab("piece_cookingstation")?.GetComponent<CookingStation>();
+        if (cookingStation != null)
+        {
+            hogRoast.m_addEffects = cookingStation.m_addEffect;
+            hogRoast.m_doneEffects = cookingStation.m_doneEffect;
+        }
         PieceManager.Instance.AddPiece(customPiece);
     }
 

@@ -23,18 +23,21 @@ public class GamePatches
 	{
 		foreach (GameObject prefab in zNetScene.m_prefabs)
 		{
-			if (!prefab.name.ToLower().StartsWith("mm_corewood"))
+			if (!prefab || !prefab.name.ToLower().StartsWith("mm_corewood"))
 			{
 				continue;
 			}
 			MeshRenderer[] componentsInChildren = prefab.GetComponentsInChildren<MeshRenderer>();
 			foreach (MeshRenderer meshRenderer in componentsInChildren)
 			{
-				if (meshRenderer.material.HasProperty("_RippleDistance"))
+				// sharedMaterial, not material: material would give every prefab renderer its own copy, which stops
+				// placed pieces sharing (and batching) their materials.
+				Material material = meshRenderer.sharedMaterial;
+				if (material && material.HasProperty("_RippleDistance"))
 				{
-					meshRenderer.sharedMaterial.SetFloat("_RippleDistance", 0.01f);
-					meshRenderer.sharedMaterial.SetFloat("_RippleFreq", 0f);
-					meshRenderer.sharedMaterial.SetFloat("_ValueNoise", 0f);
+					material.SetFloat("_RippleDistance", 0.01f);
+					material.SetFloat("_RippleFreq", 0f);
+					material.SetFloat("_ValueNoise", 0f);
 				}
 			}
 		}

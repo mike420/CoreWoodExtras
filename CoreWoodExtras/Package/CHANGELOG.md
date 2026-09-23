@@ -7,6 +7,24 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.2.8</td>
+    <td>
+    Fixed snappoints on trough and seedbed.<br>
+    Added Boar Roaster, roasts 5 raw boar meat at once over a fire. [CoreWood-Decor and Crafting categories]. The Boar Roaster unlocks after Eikthyr is defeated. The unlock key can be changed with "Required Key" in the "Boar Roaster Settings" (leave it empty to always show it).<br>
+    Fixed a crash when "Feed Check Cooldown" was set to 0. The cooldown is now limited to 0.5 - 60 seconds.<br>
+    Seed beds, feeding troughs and auto feeding no longer take a chest from a player who has it open, which could lose or duplicate items.<br>
+    Feeding troughs no longer fight over ownership when several players are nearby, only the trough's owner collects dropped food.<br>
+    Players standing on an elevator are let go before it is removed or unloaded, instead of being removed with it.<br>
+    The Boar Roaster only puts out fires that can be lit again by hand, other fires keep burning.<br>
+    Boar Roaster and Seed Bed effects are now seen and heard by every player nearby.<br>
+    Seed bed produce is no longer lost when the seed bed is unloaded, removed or changes owner during the harvest delay.<br>
+    Fixed Core Wood pieces each getting their own copy of their materials.<br>
+    Picture frames share loaded images, free their material when removed and show the right name for the square and vertical frames. Added "Web Images" in the "Picture Frame Settings" to stop your game downloading images from links on picture frames.<br>
+    Translation files are reloaded safely when they change.<br>
+    "Enable Elevators" and "Enable Trader" now follow the server's setting and no longer need a restart. "Enable Plugin" is now a local setting.<br>
+	</td>
+  </tr>
+  <tr>
     <td>2.2.7</td>
     <td>
     Updated Jotunn 2.30.2<br>

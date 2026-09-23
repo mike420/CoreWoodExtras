@@ -113,7 +113,8 @@ public class Elevator : MonoBehaviour
 	// Starts a trip to the next point. Returns false if the elevator is already moving or cannot move.
 	public bool Activate(float speed = 2f, bool playSound = false)
 	{
-		if (m_points == null || m_points.Length < 2 || !IsNetworked || ZNet.instance == null)
+		// "Enable Elevators" is synced, so it is read here rather than when the pieces are registered.
+		if (!CoreWoodExtras.MainConfig.enableElevators.Value || m_points == null || m_points.Length < 2 || !IsNetworked || ZNet.instance == null)
 		{
 			return false;
 		}

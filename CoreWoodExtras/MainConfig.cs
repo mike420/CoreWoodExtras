@@ -105,16 +105,23 @@ internal static class MainConfig
     public static ConfigEntry<float> SeedBedFarmingExp = null!;
     public static ConfigEntry<float> SeedBedHerbalistExp = null!;
 
+    // "Boar Roaster Settings";
+    public static ConfigEntry<float> HogRoastCookDuration = null!;
+    public static ConfigEntry<string> HogRoastRequiredKey = null!;
+
+    // "Picture Frame Settings";
+    public static ConfigEntry<bool> pictureFrameWebImages = null!;
+
     public static void InitConfigs(ConfigFile config)
 	{
-		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n", synced: true, sectionOrder: true, settingOrder: true);
+		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n(Restart required. It is read before connecting to a server, so it is a local setting).\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this will set the textures look more vanilla like.\n(using point filter instead of trilinear).\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
 		toiletEffects = config.BindConfigInOrder("General Settings", "Toilet Effects", defaultValue: true, "Enable the toilet effects.\n", synced: true, sectionOrder: true, settingOrder: true);
 		toiletEffects.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
-		enableElevators = config.BindConfigInOrder("General Settings", "Enable Elevators", defaultValue: true, "If Off, elevators will be disabled.\n(Restart required).\n", synced: true, sectionOrder: true, settingOrder: true);
+		enableElevators = config.BindConfigInOrder("General Settings", "Enable Elevators", defaultValue: true, "If Off, elevators are hidden from the build menu and placed elevators do not move.\n", synced: true, sectionOrder: true, settingOrder: true);
 		autoTriggers = config.BindConfigInOrder("General Settings", "Automatic Elevators", defaultValue: true, "If On, elevators will move automatically when a player steps on it.\n", synced: true, sectionOrder: true, settingOrder: true);
-        traderEnabled = config.BindConfigInOrder("General Settings", "Enable Trader", defaultValue: true, "Enable Burt the barman.\n(Restart required).\n", synced: true, sectionOrder: true, settingOrder: true);
+        traderEnabled = config.BindConfigInOrder("General Settings", "Enable Trader", defaultValue: true, "Enable Burt the barman.\n", synced: true, sectionOrder: true, settingOrder: true);
 
         chestColumns = config.BindConfigInOrder("Chest Settings", "Chest Columns", 6, "Amount of columns for core wood chest container.\n(Restart or rebuild chest).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<int>(1, 8));
 		chestColumns.SettingChanged += CoreWoodPlugin.OnChestConfigChanged;
@@ -199,7 +206,7 @@ internal static class MainConfig
 		beaconLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		
 		ContainerRange = config.BindConfigInOrder("Auto-Feed Settings", "Container Range", 15f, "Defines the range in meters within which containers are checked for food items.\n", synced: true, sectionOrder: true, settingOrder: true);
-        FeedCheckCooldown = config.BindConfigInOrder("Auto-Feed Settings", "Feed Check Cooldown", 2f, "Cooldown in seconds between feed checks. Checks only occur when the pet is hungry.\n", synced: true, sectionOrder: true, settingOrder: true);
+        FeedCheckCooldown = config.BindConfigInOrder("Auto-Feed Settings", "Feed Check Cooldown", 2f, "Cooldown in seconds between feed checks. Checks only occur when the pet is hungry.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.5f, 60f));
         TroughAutoCollectEnabled = config.BindConfigInOrder("Auto-Feed Settings", "Trough Auto Collect", true, "If On, feeding troughs automatically pick up items they accept that are dropped on the ground within 'Container Range'.\n", synced: false, sectionOrder: true, settingOrder: true);
 
         EnableProtectionToggle = config.BindConfigInOrder("Scarecrow Settings", "Enable Protection Toggle", true, "If On, the scarecrow protection can be toggled on and off. If Off, the scarecrow does nothing (no forcefield, no interaction).\n", synced: true, sectionOrder: true, settingOrder: true);
@@ -216,6 +223,13 @@ internal static class MainConfig
         SeedBedHarvestDelay = config.BindConfigInOrder("Seed Bed Settings", "Harvest Delay", 1.5f, "Delay in seconds between harvesting the seed bed and the produce appearing.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.1f, 3f));
         SeedBedFarmingExp = config.BindConfigInOrder("Seed Bed Settings", "Farming XP", 1f, "XP given to the Farming skill each time the seed bed is harvested.\n(Needs the Farming mod, does nothing if the skill does not exist).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.01f, 1f));
         SeedBedHerbalistExp = config.BindConfigInOrder("Seed Bed Settings", "Herbalist XP", 1f, "XP given to the Herbalist skill when a herb is harvested from the seed bed.\n(Needs the Herbalist mod, does nothing if the skill does not exist).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.01f, 5f));
+
+        // Read live by every boar roaster, so changes apply without a restart.
+        HogRoastCookDuration = config.BindConfigInOrder("Boar Roaster Settings", "Cook Duration", 120f, "How many seconds the boar roaster needs over a fire to turn 5 raw boar meat into 5 cooked boar meat.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(30f, 3600f));
+        HogRoastRequiredKey = config.BindConfigInOrder("Boar Roaster Settings", "Required Key", "defeated_eikthyr", "The boar roaster only shows in the build menu once this global key is set (defeated_eikthyr is set when Eikthyr is defeated).\n(Leave empty to always show it).\n", synced: true, sectionOrder: true, settingOrder: true);
+
+        // Local on purpose: the links are set by other players, so each player decides whether their game downloads them.
+        pictureFrameWebImages = config.BindConfigInOrder("Picture Frame Settings", "Web Images", true, "If On, picture frames show images from http/https links written on them, downloading them from that address.\n(Off keeps your game from contacting sites other players link to; images from the Images folder always show).\n", synced: false, sectionOrder: true, settingOrder: true);
     }
 
     private static void SetLightIntensity(string prefab, float intensity)

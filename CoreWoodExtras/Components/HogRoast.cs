@@ -1,0 +1,528 @@
+using System;
+using UnityEngine;
+
+namespace CoreWoodExtras
+{
+	// A spit that roasts a whole boar: takes 5 raw boar meat at once while a fire burns under it, shows the pig on the
+	// spit while it cooks and until someone collects the 5 cooked boar meat, then hides the pig again.
+	internal class HogRoast : MonoBehaviour, Hoverable, Interactable
+	{
+		private enum Status
+		{
+			Empty,
+			Cooking,
+			Ready
+		}
+
+		private const string RpcAdd = "RPC_MM_HogRoast_Add";
+
+		private const string RpcCollect = "RPC_MM_HogRoast_Collect";
+
+		private const string RpcGive = "RPC_MM_HogRoast_Give";
+
+		private const string RpcEffect = "RPC_MM_HogRoast_Effect";
+
+		private const int EffectAdd = 0;
+
+		private const int EffectDone = 1;
+
+		private const string FallbackName = "$piece_mm_corewood_hog_roast";
+
+		private const string RawItem = "RawMeat";
+
+		private const string CookedItem = "CookedMeat";
+
+		private const int Amount = 5;
+
+		private static readonly int s_status = "mm_hogroast_status".GetStableHashCode();
+
+		// Seconds spent over a fire so far, and when that was last updated.
+		private static readonly int s_progress = "mm_hogroast_progress".GetStableHashCode();
+
+		private static readonly int s_lastTime = "mm_hogroast_time".GetStableHashCode();
+
+		// Set when the roast put its fire out, so removing the roast lights it again.
+		private static readonly int s_putOut = "mm_hogroast_putout".GetStableHashCode();
+
+		public float m_hoverOffset = 0f;
+
+		public EffectList m_addEffects = new EffectList();
+
+		public EffectList m_doneEffects = new EffectList();
+
+		// Roughly how many degrees per second the pig turns on the spit. The number of turns is rounded so the last one
+		// ends exactly as the meat is done, with the pig back where it started.
+		public float m_spinSpeed = 30f;
+
+		private ZNetView m_nview;
+
+		private Piece m_piece;
+
+		private Transform m_pig;
+
+		// The spit handle, turned together with the pig.
+		private Transform m_handle;
+
+		private bool m_spinning;
+
+		private Quaternion m_pigStartRotation;
+
+		private Quaternion m_handleStartRotation;
+
+		// Local copy of the cooking progress, moved on every frame between the owner's once a second updates.
+		private float m_shownProgress;
+
+		private Transform m_fireCheckPoint;
+
+		private bool IsValid => m_nview != null && m_nview.IsValid();
+
+		private string DisplayName => m_piece != null ? m_piece.m_name : FallbackName;
+
+		private void Awake()
+		{
+			m_nview = GetComponent<ZNetView>();
+			m_piece = GetComponent<Piece>();
+			m_pig = Utils.FindChild(transform, "Enabled");
+			m_handle = Utils.FindChild(transform, "Rotate");
+			m_pigStartRotation = m_pig != null ? m_pig.localRotation : Quaternion.identity;
+			m_handleStartRotation = m_handle != null ? m_handle.localRotation : Quaternion.identity;
+			m_fireCheckPoint = Utils.FindChild(transform, "FireCheckPoint");
+
+			if (m_pig == null)
+			{
+				Jotunn.Logger.LogWarning($"[CoreWoodExtras] HogRoast on '{gameObject.name}' is missing its 'Enabled' child, the bore will not be shown.");
+			}
+
+			if (!IsValid)
+			{
+				return;
+			}
+
+			m_nview.Register<int>(RpcAdd, RPC_Add);
+			m_nview.Register(RpcCollect, RPC_Collect);
+			m_nview.Register<string, int>(RpcGive, RPC_Give);
+			m_nview.Register<int>(RpcEffect, RPC_Effect);
+
+			WearNTear wearNTear = GetComponent<WearNTear>();
+			if (wearNTear != null)
+			{
+				wearNTear.m_onDestroyed += OnDestroyed;
+			}
+
+			SyncVisuals();
+			InvokeRepeating(nameof(SyncVisuals), 0.5f, 0.5f);
+			InvokeRepeating(nameof(UpdateCooking), 1f, 1f);
+		}
+
+		// ---- state ----------------------------------------------------------------------------------------------
+
+		private Status GetStatus()
+		{
+			return (Status)m_nview.GetZDO().GetInt(s_status);
+		}
+
+		private void SetStatus(Status status)
+		{
+			m_nview.GetZDO().Set(s_status, (int)status);
+		}
+
+		private float GetProgress()
+		{
+			return m_nview.GetZDO().GetFloat(s_progress);
+		}
+
+		private bool HasFire()
+		{
+			Vector3 point = m_fireCheckPoint != null ? m_fireCheckPoint.position : transform.position;
+			return EffectArea.IsPointInsideArea(point, EffectArea.Type.Burning, 0.25f) != null;
+		}
+
+		// ---- fire -----------------------------------------------------------------------------------------------
+
+		private const float FireSearchRadius = 0.5f;
+
+		// Fireplace state: 1 is lit, 2 is put out. A fire that is put out keeps its fuel.
+		private const int FireOn = 1;
+
+		private const int FireOff = 2;
+
+		private static readonly Collider[] s_fireColliders = new Collider[32];
+
+		// Searched by collider rather than by the burning area, which disappears once the fire is put out.
+		private Fireplace FindFire()
+		{
+			Vector3 point = m_fireCheckPoint != null ? m_fireCheckPoint.position : transform.position;
+			int count = Physics.OverlapSphereNonAlloc(point, FireSearchRadius, s_fireColliders, ~0, QueryTriggerInteraction.Collide);
+			Fireplace nearest = null;
+			float nearestDistance = float.MaxValue;
+			for (int i = 0; i < count; i++)
+			{
+				Fireplace fire = s_fireColliders[i].GetComponentInParent<Fireplace>();
+				if (fire == null || fire.m_nview == null || !fire.m_nview.IsValid())
+				{
+					continue;
+				}
+				float distance = Vector3.Distance(point, fire.transform.position);
+				if (distance < nearestDistance)
+				{
+					nearest = fire;
+					nearestDistance = distance;
+				}
+			}
+			return nearest;
+		}
+
+		private static int GetFireState(Fireplace fire)
+		{
+			return fire.m_nview.GetZDO().GetInt(ZDOVars.s_state, FireOn);
+		}
+
+		private static bool HasFuel(Fireplace fire)
+		{
+			return fire.m_infiniteFuel || fire.m_nview.GetZDO().GetFloat(ZDOVars.s_fuel) > 0f;
+		}
+
+		// A fire that was put out (by the roast finishing) and still has fuel can be lit again when meat is added.
+		private bool CanRelight(out Fireplace fire)
+		{
+			fire = FindFire();
+			return fire != null && GetFireState(fire) == FireOff && HasFuel(fire);
+		}
+
+		private bool HasOrCanLightFire()
+		{
+			return HasFire() || CanRelight(out _);
+		}
+
+		// RPC_ToggleOn flips the state, so only send it when the fire is in the state being changed from.
+		private static void SetFireLit(Fireplace fire, bool lit)
+		{
+			if (fire != null && GetFireState(fire) == (lit ? FireOff : FireOn))
+			{
+				fire.m_nview.InvokeRPC("RPC_ToggleOn");
+			}
+		}
+
+		// Only fires a player can switch back on by hand are put out when the meat is done. The others (most vanilla
+		// fires) would stay out until more meat is added, taking their warmth and light with them, so they keep burning.
+		private void PutOutFire()
+		{
+			Fireplace fire = FindFire();
+			if (fire != null && fire.m_canTurnOff && GetFireState(fire) == FireOn)
+			{
+				SetFireLit(fire, false);
+				m_nview.GetZDO().Set(s_putOut, true);
+			}
+		}
+
+		// Runs on every client, so everyone nearby sees and hears the roast, not just its owner.
+		private void RPC_Effect(long sender, int effect)
+		{
+			EffectList effects = effect == EffectDone ? m_doneEffects : m_addEffects;
+			effects?.Create(transform.position, transform.rotation);
+		}
+
+		private void PlayEffect(int effect)
+		{
+			m_nview.InvokeRPC(ZNetView.Everybody, RpcEffect, effect);
+		}
+
+		private static ItemDrop GetItemDrop(string prefabName)
+		{
+			GameObject prefab = ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(prefabName) : null;
+			return prefab != null ? prefab.GetComponent<ItemDrop>() : null;
+		}
+
+		// The pig stays on the spit while it cooks and until the meat is collected.
+		private void SyncVisuals()
+		{
+			if (!IsValid || m_pig == null)
+			{
+				return;
+			}
+			bool show = GetStatus() != Status.Empty;
+			if (m_pig.gameObject.activeSelf != show)
+			{
+				m_pig.gameObject.SetActive(show);
+			}
+			// Checked here rather than every frame, so the fire lookup only runs twice a second.
+			m_spinning = GetStatus() == Status.Cooking && HasFire();
+		}
+
+		// "Enabled" and "Rotate" both have their pivot on the spit, so turning them on their own z axis spins the pig and
+		// the handle along it. The angle follows the cooking progress, so it pauses with the fire, is the same for every
+		// player, and is back at the start when the meat is done.
+		private void Update()
+		{
+			if (!IsValid || m_pig == null)
+			{
+				return;
+			}
+			float duration = MainConfig.HogRoastCookDuration.Value;
+			float progress = GetStatus() == Status.Cooking ? GetProgress() : 0f;
+			if (m_spinning)
+			{
+				m_shownProgress += Time.deltaTime;
+			}
+			// The owner only writes the progress once a second, so follow it locally and snap back when it drifts.
+			if (Mathf.Abs(m_shownProgress - progress) > 1.5f)
+			{
+				m_shownProgress = progress;
+			}
+			m_shownProgress = Mathf.Clamp(m_shownProgress, 0f, duration);
+			int turns = Mathf.Max(1, Mathf.RoundToInt(duration * m_spinSpeed / 360f));
+			float angle = m_shownProgress / duration * turns * 360f;
+			Quaternion spin = Quaternion.Euler(0f, 0f, angle);
+			m_pig.localRotation = m_pigStartRotation * spin;
+			if (m_handle != null)
+			{
+				m_handle.localRotation = m_handleStartRotation * spin;
+			}
+		}
+
+		// Only the owner advances the roast, and only while a fire burns under it. Time that passed while the area was
+		// unloaded counts too, the same as the vanilla cooking station.
+		private void UpdateCooking()
+		{
+			if (!IsValid || !m_nview.IsOwner() || GetStatus() != Status.Cooking)
+			{
+				return;
+			}
+			ZDO zdo = m_nview.GetZDO();
+			DateTime now = ZNet.instance.GetTime();
+			long lastTicks = zdo.GetLong(s_lastTime, now.Ticks);
+			float delta = Mathf.Max(0f, (float)(now - new DateTime(lastTicks)).TotalSeconds);
+			zdo.Set(s_lastTime, now.Ticks);
+			if (!HasFire())
+			{
+				return;
+			}
+			float progress = GetProgress() + delta;
+			zdo.Set(s_progress, progress);
+			if (progress >= MainConfig.HogRoastCookDuration.Value)
+			{
+				SetStatus(Status.Ready);
+				PlayEffect(EffectDone);
+				// Put the fire out so it stops burning fuel, it is lit again when more meat is added.
+				PutOutFire();
+			}
+		}
+
+		private void StartCooking()
+		{
+			ZDO zdo = m_nview.GetZDO();
+			SetStatus(Status.Cooking);
+			zdo.Set(s_progress, 0f);
+			zdo.Set(s_lastTime, ZNet.instance.GetTime().Ticks);
+		}
+
+		private void ClearState()
+		{
+			SetStatus(Status.Empty);
+			m_nview.GetZDO().Set(s_progress, 0f);
+		}
+
+		private void SpawnItem(string prefabName, int amount)
+		{
+			ItemDrop item = GetItemDrop(prefabName);
+			if (item == null || amount <= 0)
+			{
+				return;
+			}
+			GameObject drop = Instantiate(item.gameObject, GetSpawnPosition(), Quaternion.identity);
+			ItemDrop.OnCreateNew(drop);
+			drop.GetComponent<ItemDrop>().SetStack(amount);
+		}
+
+		private Vector3 GetSpawnPosition()
+		{
+			Vector3 origin = m_pig != null ? m_pig.position : transform.position;
+			return origin + Vector3.up * 0.3f;
+		}
+
+		// ---- hover / interact -----------------------------------------------------------------------------------
+
+		public string GetHoverName()
+		{
+			return DisplayName;
+		}
+
+		public string GetHoverText()
+		{
+			if (!IsValid)
+			{
+				return "";
+			}
+			if (!PrivateArea.CheckAccess(transform.position, 0f, flash: false))
+			{
+				return Localization.instance.Localize(DisplayName + "\n$text_no_access_mm");
+			}
+			switch (GetStatus())
+			{
+				case Status.Ready:
+					return Localization.instance.Localize(DisplayName + " ( $text_hogroast_ready_mm )\n[<color=yellow><b>$KEY_Use</b></color>] $text_hogroast_collect_mm");
+				case Status.Cooking:
+					if (!HasFire())
+					{
+						return Localization.instance.Localize(DisplayName + " <color=#888888><b>" + GetTimeLeft() + "</b></color>\n( $text_hogroast_paused_mm, $text_hogroast_no_fire_mm )");
+					}
+					return Localization.instance.Localize(DisplayName + " <color=orange><b>" + GetTimeLeft() + "</b></color>\n( $text_hogroast_cooking_mm )");
+				default:
+					if (!HasOrCanLightFire())
+					{
+						return Localization.instance.Localize(DisplayName + " ( $text_hogroast_empty_mm )\n$text_hogroast_no_fire_mm");
+					}
+					return Localization.instance.Localize(DisplayName + " ( $text_hogroast_empty_mm )\n[<color=yellow><b>$KEY_Use</b></color>] $text_hogroast_add_mm");
+			}
+		}
+
+		private string GetTimeLeft()
+		{
+			int seconds = Mathf.Max(0, Mathf.CeilToInt(MainConfig.HogRoastCookDuration.Value - GetProgress()));
+			return $"({seconds / 60:00}:{seconds % 60:00})";
+		}
+
+		public bool Interact(Humanoid user, bool hold, bool alt)
+		{
+			if (hold || !IsValid || !PrivateArea.CheckAccess(transform.position))
+			{
+				return false;
+			}
+			switch (GetStatus())
+			{
+				case Status.Ready:
+					m_nview.InvokeRPC(RpcCollect);
+					return true;
+				case Status.Empty:
+					return AddMeat(user);
+				default:
+					return false;
+			}
+		}
+
+		public bool UseItem(Humanoid user, ItemDrop.ItemData item)
+		{
+			if (!IsValid || item == null || item.m_dropPrefab == null || item.m_dropPrefab.name != RawItem || !PrivateArea.CheckAccess(transform.position))
+			{
+				return false;
+			}
+			return AddMeat(user);
+		}
+
+		public float GetHoverOffset()
+		{
+			return m_hoverOffset;
+		}
+
+		private bool AddMeat(Humanoid user)
+		{
+			if (GetStatus() != Status.Empty)
+			{
+				return false;
+			}
+			if (!HasOrCanLightFire())
+			{
+				user.Message(MessageHud.MessageType.Center, "$text_hogroast_no_fire_mm");
+				return false;
+			}
+			ItemDrop raw = GetItemDrop(RawItem);
+			if (raw == null)
+			{
+				return false;
+			}
+			Inventory inventory = user.GetInventory();
+			string sharedName = raw.m_itemData.m_shared.m_name;
+			// Counts every stack, so meat split over several stacks still adds up.
+			if (inventory.CountItems(sharedName) < Amount)
+			{
+				user.Message(MessageHud.MessageType.Center, "$text_hogroast_no_meat_mm");
+				return false;
+			}
+			inventory.RemoveItem(sharedName, Amount);
+			m_nview.InvokeRPC(RpcAdd, Amount);
+			return true;
+		}
+
+		// ---- rpc (run on the owner, except give which runs on the player who added or collected the meat) --------
+
+		private void RPC_Add(long sender, int amount)
+		{
+			if (!m_nview.IsOwner())
+			{
+				return;
+			}
+			if (GetStatus() != Status.Empty)
+			{
+				// Someone else got there first: give the meat back.
+				m_nview.InvokeRPC(sender, RpcGive, RawItem, amount);
+				return;
+			}
+			StartCooking();
+			SyncVisuals();
+			SetFireLit(FindFire(), true);
+			m_nview.GetZDO().Set(s_putOut, false);
+			PlayEffect(EffectAdd);
+		}
+
+		// Checked on the owner, so the meat is only handed out once however many players collect at the same time.
+		private void RPC_Collect(long sender)
+		{
+			if (!m_nview.IsOwner() || GetStatus() != Status.Ready)
+			{
+				return;
+			}
+			ClearState();
+			SyncVisuals();
+			m_nview.InvokeRPC(sender, RpcGive, CookedItem, Amount);
+		}
+
+		// Puts the meat in the local player's inventory, or drops it at the roast when there is no room.
+		private void RPC_Give(long sender, string prefabName, int amount)
+		{
+			ItemDrop item = GetItemDrop(prefabName);
+			Player player = Player.m_localPlayer;
+			if (item == null || amount <= 0)
+			{
+				return;
+			}
+			if (player != null)
+			{
+				ItemDrop.ItemData data = item.m_itemData.Clone();
+				data.m_dropPrefab = item.gameObject;
+				data.m_stack = amount;
+				Inventory inventory = player.GetInventory();
+				if (inventory.CanAddItem(data) && inventory.AddItem(data))
+				{
+					player.ShowPickupMessage(data, amount);
+					return;
+				}
+			}
+			SpawnItem(prefabName, amount);
+		}
+
+		// Removing the roast drops what is on it: the cooked meat when it is ready, the raw meat otherwise.
+		private void OnDestroyed()
+		{
+			if (!IsValid || !m_nview.IsOwner())
+			{
+				return;
+			}
+			switch (GetStatus())
+			{
+				case Status.Ready:
+					SpawnItem(CookedItem, Amount);
+					break;
+				case Status.Cooking:
+					SpawnItem(RawItem, Amount);
+					break;
+			}
+			// Light the fire again when the roast put it out. Fires that cannot be switched by hand are always lit again,
+			// since older versions of the roast put those out too and nobody could light them.
+			Fireplace fire = FindFire();
+			if (fire != null && (!fire.m_canTurnOff || m_nview.GetZDO().GetBool(s_putOut)))
+			{
+				SetFireLit(fire, true);
+			}
+		}
+	}
+}

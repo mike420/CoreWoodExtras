@@ -35,17 +35,16 @@ internal class AddStructures
 
         CoreWoodPlugin.TryAddPiece(AddCoreWoodLiftGate);
 
-        if (MainConfig.enableElevators.Value)
-        {
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall9);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorLarge);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorLarge9);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator01);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator02);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator03);
-            CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator04);
-        }
+        // Always registered: "Enable Elevators" is applied at runtime (PiecePatches, Elevator.Activate) so the server's
+        // synced value is used.
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall9);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorLarge);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorLarge9);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator01);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator02);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator03);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodElevator04);
 
         CoreWoodPlugin.TryAddPiece(AddGazebo);
         CoreWoodPlugin.TryAddPiece(AddPergola);
@@ -105,10 +104,11 @@ internal class AddStructures
 		WearNTear component = gameObject.GetComponent<WearNTear>();
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
-		Trader component2 = Utils.FindChild(gameObject.transform, "Burt").gameObject.GetComponent<Trader>();
-		if (!MainConfig.traderEnabled.Value)
+		// Burt is switched on and off at runtime, so "Enable Trader" follows the server's synced value.
+		Transform burt = Utils.FindChild(gameObject.transform, "Burt");
+		if (burt != null)
 		{
-			component2.gameObject.SetActive(value: false);
+			gameObject.AddComponent<TraderToggle>().m_trader = burt.gameObject;
 		}
 		PieceManager.Instance.AddPiece(customPiece);
     }
