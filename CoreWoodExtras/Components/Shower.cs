@@ -20,11 +20,12 @@ namespace CoreWoodExtras {
 
 		private static string m_attachAnimation = "";
 
-		private static float m_lastShowerTime;
+		// Per shower, so one player showering does not lock every other shower.
+		private float m_lastShowerTime = -100f;
 
 		public string GetHoverText()
 		{
-			if (Time.time - m_lastShowerTime < 32f)
+			if (Time.time - m_lastShowerTime < 32f || Player.m_localPlayer == null)
 			{
 				return "";
 			}
@@ -47,7 +48,7 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			Player player = human as Player;
-			if (!InUseDistance(player))
+			if (player == null || !InUseDistance(player))
 			{
 				return false;
 			}
@@ -56,23 +57,24 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			Player closestPlayer = Player.GetClosestPlayer(m_attachPoint.position, 0.1f);
-			if (closestPlayer != null && closestPlayer != Player.m_localPlayer)
+			if (closestPlayer != null && closestPlayer != player)
 			{
-				Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_blocked");
+				player.Message(MessageHud.MessageType.Center, "$msg_blocked");
 				return false;
 			}
-			m_fxobject.SetActive(value: false);
-			if ((bool)player)
+			if (player.IsEncumbered())
 			{
-				if (player.IsEncumbered())
-				{
-					return false;
-				}
-				player.AttachStart(m_attachPoint, null, hideWeapons: true, isBed: false, onShip: false, m_attachAnimation, m_detachOffset);
-				m_lastShowerTime = Time.time;
-				m_fxobject.SetActive(value: true);
-				m_showerSFX.Create(base.transform.position, base.transform.rotation);
+				return false;
 			}
+			player.AttachStart(m_attachPoint, null, hideWeapons: true, isBed: false, onShip: false, m_attachAnimation, m_detachOffset);
+			m_lastShowerTime = Time.time;
+			if (m_fxobject != null)
+			{
+				// Switched off first so the effect starts over.
+				m_fxobject.SetActive(value: false);
+				m_fxobject.SetActive(value: true);
+			}
+			m_showerSFX?.Create(base.transform.position, base.transform.rotation);
 			return false;
 		}
 

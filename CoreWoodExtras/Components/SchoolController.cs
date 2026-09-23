@@ -130,8 +130,36 @@ public class SchoolController : MonoBehaviour
 			UpdateFishAmount();
 			for (int i = 0; i < _roamers.Count; i++)
 			{
-				_roamers[i].childUpdate();
+				// A fish added this frame has not run Start yet, and with a divisor only some fish move each frame.
+				if (_roamers[i] != null && _roamers[i].ShouldUpdate(_updateCounter))
+				{
+					_roamers[i].childUpdate();
+				}
 			}
+		}
+	}
+
+	// Set when the school made its own group object, so it is destroyed along with the school.
+	private bool _ownsGroupTransform;
+
+	// Fish that are not children of the school (grouped under their own object, or not grouped at all) would be left
+	// behind when the piece is removed or unloaded, so they are destroyed with it.
+	public void OnDestroy()
+	{
+		if (_roamers != null)
+		{
+			foreach (SchoolChild roamer in _roamers)
+			{
+				if (roamer != null)
+				{
+					Object.Destroy(roamer.gameObject);
+				}
+			}
+			_roamers.Clear();
+		}
+		if (_ownsGroupTransform && _groupTransform != null)
+		{
+			Object.Destroy(_groupTransform.gameObject);
 		}
 	}
 
@@ -140,6 +168,7 @@ public class SchoolController : MonoBehaviour
 		if (!(_groupTransform != null))
 		{
 			GameObject gameObject = new GameObject();
+			_ownsGroupTransform = true;
 			_groupTransform = gameObject.transform;
 			_groupTransform.position = base.transform.position;
 			if (_groupName != "")
@@ -183,9 +212,15 @@ public class SchoolController : MonoBehaviour
 
 	public void RemoveFish(int amount)
 	{
-		SchoolChild schoolChild = _roamers[_roamers.Count - 1];
-		_roamers.RemoveAt(_roamers.Count - 1);
-		Object.Destroy(schoolChild.gameObject);
+		for (int i = 0; i < amount && _roamers.Count > 0; i++)
+		{
+			SchoolChild schoolChild = _roamers[_roamers.Count - 1];
+			_roamers.RemoveAt(_roamers.Count - 1);
+			if (schoolChild != null)
+			{
+				Object.Destroy(schoolChild.gameObject);
+			}
+		}
 	}
 
 	public void UpdateFishAmount()

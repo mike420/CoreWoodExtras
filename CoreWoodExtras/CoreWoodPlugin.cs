@@ -45,11 +45,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 	internal static ConfigFile ConfigFile;
 	internal static ConfigFileWatcher ConfigFileWatcher;
 
-	public static bool MainConfigChanged = false;
-	public static bool ChestConfigChanged = false;
-	public static bool LightConfigChanged = false;
-    public static bool ScarecrowConfigChanged = false;
-
     public static CustomStatusEffect noMonstersStatus;
 
     public void Awake()
@@ -59,7 +54,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		ConfigFileWatcher = new ConfigFileWatcher(base.Config, 1000L);
 		base.Config.SaveOnConfigSet = false;
 		MainConfig.InitConfigs(base.Config);
-		UpdatePlugin(saveConfig: true, initialUpdate: true);
+		UpdatePlugin();
 
 		if (MainConfig.modEnabled.Value)
 		{
@@ -345,10 +340,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static void OnMainConfigChanged(object obj, EventArgs args)
 	{
-		if (!MainConfigChanged)
-		{
-			MainConfigChanged = true;
-		}
 		if (SceneManager.GetActiveScene().name.Equals("main"))
 		{
 			UpdateMainSettings.MainSettingsChanged();
@@ -357,10 +348,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static void OnChestConfigChanged(object obj, EventArgs args)
 	{
-		if (!ChestConfigChanged)
-		{
-			ChestConfigChanged = true;
-		}
 		if (SceneManager.GetActiveScene().name.Equals("main"))
 		{
 			UpdateChestSettings.ChestSettingsChanged();
@@ -369,10 +356,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static void OnLightConfigChanged(object obj, EventArgs args)
 	{
-		if (!LightConfigChanged)
-		{
-			LightConfigChanged = true;
-		}
 		if (SceneManager.GetActiveScene().name.Equals("main"))
 		{
 			UpdateLightSettings.LightSettingsChanged();
@@ -381,34 +364,15 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static void OnScarecrowConfigChanged(object obj, EventArgs args)
     {
-        if (!ScarecrowConfigChanged)
-        {
-            ScarecrowConfigChanged = true;
-        }
         if (SceneManager.GetActiveScene().name.Equals("main"))
         {
             UpdateScarecrowSettings.ScarecrowSettingsChanged();
         }
     }
 
-    private void UpdatePlugin(bool saveConfig = true, bool initialUpdate = false)
+    // The settings are applied by their SettingChanged handlers, so all that is left here is saving the file.
+    private void UpdatePlugin(bool saveConfig = true)
 	{
-		if (MainConfigChanged || initialUpdate)
-		{
-			MainConfigChanged = false;
-		}
-		if (ChestConfigChanged || initialUpdate)
-		{
-			ChestConfigChanged = false;
-		}
-		if (LightConfigChanged || initialUpdate)
-		{
-			LightConfigChanged = false;
-		}
-		if (ScarecrowConfigChanged || initialUpdate)
-		{
-			ScarecrowConfigChanged = false;
-		}
 		if (saveConfig)
 		{
 			base.Config.Save();

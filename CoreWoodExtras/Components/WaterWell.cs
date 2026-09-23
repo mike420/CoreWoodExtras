@@ -18,22 +18,12 @@ namespace CoreWoodExtras {
 
 		public EffectList m_bucketSFX = null;
 
-		private static float m_lastUseTime;
-
-		private ZNetView m_nview;
-
-		private void Awake()
-		{
-			m_nview = base.gameObject.GetComponentInParent<ZNetView>();
-			if (!(m_nview == null))
-			{
-				m_nview.IsValid();
-			}
-		}
+		// Per well, so one player drawing water does not lock every other well.
+		private float m_lastUseTime = -100f;
 
 		public string GetHoverText()
 		{
-			if (Time.time - m_lastUseTime < 6.5f)
+			if (Time.time - m_lastUseTime < 6.5f || Player.m_localPlayer == null)
 			{
 				return "";
 			}
@@ -56,7 +46,7 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			Player player = human as Player;
-			if (!InUseDistance(player))
+			if (player == null || !InUseDistance(player))
 			{
 				return false;
 			}
@@ -65,24 +55,27 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			Player closestPlayer = Player.GetClosestPlayer(m_attachPoint.position, 0.1f);
-			if (closestPlayer != null && closestPlayer != Player.m_localPlayer)
+			if (closestPlayer != null && closestPlayer != player)
 			{
-				Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_blocked");
+				player.Message(MessageHud.MessageType.Center, "$msg_blocked");
 				return false;
 			}
-			m_disabledObject.SetActive(value: true);
-			m_enabledObject.SetActive(value: false);
-			if ((bool)player)
+			if (player.IsEncumbered())
 			{
-				if (player.IsEncumbered())
-				{
-					return false;
-				}
-				m_lastUseTime = Time.time;
-				m_disabledObject.SetActive(value: false);
-				m_enabledObject.SetActive(value: true);
-				m_bucketSFX.Create(base.transform.position, base.transform.rotation);
+				return false;
 			}
+			m_lastUseTime = Time.time;
+			// Switched off first so the bucket animation starts over.
+			if (m_enabledObject != null)
+			{
+				m_enabledObject.SetActive(value: false);
+				m_enabledObject.SetActive(value: true);
+			}
+			if (m_disabledObject != null)
+			{
+				m_disabledObject.SetActive(value: false);
+			}
+			m_bucketSFX?.Create(base.transform.position, base.transform.rotation);
 			return false;
 		}
 

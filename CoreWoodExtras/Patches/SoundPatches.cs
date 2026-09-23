@@ -47,9 +47,9 @@ public class SoundPatches
 					audioSource.outputAudioMixerGroup = AudioMan.instance.m_ambientMixer;
 				}
 			}
-			catch
+			catch (System.Exception ex)
 			{
-				Jotunn.Logger.LogError("Error with ZNetSceneAwakePatch!");
+				Jotunn.Logger.LogError("Error with SoundPatches ZNetSceneAwakePatch: " + ex);
 			}
 		}
 	}

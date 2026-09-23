@@ -16,11 +16,14 @@ namespace CoreWoodExtras {
 
 		private static string m_attachAnimation = "attach_bed";
 
-		private static float m_lastAttachTime;
+		private static readonly int WetHash = "Wet".GetStableHashCode();
+
+		// Per inflatable, so one player getting on does not lock every other one.
+		private float m_lastAttachTime = -100f;
 
 		public string GetHoverText()
 		{
-			if (Time.time - m_lastAttachTime < 2f)
+			if (Time.time - m_lastAttachTime < 2f || Player.m_localPlayer == null)
 			{
 				return "";
 			}
@@ -47,13 +50,13 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			Player player = human as Player;
-			if (!InUseDistance(player))
+			if (player == null || !InUseDistance(player))
 			{
 				return false;
 			}
-			if (Player.m_localPlayer.GetSEMan().HaveStatusEffect("Wet".GetStableHashCode()))
+			if (player.GetSEMan().HaveStatusEffect(WetHash))
 			{
-				Player.m_localPlayer.GetSEMan().RemoveStatusEffect("Wet".GetStableHashCode(), quiet: true);
+				player.GetSEMan().RemoveStatusEffect(WetHash, quiet: true);
 			}
 			player.AttachStart(m_attachPoint, base.gameObject, hideWeapons: true, isBed: false, onShip: false, m_attachAnimation, m_detachOffset);
 			m_lastAttachTime = Time.time;

@@ -18,9 +18,9 @@ internal class ContainerPatches
 			{
 				UpdateChestSettings.ApplyToPrefabs(__instance.GetPrefab);
 			}
-			catch
+			catch (System.Exception ex)
 			{
-				Jotunn.Logger.LogError("Error with ZNetSceneAwakeContainerPatch!");
+				Jotunn.Logger.LogError("Error with ZNetSceneAwakeContainerPatch: " + ex);
 			}
 		}
 	}
@@ -113,9 +113,10 @@ internal class ContainerPatches
 			if ((bool)___m_currentContainer && ___m_currentContainer.name.Contains("mm_corewood_stackable_chest"))
 			{
 				Sign componentInParent = ___m_currentContainer.gameObject.GetComponentInParent<Sign>();
-				if (!(componentInParent == null))
+				Transform canvas = componentInParent != null ? Utils.FindChild(componentInParent.transform, "CanvasFront") : null;
+				if (canvas != null)
 				{
-					Utils.FindChild(componentInParent.transform, "CanvasFront").transform.localPosition = new Vector3(0f, 0.666f, 1.795f);
+					canvas.localPosition = new Vector3(0f, 0.666f, 1.795f);
 				}
 			}
 		}
@@ -131,13 +132,10 @@ internal class ContainerPatches
 				return;
 			}
 			Sign componentInParent = ___m_currentContainer.gameObject.GetComponentInParent<Sign>();
-			if (!(componentInParent == null))
+			Transform canvas = componentInParent != null ? Utils.FindChild(componentInParent.transform, "CanvasFront") : null;
+			if (canvas != null && (bool)Player.m_localPlayer)
 			{
-				Transform transform = Utils.FindChild(componentInParent.transform, "CanvasFront");
-				if ((bool)Player.m_localPlayer)
-				{
-					transform.transform.localPosition = new Vector3(0f, 0.666f, 1.003f);
-				}
+				canvas.localPosition = new Vector3(0f, 0.666f, 1.003f);
 			}
 		}
     }

@@ -1,7 +1,5 @@
 using BepInEx.Configuration;
 using Jotunn.Extensions;
-using Jotunn.Managers;
-using UnityEngine;
 
 namespace CoreWoodExtras;
 
@@ -231,30 +229,4 @@ internal static class MainConfig
         // Local on purpose: the links are set by other players, so each player decides whether their game downloads them.
         pictureFrameWebImages = config.BindConfigInOrder("Picture Frame Settings", "Web Images", true, "If On, picture frames show images from http/https links written on them, downloading them from that address.\n(Off keeps your game from contacting sites other players link to; images from the Images folder always show).\n", synced: false, sectionOrder: true, settingOrder: true);
     }
-
-    private static void SetLightIntensity(string prefab, float intensity)
-	{
-		GameObject prefab2 = PrefabManager.Cache.GetPrefab<GameObject>(prefab);
-		if ((bool)prefab2)
-		{
-			Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
-			{
-				componentsInChildren[i].intensity = intensity;
-			}
-		}
-	}
-
-	private static void SetLightRange(string prefab, float range)
-	{
-		GameObject prefab2 = PrefabManager.Cache.GetPrefab<GameObject>(prefab);
-		if ((bool)prefab2)
-		{
-			Light[] componentsInChildren = prefab2.GetComponentsInChildren<Light>(includeInactive: true);
-			for (int i = 0; i < componentsInChildren.Length; i++)
-			{
-				componentsInChildren[i].range = range;
-			}
-		}
-	}
 }
