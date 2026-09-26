@@ -203,7 +203,7 @@ internal static class MainConfig
 		beaconLightShadows = config.BindConfigInOrder("Beacon Light Settings", "Beacon Light Shadow Type", ShadowsType.Soft, "Set Beacon Light Shadows.\n", synced: false, sectionOrder: true, settingOrder: true);
 		beaconLightShadows.SettingChanged += CoreWoodPlugin.OnLightConfigChanged;
 		
-		ContainerRange = config.BindConfigInOrder("Auto-Feed Settings", "Container Range", 15f, "Defines the range in meters within which containers are checked for food items.\n", synced: true, sectionOrder: true, settingOrder: true);
+		ContainerRange = config.BindConfigInOrder("Auto-Feed Settings", "Container Range", 15f, "Defines the range in meters within which containers are checked for food items.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(1f, 50f));
         FeedCheckCooldown = config.BindConfigInOrder("Auto-Feed Settings", "Feed Check Cooldown", 2f, "Cooldown in seconds between feed checks. Checks only occur when the pet is hungry.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.5f, 60f));
         TroughAutoCollectEnabled = config.BindConfigInOrder("Auto-Feed Settings", "Trough Auto Collect", true, "If On, feeding troughs automatically pick up items they accept that are dropped on the ground within 'Container Range'.\n", synced: false, sectionOrder: true, settingOrder: true);
 

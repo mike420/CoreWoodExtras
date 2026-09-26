@@ -42,6 +42,8 @@ namespace CoreWoodExtras
 
 		private const string RpcEffect = "RPC_MM_SeedBed_Effect";
 
+		private const string RpcHarvested = "RPC_MM_SeedBed_Harvested";
+
 		private const int EffectAdd = 0;
 
 		private const int EffectHarvest = 1;
@@ -140,6 +142,7 @@ namespace CoreWoodExtras
 			m_nview.Register(RpcHarvest, RPC_Harvest);
 			m_nview.Register<string, int>(RpcRefund, RPC_Refund);
 			m_nview.Register<int>(RpcEffect, RPC_Effect);
+			m_nview.Register<string>(RpcHarvested, RPC_Harvested);
 
 			WearNTear wearNTear = GetComponent<WearNTear>();
 			if (wearNTear != null)
@@ -345,10 +348,8 @@ namespace CoreWoodExtras
 					}
 					return Plant(user, conversion);
 				case Status.Ready:
-					// Read what is growing before the harvest clears it.
-					Conversion harvested = FindConversion(GetContent());
+					// The XP comes back in RPC_Harvested, only when this player's harvest is the one that happened.
 					m_nview.InvokeRPC(RpcHarvest);
-					RaiseHarvestSkills(user, harvested);
 					return true;
 				default:
 					return false;
@@ -476,7 +477,20 @@ namespace CoreWoodExtras
 
 		private void RPC_Harvest(long sender)
 		{
-			HarvestAsOwner(store: false);
+			Conversion harvested = HarvestAsOwner(store: false);
+			if (harvested != null)
+			{
+				m_nview.InvokeRPC(sender, RpcHarvested, harvested.From.gameObject.name);
+			}
+		}
+
+		// Runs on the player who harvested by hand, once the owner has done the harvest.
+		private void RPC_Harvested(long sender, string prefabName)
+		{
+			if (Player.m_localPlayer != null)
+			{
+				RaiseHarvestSkills(Player.m_localPlayer, FindConversion(prefabName));
+			}
 		}
 
 		// Only the owner checks, so the bed is harvested once however many players are nearby.
@@ -490,11 +504,12 @@ namespace CoreWoodExtras
 		}
 
 		// With store set the produce goes into the nearest chest, otherwise it drops at the bed for whoever harvested it.
-		private void HarvestAsOwner(bool store)
+		// Returns what was harvested, or null when nothing was.
+		private Conversion HarvestAsOwner(bool store)
 		{
 			if (!IsValid || !m_nview.IsOwner() || GetStatus() != Status.Ready)
 			{
-				return;
+				return null;
 			}
 			string content = GetContent();
 			Conversion conversion = FindConversion(content);
@@ -526,6 +541,7 @@ namespace CoreWoodExtras
 				zdo.Set(s_pendingStore, store);
 				StartSpawning();
 			}
+			return conversion;
 		}
 
 		private void StartSpawning()

@@ -7,6 +7,33 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.3.1</td>
+    <td>
+    Fixed picture frame text not being saved or shown to other players when it contained " &lt; &gt; or |.<br>
+    Farming and Herbalist XP from the seed bed is now only given when your harvest actually happens.<br>
+    Tames now feed from another trough in range when a player has one open.<br>
+    Fixed fish schools that could stop moving.<br>
+    "Container Range" is now limited to 1 - 50 meters.<br>
+    Added the missing Fish Pond name to the built-in English text.
+	</td>
+  </tr>
+  <tr>
+    <td>2.3.0</td>
+    <td>
+    Updated for Valheim 1.0.16<br>
+    Added Greenhouse Glass roof panel 45.<br>
+    Added Greenhouse Glass roof corner 45.
+	</td>
+  </tr>
+  <tr>
+    <td>2.2.9</td>
+    <td>
+    The feeding trough now accepts every food a tameable creature eats, including creatures added by other mods. Troughs can hold mixed foods, and each animal eats what it can and leaves the rest.<br>
+    Adjusted the Greenhouse Panel and Greenhouse Door to align better. (You may need to realign your greenhouse door!).<br>
+    Added Greenhouse Glass roof panel.
+	</td>
+  </tr>
+  <tr>
     <td>2.2.8</td>
     <td>
     Fixed snappoints on trough and seedbed.<br>

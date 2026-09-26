@@ -18,8 +18,12 @@ namespace CoreWoodExtras
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseDoor);
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhousePanel);
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoof);
+            CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofGlass);
+            CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofGlass45);
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofTop);
+            CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofGlassTop45);
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofWallCorner);
+            CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofWallCorner45);
             CoreWoodPlugin.TryAddPiece(AddCoreWoodGreenhouseRoofWallHalf);
             CoreWoodPlugin.TryAddPiece(AddGreenhouseTable);
             CoreWoodPlugin.TryAddPiece(AddGreenhouseSeedbed);
@@ -85,7 +89,7 @@ namespace CoreWoodExtras
 
         public static void AddCoreWoodGreenhouseDoor()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_door");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_greenhouse_door");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "forge",
@@ -120,7 +124,7 @@ namespace CoreWoodExtras
 
         public static void AddCoreWoodGreenhousePanel()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_panel");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_greenhouse_panel");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "forge",
@@ -138,7 +142,7 @@ namespace CoreWoodExtras
                 new RequirementConfig
                 {
                     Item = "Crystal",
-                    Amount = 2,
+                    Amount = 1,
                     Recover = true
                 }
                 }
@@ -152,7 +156,7 @@ namespace CoreWoodExtras
 
         public static void AddCoreWoodGreenhouseRoof()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_roof_greenhouse");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_roof_greenhouse");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "piece_workbench",
@@ -172,39 +176,173 @@ namespace CoreWoodExtras
             gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
             WearNTear component = gameObject.GetComponent<WearNTear>();
             component.m_destroyedEffect = breakWood;
+            component.m_hitEffect = hitWood;
+            PieceManager.Instance.AddPiece(customPiece);
+        }
+
+        public static void AddCoreWoodGreenhouseRoofGlass()
+        {
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_roof_greenhouse_glass");
+            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+            {
+                CraftingStation = "piece_workbench",
+                PieceTable = "_HammerPieceTable",
+                Category = "CoreWood-Greenhouse",
+                Usage = new[] { PieceUsages.Building },
+                Requirements = new RequirementConfig[2]
+                {
+                    new RequirementConfig
+                    {
+                        Item = "RoundLog",
+                        Amount = 2,
+                        Recover = true
+                    },
+                    new RequirementConfig
+                    {
+                        Item = "Crystal",
+                        Amount = 1,
+                        Recover = true
+                    }
+                }
+            });
+            gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+            WearNTear component = gameObject.GetComponent<WearNTear>();
+            component.m_destroyedEffect = breakGlass;
+            component.m_hitEffect = hitWood;
+            PieceManager.Instance.AddPiece(customPiece);
+        }
+
+        public static void AddCoreWoodGreenhouseRoofGlass45()
+        {
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_roof_greenhouse_glass_45");
+            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+            {
+                CraftingStation = "piece_workbench",
+                PieceTable = "_HammerPieceTable",
+                Category = "CoreWood-Greenhouse",
+                Usage = new[] { PieceUsages.Building },
+                Requirements = new RequirementConfig[2]
+                {
+                    new RequirementConfig
+                    {
+                        Item = "RoundLog",
+                        Amount = 2,
+                        Recover = true
+                    },
+                    new RequirementConfig
+                    {
+                        Item = "Crystal",
+                        Amount = 1,
+                        Recover = true
+                    }
+                }
+            });
+            gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+            WearNTear component = gameObject.GetComponent<WearNTear>();
+            component.m_destroyedEffect = breakGlass;
             component.m_hitEffect = hitWood;
             PieceManager.Instance.AddPiece(customPiece);
         }
 
         public static void AddCoreWoodGreenhouseRoofTop()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_roofTop_greenhouse");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_roofTop_greenhouse");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "piece_workbench",
                 PieceTable = "_HammerPieceTable",
                 Category = "CoreWood-Greenhouse",
                 Usage = new[] { PieceUsages.Building },
-                Requirements = new RequirementConfig[1]
+                Requirements = new RequirementConfig[2]
                 {
-                new RequirementConfig
-                {
-                    Item = "RoundLog",
-                    Amount = 2,
-                    Recover = true
-                }
+                    new RequirementConfig
+                    {
+                        Item = "RoundLog",
+                        Amount = 2,
+                        Recover = true
+                    },
+                    new RequirementConfig
+                    {
+                        Item = "Crystal",
+                        Amount = 1,
+                        Recover = true
+                    }
                 }
             });
             gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
             WearNTear component = gameObject.GetComponent<WearNTear>();
-            component.m_destroyedEffect = breakWood;
+            component.m_destroyedEffect = breakGlass;
+            component.m_hitEffect = hitWood;
+            PieceManager.Instance.AddPiece(customPiece);
+        }
+
+        public static void AddCoreWoodGreenhouseRoofGlassTop45()
+        {
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_roofTop_greenhouse_45");
+            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+            {
+                CraftingStation = "piece_workbench",
+                PieceTable = "_HammerPieceTable",
+                Category = "CoreWood-Greenhouse",
+                Usage = new[] { PieceUsages.Building },
+                Requirements = new RequirementConfig[2]
+                {
+                    new RequirementConfig
+                    {
+                        Item = "RoundLog",
+                        Amount = 2,
+                        Recover = true
+                    },
+                    new RequirementConfig
+                    {
+                        Item = "Crystal",
+                        Amount = 1,
+                        Recover = true
+                    }
+                }
+            });
+            gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+            WearNTear component = gameObject.GetComponent<WearNTear>();
+            component.m_destroyedEffect = breakGlass;
             component.m_hitEffect = hitWood;
             PieceManager.Instance.AddPiece(customPiece);
         }
 
         public static void AddCoreWoodGreenhouseRoofWallCorner()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_corner");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_corner");
+            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+            {
+                CraftingStation = "forge",
+                PieceTable = "_HammerPieceTable",
+                Category = "CoreWood-Greenhouse",
+                Usage = new[] { PieceUsages.Building },
+                Requirements = new RequirementConfig[2]
+                {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 1,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Crystal",
+                    Amount = 1,
+                    Recover = true
+                }
+                }
+            });
+            gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+            WearNTear component = gameObject.GetComponent<WearNTear>();
+            component.m_destroyedEffect = breakGlass;
+            component.m_hitEffect = hitWood;
+            PieceManager.Instance.AddPiece(customPiece);
+        }
+
+        public static void AddCoreWoodGreenhouseRoofWallCorner45()
+        {
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_corner_45");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "forge",
@@ -236,7 +374,7 @@ namespace CoreWoodExtras
 
         public static void AddCoreWoodGreenhouseRoofWallHalf()
         {
-            GameObject gameObject = CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_half");
+            GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_greenhouse_roof_wall_half");
             CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
             {
                 CraftingStation = "forge",
@@ -265,6 +403,7 @@ namespace CoreWoodExtras
             component.m_hitEffect = hitWood;
             PieceManager.Instance.AddPiece(customPiece);
         }
+
 
         public static void AddGreenhouseTable()
         {

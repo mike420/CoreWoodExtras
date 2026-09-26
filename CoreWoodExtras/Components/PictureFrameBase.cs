@@ -98,10 +98,11 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 	{
 		if (PrivateArea.CheckAccess(base.transform.position))
 		{
+			// Saved first, so the text still reaches the other players if the picture cannot be shown.
 			_nview.ClaimOwnership();
+			_nview.GetZDO().Set("text", text);
 			TextWidget.text = text;
 			UpdatePicture();
-			_nview.GetZDO().Set("text", text);
 		}
 	}
 
@@ -314,13 +315,21 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 				}
 			}
 		}
-		if (textureCache.IsDirectory(text))
+		// The text is used as a file path, and characters Windows does not allow in paths (" < > |) make that throw.
+		try
 		{
-			StartAnimation(textureCache.LoadTextureNames(text));
+			if (textureCache.IsDirectory(text))
+			{
+				StartAnimation(textureCache.LoadTextureNames(text));
+			}
+			else
+			{
+				SetTexture(text);
+			}
 		}
-		else
+		catch (ArgumentException)
 		{
-			SetTexture(text);
+			SetPicture(null);
 		}
 	}
 

@@ -11,6 +11,8 @@ namespace CoreWoodExtras;
 
 internal class AddDecor
 {
+    // The trough's restriction holds this set by reference, so AddTameFoodsToTrough can grow it after registration.
+    // These are the defaults until the tames' foods are gathered from ZNetScene.
     private static readonly HashSet<string> troughItems = new HashSet<string> {
         "Carrot",
         "Turnip",
@@ -18,6 +20,35 @@ internal class AddDecor
         "Raspberry",
         "Blueberries"
         };
+
+    // Adds every food a tameable creature eats (vanilla or added by other mods) to the trough's allowed items.
+    public static void AddTameFoodsToTrough(ZNetScene zNetScene)
+    {
+        int before = troughItems.Count;
+        foreach (GameObject prefab in zNetScene.m_prefabs)
+        {
+            if (!prefab || !prefab.GetComponent<Tameable>())
+            {
+                continue;
+            }
+            MonsterAI monsterAI = prefab.GetComponent<MonsterAI>();
+            if (!monsterAI || monsterAI.m_consumeItems == null)
+            {
+                continue;
+            }
+            foreach (ItemDrop food in monsterAI.m_consumeItems)
+            {
+                if (food)
+                {
+                    troughItems.Add(food.gameObject.name);
+                }
+            }
+        }
+        if (troughItems.Count > before)
+        {
+            Jotunn.Logger.LogInfo($"[CoreWoodExtras] Trough accepts {troughItems.Count} tame foods ({troughItems.Count - before} added from tameable creatures).");
+        }
+    }
 
     public static void LoadPieces()
 	{

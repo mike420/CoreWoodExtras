@@ -61,12 +61,16 @@ namespace CoreWoodExtras.Containers
         {
             List<Container> nearbyContainers = GetNearbyContainers(character.transform.position, MainConfig.ContainerRange.Value);
 
+            // A trough can hold foods for different animals, so each animal eats what it can and leaves the rest.
+            // A trough a player has open is passed over, so the animal still eats from another one in range.
             foreach (Container container in nearbyContainers)
             {
-                if (container.GetInventory().GetAllItems().Any(item => !animalAI.m_consumeItems.Exists(ci => ci.m_itemData.m_shared.m_name == item.m_shared.m_name)))
+                if (IsInUse(container))
+                {
                     continue;
-
-                foreach (ItemDrop.ItemData item in container.GetInventory().GetAllItems().Where(item => IsFoodForAnimal(item, animalAI)))
+                }
+                ItemDrop.ItemData item = container.GetInventory().GetAllItems().FirstOrDefault(i => IsFoodForAnimal(i, animalAI));
+                if (item != null)
                 {
                     FeedAnimal(animalAI, tamable, character, container, item);
                     return;
@@ -81,12 +85,12 @@ namespace CoreWoodExtras.Containers
 
         private static bool IsFoodForAnimal(ItemDrop.ItemData item, MonsterAI animalAI)
         {
-            if (animalAI.m_consumeItems == null || animalAI.m_consumeItems.Count == 0)
+            if (animalAI == null || item == null || animalAI.m_consumeItems == null || animalAI.m_consumeItems.Count == 0)
             {
                 return false;
             }
 
-            return animalAI != null && item != null && animalAI.m_consumeItems.Exists(ci => ci.m_itemData.m_shared.m_name == item.m_shared.m_name);
+            return animalAI.m_consumeItems.Exists(ci => ci.m_itemData.m_shared.m_name == item.m_shared.m_name);
         }
 
         private static void FeedAnimal(MonsterAI animalAI, Tameable tamable, Character character, Container container, ItemDrop.ItemData item)

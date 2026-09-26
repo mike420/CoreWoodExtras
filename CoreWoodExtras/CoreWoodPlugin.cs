@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.2.8";
+	public const string PluginVersion = "2.3.1";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -47,6 +47,9 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static CustomStatusEffect noMonstersStatus;
 
+    private volatile bool translationsChanged;
+    private float translationReloadAt = -1f;
+
     public void Awake()
 	{
 		plugininstance = this;
@@ -61,8 +64,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
             CheckForFolders();
 			LocalisedText.AddLocalisations();
 			LoadLocalisationData(TranslationFilePath);
-			// The watcher runs on a thread-pool thread and Jotunn's localization is not thread safe, so the reload is
-			// only flagged here and done in Update, on the main thread.
 			FileWatcher.WatchTranslationChanges(TranslationFilePath, delegate
 			{
 				translationsChanged = true;
@@ -103,28 +104,30 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		}
 	}
 
-	private volatile bool translationsChanged;
-
 	public void Update()
-	{
-		if (!translationsChanged)
-		{
-			return;
-		}
-		translationsChanged = false;
-		try
-		{
-			LoadLocalisationData(TranslationFilePath);
-		}
-		catch (Exception ex)
-		{
-			// Usually the editor still holds the file; the next change event loads it.
-			Jotunn.Logger.LogWarning("[CoreWoodExtras] Failed to reload translations: " + ex.Message);
-		}
-	}
+    {
+        ReloadTranslationsIfChanged();
+    }
 
-	public void OnDestroy()
-	{
+    private void ReloadTranslationsIfChanged()
+    {
+        if (translationsChanged)
+        {
+            translationsChanged = false;
+            translationReloadAt = Time.time + 0.5f;
+        }
+        if (translationReloadAt >= 0f && Time.time >= translationReloadAt)
+        {
+            translationReloadAt = -1f;
+            try
+            {
+                LoadLocalisationData(TranslationFilePath);
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not reload the translation files: " + ex.Message);
+            }
+        }
     }
 
     public static void CheckForFolders()
@@ -370,7 +373,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
         }
     }
 
-    // The settings are applied by their SettingChanged handlers, so all that is left here is saving the file.
     private void UpdatePlugin(bool saveConfig = true)
 	{
 		if (saveConfig)
@@ -379,7 +381,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		}
     }
 
-    // Registers one piece. A failure is logged and never stops the remaining pieces from loading.
     internal static void TryAddPiece(Action addPiece)
     {
         try

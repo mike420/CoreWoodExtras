@@ -105,7 +105,11 @@ public class SchoolChild : MonoBehaviour
 	public void OnDisable()
 	{
 		CancelInvoke();
-		_spawner._activeChildren--;
+		// Only a fish that has run Start was counted, the same as in OnEnable.
+		if (_instantiated)
+		{
+			_spawner._activeChildren--;
+		}
 	}
 
 	public void OnEnable()
