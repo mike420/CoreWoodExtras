@@ -1,13 +1,10 @@
-# HD Corewood Extras
+# 🎯 HD Corewood Extras
 
 ![Main](https://imgup.uk/i/uAKTdABf.png)
 
-## ******  ==Before Updating to v2.2.3== ******
+<br>
 
-<strong>Burt the trader now lists items from a json file stored in your "BepInEx\config\CoreWoodExtras" folder. The item configs have been removed from the config file, so you will need to delete your old config file and let the game create a new one.</strong>
-
-
-## Donations: 
+## 💶 Donations: 
 
 Please support this project if you can and prevent it from becoming abandoned!
 
@@ -19,15 +16,18 @@ Thanks for being part of the adventure. Stay lifted, stay curious!
 
 <a href="https://www.paypal.com/donate/?hosted_button_id=BN8HEWHRMAREU">![](https://imgup.uk/i/n7Sg7WK9.png)</a> 
 
+<br>
 
   
-## Configuration:
+## 🎚️ Configuration:
 
 Configuration options can be modified in-game (using <a href="https://thunderstore.io/c/valheim/p/Azumatt/Official_BepInEx_ConfigurationManager/">Configuration Manager</a> plugin).
 
 Most settings apply straight away. Any setting that needs a restart or a rebuilt piece says so in its description.
-  
-## Installation:
+
+<br>
+
+## 💻 Installation:
 
 ### Automatic Install
 
@@ -38,18 +38,22 @@ For Nexus downloads you will need to install manually.
 
   * Un-zip and drag the `plugins` folder into your `BepInEx` folder.
 
+<br>
+
   
-## Credits: 
+## 💜 Credits: 
   * blacks7ar for the original idea, and for the Seed Bed idea.
   * firstD for the Picture Frame code.
 
+<br>
 
-## Plugins Created by Magic Mike:
+## 💥 Plugins Created by Magic Mike:
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CoreWoodExtras/">Corewood Extras</a>
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/">My Dirty Hoe</a> 
 
+<br>
 
-## FAQs:
+## ❓ FAQs:
 
 <details>
     <summary><strong> How do I get Mystical Seeds?</strong></summary>
@@ -99,10 +103,14 @@ Restart the game after editing BurtItems.json for changes to take effect.
     If you play on a server, use the same SeedBedItems.json on the server and every client. Delete the file and restart if you want it regenerated with the defaults.
 </details>  
 
-  
-## Comments/Suggestions/Help: <a href="https://www.nexusmods.com/valheim/mods/2806">Nexus</a>.
+<br>
 
-## Donations: 
+  
+## 💬 Comments/Suggestions/Help: <a href="https://www.nexusmods.com/valheim/mods/2806">Nexus</a>.
+
+<br>
+
+## 💶 Donations: 
 
 Please support this project if you can!
 
