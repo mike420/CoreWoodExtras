@@ -35,8 +35,6 @@ internal class AddStructures
 
         CoreWoodPlugin.TryAddPiece(AddCoreWoodLiftGate);
 
-        // Always registered: "Enable Elevators" is applied at runtime (PiecePatches, Elevator.Activate) so the server's
-        // synced value is used.
         CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorSmall9);
         CoreWoodPlugin.TryAddPiece(AddCoreWoodElevatorLarge);
@@ -104,7 +102,6 @@ internal class AddStructures
 		WearNTear component = gameObject.GetComponent<WearNTear>();
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
-		// Burt is switched on and off at runtime, so "Enable Trader" follows the server's synced value.
 		Transform burt = Utils.FindChild(gameObject.transform, "Burt");
 		if (burt != null)
 		{

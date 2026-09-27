@@ -20,8 +20,6 @@ public class TextureCache
 		ImageBasePath = imageBasePath;
 	}
 
-	// Cache key: the name with a lowercase extension, so "a.PNG" and "a.png" share an entry.
-	// Only the key is normalised; files are always opened with the name as written, because paths are case sensitive on Linux.
 	private static string NormalizeKey(string name)
 	{
 		return Path.ChangeExtension(name, Path.GetExtension(name).ToLower());
@@ -75,7 +73,6 @@ public class TextureCache
 			yield break;
 		}
 		Texture texture = ((DownloadHandlerTexture)webRequest.downloadHandler).texture;
-		// Another request for the same url may have finished first.
 		if (!cache.ContainsKey(textureName))
 		{
 			cache.Add(textureName, texture);

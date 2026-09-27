@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace CoreWoodExtras
 {
-	// A spit that roasts a whole boar: takes 5 raw boar meat at once while a fire burns under it, shows the pig on the
-	// spit while it cooks and until someone collects the 5 cooked boar meat, then hides the pig again.
 	internal class HogRoast : MonoBehaviour, Hoverable, Interactable
 	{
 		private enum Status
@@ -36,12 +34,10 @@ namespace CoreWoodExtras
 
 		private static readonly int s_status = "mm_hogroast_status".GetStableHashCode();
 
-		// Seconds spent over a fire so far, and when that was last updated.
 		private static readonly int s_progress = "mm_hogroast_progress".GetStableHashCode();
 
 		private static readonly int s_lastTime = "mm_hogroast_time".GetStableHashCode();
 
-		// Set when the roast put its fire out, so removing the roast lights it again.
 		private static readonly int s_putOut = "mm_hogroast_putout".GetStableHashCode();
 
 		public float m_hoverOffset = 0f;
@@ -50,8 +46,6 @@ namespace CoreWoodExtras
 
 		public EffectList m_doneEffects = new EffectList();
 
-		// Roughly how many degrees per second the pig turns on the spit. The number of turns is rounded so the last one
-		// ends exactly as the meat is done, with the pig back where it started.
 		public float m_spinSpeed = 30f;
 
 		private ZNetView m_nview;
@@ -60,7 +54,6 @@ namespace CoreWoodExtras
 
 		private Transform m_pig;
 
-		// The spit handle, turned together with the pig.
 		private Transform m_handle;
 
 		private bool m_spinning;
@@ -69,7 +62,6 @@ namespace CoreWoodExtras
 
 		private Quaternion m_handleStartRotation;
 
-		// Local copy of the cooking progress, moved on every frame between the owner's once a second updates.
 		private float m_shownProgress;
 
 		private Transform m_fireCheckPoint;
@@ -114,8 +106,6 @@ namespace CoreWoodExtras
 			InvokeRepeating(nameof(UpdateCooking), 1f, 1f);
 		}
 
-		// ---- state ----------------------------------------------------------------------------------------------
-
 		private Status GetStatus()
 		{
 			return (Status)m_nview.GetZDO().GetInt(s_status);
@@ -137,18 +127,14 @@ namespace CoreWoodExtras
 			return EffectArea.IsPointInsideArea(point, EffectArea.Type.Burning, 0.25f) != null;
 		}
 
-		// ---- fire -----------------------------------------------------------------------------------------------
-
 		private const float FireSearchRadius = 0.5f;
 
-		// Fireplace state: 1 is lit, 2 is put out. A fire that is put out keeps its fuel.
 		private const int FireOn = 1;
 
 		private const int FireOff = 2;
 
 		private static readonly Collider[] s_fireColliders = new Collider[32];
 
-		// Searched by collider rather than by the burning area, which disappears once the fire is put out.
 		private Fireplace FindFire()
 		{
 			Vector3 point = m_fireCheckPoint != null ? m_fireCheckPoint.position : transform.position;
@@ -182,7 +168,6 @@ namespace CoreWoodExtras
 			return fire.m_infiniteFuel || fire.m_nview.GetZDO().GetFloat(ZDOVars.s_fuel) > 0f;
 		}
 
-		// A fire that was put out (by the roast finishing) and still has fuel can be lit again when meat is added.
 		private bool CanRelight(out Fireplace fire)
 		{
 			fire = FindFire();
@@ -194,7 +179,6 @@ namespace CoreWoodExtras
 			return HasFire() || CanRelight(out _);
 		}
 
-		// RPC_ToggleOn flips the state, so only send it when the fire is in the state being changed from.
 		private static void SetFireLit(Fireplace fire, bool lit)
 		{
 			if (fire != null && GetFireState(fire) == (lit ? FireOff : FireOn))
@@ -203,8 +187,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Any fire under the roast is put out when the meat is done, so it stops burning fuel. Adding more meat lights it
-		// again, and so does removing the roast.
 		private void PutOutFire()
 		{
 			Fireplace fire = FindFire();
@@ -215,7 +197,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Runs on every client, so everyone nearby sees and hears the roast, not just its owner.
 		private void RPC_Effect(long sender, int effect)
 		{
 			EffectList effects = effect == EffectDone ? m_doneEffects : m_addEffects;
@@ -233,7 +214,6 @@ namespace CoreWoodExtras
 			return prefab != null ? prefab.GetComponent<ItemDrop>() : null;
 		}
 
-		// The pig stays on the spit while it cooks and until the meat is collected.
 		private void SyncVisuals()
 		{
 			if (!IsValid || m_pig == null)
@@ -245,13 +225,9 @@ namespace CoreWoodExtras
 			{
 				m_pig.gameObject.SetActive(show);
 			}
-			// Checked here rather than every frame, so the fire lookup only runs twice a second.
 			m_spinning = GetStatus() == Status.Cooking && HasFire();
 		}
 
-		// "Enabled" and "Rotate" both have their pivot on the spit, so turning them on their own z axis spins the pig and
-		// the handle along it. The angle follows the cooking progress, so it pauses with the fire, is the same for every
-		// player, and is back at the start when the meat is done.
 		private void Update()
 		{
 			if (!IsValid || m_pig == null)
@@ -264,7 +240,6 @@ namespace CoreWoodExtras
 			{
 				m_shownProgress += Time.deltaTime;
 			}
-			// The owner only writes the progress once a second, so follow it locally and snap back when it drifts.
 			if (Mathf.Abs(m_shownProgress - progress) > 1.5f)
 			{
 				m_shownProgress = progress;
@@ -280,8 +255,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Only the owner advances the roast, and only while a fire burns under it. Time that passed while the area was
-		// unloaded counts too, the same as the vanilla cooking station.
 		private void UpdateCooking()
 		{
 			if (!IsValid || !m_nview.IsOwner() || GetStatus() != Status.Cooking)
@@ -303,7 +276,6 @@ namespace CoreWoodExtras
 			{
 				SetStatus(Status.Ready);
 				PlayEffect(EffectDone);
-				// Put the fire out so it stops burning fuel, it is lit again when more meat is added.
 				PutOutFire();
 			}
 		}
@@ -339,8 +311,6 @@ namespace CoreWoodExtras
 			Vector3 origin = m_pig != null ? m_pig.position : transform.position;
 			return origin + Vector3.up * 0.3f;
 		}
-
-		// ---- hover / interact -----------------------------------------------------------------------------------
 
 		public string GetHoverName()
 		{
@@ -432,7 +402,6 @@ namespace CoreWoodExtras
 			}
 			Inventory inventory = user.GetInventory();
 			string sharedName = raw.m_itemData.m_shared.m_name;
-			// Counts every stack, so meat split over several stacks still adds up.
 			if (inventory.CountItems(sharedName) < Amount)
 			{
 				user.Message(MessageHud.MessageType.Center, "$text_hogroast_no_meat_mm");
@@ -443,8 +412,6 @@ namespace CoreWoodExtras
 			return true;
 		}
 
-		// ---- rpc (run on the owner, except give which runs on the player who added or collected the meat) --------
-
 		private void RPC_Add(long sender, int amount)
 		{
 			if (!m_nview.IsOwner())
@@ -453,7 +420,6 @@ namespace CoreWoodExtras
 			}
 			if (GetStatus() != Status.Empty)
 			{
-				// Someone else got there first: give the meat back.
 				m_nview.InvokeRPC(sender, RpcGive, RawItem, amount);
 				return;
 			}
@@ -464,7 +430,6 @@ namespace CoreWoodExtras
 			PlayEffect(EffectAdd);
 		}
 
-		// Checked on the owner, so the meat is only handed out once however many players collect at the same time.
 		private void RPC_Collect(long sender)
 		{
 			if (!m_nview.IsOwner() || GetStatus() != Status.Ready)
@@ -476,7 +441,6 @@ namespace CoreWoodExtras
 			m_nview.InvokeRPC(sender, RpcGive, CookedItem, Amount);
 		}
 
-		// Puts the meat in the local player's inventory, or drops it at the roast when there is no room.
 		private void RPC_Give(long sender, string prefabName, int amount)
 		{
 			ItemDrop item = GetItemDrop(prefabName);
@@ -500,7 +464,6 @@ namespace CoreWoodExtras
 			SpawnItem(prefabName, amount);
 		}
 
-		// Removing the roast drops what is on it: the cooked meat when it is ready, the raw meat otherwise.
 		private void OnDestroyed()
 		{
 			if (!IsValid || !m_nview.IsOwner())
@@ -516,8 +479,6 @@ namespace CoreWoodExtras
 					SpawnItem(RawItem, Amount);
 					break;
 			}
-			// Light the fire again when the roast put it out. Fires that cannot be switched by hand are always lit again,
-			// since nobody could light them otherwise (and older roasts did not remember putting them out).
 			Fireplace fire = FindFire();
 			if (fire != null && (!fire.m_canTurnOff || m_nview.GetZDO().GetBool(s_putOut)))
 			{

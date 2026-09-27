@@ -18,7 +18,6 @@ namespace CoreWoodExtras {
 
 		private static readonly int WetHash = "Wet".GetStableHashCode();
 
-		// Per inflatable, so one player getting on does not lock every other one.
 		private float m_lastAttachTime = -100f;
 
 		public string GetHoverText()

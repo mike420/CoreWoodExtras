@@ -54,7 +54,6 @@ public class LightPatches
 		};
 	}
 
-	// Writes the current light config onto every Core Wood light prefab.
 	internal static void ApplyAll(Func<string, GameObject> getPrefab)
 	{
 		foreach (LightEntry entry in GetEntries())
@@ -63,7 +62,6 @@ public class LightPatches
 		}
 	}
 
-	// Writes the current light config onto every Core Wood light that is already placed in the world.
 	internal static void ApplyToLiveInstances()
 	{
 		Dictionary<string, LightEntry> entries = new Dictionary<string, LightEntry>();
@@ -109,7 +107,6 @@ public class LightPatches
 		light.range = entry.Range;
 		light.shadows = entry.Shadows;
 
-		// These components cache the light's values in Awake and would overwrite a live change.
 		LightFlicker flicker = light.GetComponent<LightFlicker>();
 		if (flicker)
 		{

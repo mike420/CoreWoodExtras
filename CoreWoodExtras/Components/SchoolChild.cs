@@ -63,8 +63,6 @@ public class SchoolChild : MonoBehaviour
 		_spawner._activeChildren++;
 	}
 
-	// With an update divisor above 1 the school only moves each fish every few frames (with a bigger delta), and the
-	// seed picks which frame is this fish's turn.
 	public bool ShouldUpdate(int updateCounter)
 	{
 		return _instantiated && (_spawner._updateDivisor <= 1 || _updateSeed == updateCounter);
@@ -83,7 +81,6 @@ public class SchoolChild : MonoBehaviour
 	{
 		if (_spawner._updateDivisor > 1)
 		{
-			// Spread the fish evenly over the frames, one frame in every _updateDivisor each.
 			_updateSeed = _updateNextSeed % _spawner._updateDivisor;
 			_updateNextSeed = (_updateNextSeed + 1) % _spawner._updateDivisor;
 		}
@@ -105,7 +102,6 @@ public class SchoolChild : MonoBehaviour
 	public void OnDisable()
 	{
 		CancelInvoke();
-		// Only a fish that has run Start was counted, the same as in OnEnable.
 		if (_instantiated)
 		{
 			_spawner._activeChildren--;

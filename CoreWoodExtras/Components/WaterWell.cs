@@ -18,7 +18,6 @@ namespace CoreWoodExtras {
 
 		public EffectList m_bucketSFX = null;
 
-		// Per well, so one player drawing water does not lock every other well.
 		private float m_lastUseTime = -100f;
 
 		public string GetHoverText()
@@ -65,7 +64,6 @@ namespace CoreWoodExtras {
 				return false;
 			}
 			m_lastUseTime = Time.time;
-			// Switched off first so the bucket animation starts over.
 			if (m_enabledObject != null)
 			{
 				m_enabledObject.SetActive(value: false);

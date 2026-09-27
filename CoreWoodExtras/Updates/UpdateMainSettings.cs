@@ -17,7 +17,6 @@ internal class UpdateMainSettings
 	{
 		bool enabled = MainConfig.toiletEffects.Value;
 
-		// Prefab covers toilets placed from now on, live instances cover toilets already in the world.
 		SetToiletEffects(PrefabManager.Instance.GetPrefab(ToiletPrefab), enabled);
 		foreach (ZNetView nview in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
 		{

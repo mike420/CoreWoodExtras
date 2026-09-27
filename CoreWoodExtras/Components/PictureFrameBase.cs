@@ -22,15 +22,12 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 
 	private float _interval = 5f;
 
-	// Shared by every frame, so an image shown on several frames (or on a frame that is loaded again) is only read once.
 	private static TextureCache textureCache;
 
 	private Renderer _pictureRenderer;
 
-	// The picture's own copy of its material, made the first time a texture is set.
 	private Material _pictureMaterial;
 
-	// Bumped on every SetTexture, so a web image that arrives after the frame moved on is ignored.
 	private int _textureRequest;
 
 	private ZNetView _nview;
@@ -98,7 +95,6 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 	{
 		if (PrivateArea.CheckAccess(base.transform.position))
 		{
-			// Saved first, so the text still reaches the other players if the picture cannot be shown.
 			_nview.ClaimOwnership();
 			_nview.GetZDO().Set("text", text);
 			TextWidget.text = text;
@@ -112,7 +108,6 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 		if (IsUrl(fileName))
 		{
 			SetPicture(null);
-			// Sign text is set by other players, so each player can choose not to download images from their links.
 			if (MainConfig.pictureFrameWebImages.Value)
 			{
 				StartCoroutine(textureCache.FetchFromWeb(fileName, delegate(Texture texture)
@@ -143,7 +138,6 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 
 	private void OnDestroy()
 	{
-		// Unity does not free the renderer's material copy along with the renderer.
 		if (_pictureMaterial)
 		{
 			Destroy(_pictureMaterial);
@@ -315,7 +309,6 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 				}
 			}
 		}
-		// The text is used as a file path, and characters Windows does not allow in paths (" < > |) make that throw.
 		try
 		{
 			if (textureCache.IsDirectory(text))
@@ -343,7 +336,6 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 		}
 	}
 
-	// Sign text is user input (and synced from other players), so parse it culture-independently and never throw.
 	private static bool TryParseFloat(string text, out float value)
 	{
 		return float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value);

@@ -6,23 +6,18 @@ public class ParentPlatform : MonoBehaviour
 {
 	private class Rider
 	{
-		// How many colliders of the rider are touching the platform (a player has several).
 		public int Touching;
 
-		// What the rider was parented to before it got on, so it goes back there when it gets off.
 		public Transform OriginalParent;
 	}
 
 	private Piece m_piece;
 
-	// The rider is only let go, and the piece only removable, when none of its colliders touch any more.
-	// [NonSerialized] keeps Jotunn's mock scan from warning about the dictionary.
 	[System.NonSerialized]
 	private readonly Dictionary<Transform, Rider> m_riders = new Dictionary<Transform, Rider>();
 
 	private readonly List<Transform> m_gone = new List<Transform>();
 
-	// Every platform in the world, so the destroy hook only has anything to do when a platform is loaded.
 	private static readonly HashSet<ParentPlatform> s_platforms = new HashSet<ParentPlatform>();
 
 	private void Start()
@@ -73,8 +68,6 @@ public class ParentPlatform : MonoBehaviour
 		UpdateRemovable();
 	}
 
-	// Unity does not send OnCollisionExit when a rider is destroyed or deactivated (a player logging out or dying, an
-	// item that is picked up), so riders that are gone are dropped here. A rider that comes back sends a new enter.
 	private void FixedUpdate()
 	{
 		if (m_riders.Count == 0)
@@ -104,8 +97,6 @@ public class ParentPlatform : MonoBehaviour
 		UpdateRemovable();
 	}
 
-	// Lets go of everyone on the platform. Called before the platform is destroyed, since Unity destroys children with
-	// their parent and a player standing on it would be destroyed with it.
 	public void DetachAll()
 	{
 		foreach (KeyValuePair<Transform, Rider> rider in m_riders)
@@ -122,7 +113,6 @@ public class ParentPlatform : MonoBehaviour
 		{
 			return;
 		}
-		// The original parent may have gone in the meantime.
 		rider.SetParent(state.OriginalParent != null ? state.OriginalParent : null);
 		Rigidbody body = rider.GetComponent<Rigidbody>();
 		if (body != null)
@@ -139,8 +129,6 @@ public class ParentPlatform : MonoBehaviour
 		}
 	}
 
-	// Every way a networked object is destroyed (removed, broken, unloaded with its zone, the ZDO destroyed by another
-	// client) resets its ZDO just before destroying it, so riders are let go there, while they can still be moved out.
 	[HarmonyPatch(typeof(ZNetView), nameof(ZNetView.ResetZDO))]
 	private static class ZNetView_ResetZDO_Patch
 	{

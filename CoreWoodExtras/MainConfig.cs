@@ -12,7 +12,6 @@ internal static class MainConfig
 		Soft
 	}
 
-    // "General Settings";
 	public static ConfigEntry<bool> modEnabled;
 	public static ConfigEntry<bool> disableHDTextures;
 	public static ConfigEntry<bool> toiletEffects;
@@ -20,7 +19,6 @@ internal static class MainConfig
 	public static ConfigEntry<bool> autoTriggers;
     public static ConfigEntry<bool> traderEnabled;
 
-    // "Chest Settings";
     public static ConfigEntry<int> chestColumns;
 	public static ConfigEntry<int> chestRows;
 	public static ConfigEntry<int> chestPrivateColumns;
@@ -29,71 +27,57 @@ internal static class MainConfig
 	public static ConfigEntry<int> chestStackedRows;
 	public static ConfigEntry<bool> chestStackedHotbar;
 
-	// "Skull Light Settings";
 	public static ConfigEntry<float> skullLightIntensity;
 	public static ConfigEntry<float> skullLightRange;
 	public static ConfigEntry<ShadowsType> skullLightShadows;
 
-	// "Chandelier Light Settings";
 	public static ConfigEntry<float> chandelierLightIntensity;
 	public static ConfigEntry<float> chandelierLightRange;
 	public static ConfigEntry<ShadowsType> chandelierLightShadows;
 
-	// "Wall Light Settings";
 	public static ConfigEntry<float> wallLightIntensity;
 	public static ConfigEntry<float> wallLightRange;
 	public static ConfigEntry<ShadowsType> wallLightShadows;
 
-	// "Surtling Lantern Light Settings";
 	public static ConfigEntry<float> surtlingLanternLightIntensity;
 	public static ConfigEntry<float> surtlingLanternLightRange;
 	public static ConfigEntry<ShadowsType> surtlingLanternLightShadows;
 
-	// "Surtling Single Light Settings";
 	public static ConfigEntry<float> surtlingSingleLightIntensity;
 	public static ConfigEntry<float> surtlingSingleLightRange;
 	public static ConfigEntry<ShadowsType> surtlingSingleLightShadows;
 
-	// "Surtling Double Light Settings";
 	public static ConfigEntry<float> surtlingDoubleLightIntensity;
 	public static ConfigEntry<float> surtlingDoubleLightRange;
 	public static ConfigEntry<ShadowsType> surtlingDoubleLightShadows;
 
-	// "Lava Light Settings";
 	public static ConfigEntry<float> lavaLightIntensity;
 	public static ConfigEntry<float> lavaLightRange;
 	public static ConfigEntry<ShadowsType> lavaLightShadows;
 
-	// "Crystal Light Settings";
 	public static ConfigEntry<float> crystalLightIntensity;
 	public static ConfigEntry<float> crystalLightRange;
 	public static ConfigEntry<ShadowsType> crystalLightShadows;
 
-	// "Rope Light Settings";
 	public static ConfigEntry<float> ropeLightIntensity;
 	public static ConfigEntry<float> ropeLightRange;
 	public static ConfigEntry<ShadowsType> ropeLightShadows;
 
-	// "Brazier Light Settings";
 	public static ConfigEntry<float> brazierLightIntensity;
 	public static ConfigEntry<float> brazierLightRange;
 	public static ConfigEntry<ShadowsType> brazierLightShadows;
 
-	// "Beacon Light Settings";
 	public static ConfigEntry<float> beaconLightIntensity;
 	public static ConfigEntry<float> beaconLightRange;
 	public static ConfigEntry<ShadowsType> beaconLightShadows;
 
-    // "Auto-Feed Settings";
     public static ConfigEntry<float> ContainerRange = null!;
     public static ConfigEntry<float> FeedCheckCooldown = null!;
     public static ConfigEntry<bool> TroughAutoCollectEnabled = null!;
 
-    // "Scarecrow Settings";
     public static ConfigEntry<bool> EnableProtectionToggle = null!;
     public static ConfigEntry<bool> ShowForcefield = null!;
 
-    // "Seed Bed Settings";
     public static ConfigEntry<float> SeedBedGerminationDuration = null!;
     public static ConfigEntry<bool> SeedBedAutoHarvest = null!;
     public static ConfigEntry<bool> SeedBedAutoStore = null!;
@@ -103,11 +87,9 @@ internal static class MainConfig
     public static ConfigEntry<float> SeedBedFarmingExp = null!;
     public static ConfigEntry<float> SeedBedHerbalistExp = null!;
 
-    // "Boar Roaster Settings";
     public static ConfigEntry<float> HogRoastCookDuration = null!;
     public static ConfigEntry<string> HogRoastRequiredKey = null!;
 
-    // "Picture Frame Settings";
     public static ConfigEntry<bool> pictureFrameWebImages = null!;
 
     public static void InitConfigs(ConfigFile config)
@@ -212,7 +194,6 @@ internal static class MainConfig
         ShowForcefield = config.BindConfigInOrder("Scarecrow Settings", "Show Forcefield", true, "If Off, the scarecrow forcefield is hidden but still active.\n", synced: false, sectionOrder: true, settingOrder: true);
         ShowForcefield.SettingChanged += CoreWoodPlugin.OnScarecrowConfigChanged;
 
-        // Read live by every seed bed, so changes apply without a restart.
         SeedBedGerminationDuration = config.BindConfigInOrder("Seed Bed Settings", "Germination Duration", 4000f, "How many seconds it takes for seeds to finish germinating in the seed bed.\n(What can be germinated is set in BepInEx/config/CoreWoodExtras/SeedBedItems.json).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(60f, 5000f));
         SeedBedAutoHarvest = config.BindConfigInOrder("Seed Bed Settings", "Auto Harvest", false, "If On, the seed bed harvests itself as soon as the seeds finish germinating, and the produce appears at the seed bed.\n(No Farming or Herbalist XP is given for automatic harvests).\n", synced: true, sectionOrder: true, settingOrder: true);
         SeedBedAutoStore = config.BindConfigInOrder("Seed Bed Settings", "Auto Store", true, "If On, produce from an automatic harvest is stored in a feeding trough first (for food the trough accepts), otherwise in the nearest chest with room, instead of dropping at the seed bed.\n(Needs 'Auto Harvest'. Harvesting by hand always drops the produce at the seed bed).\n", synced: true, sectionOrder: true, settingOrder: true);
@@ -222,11 +203,9 @@ internal static class MainConfig
         SeedBedFarmingExp = config.BindConfigInOrder("Seed Bed Settings", "Farming XP", 1f, "XP given to the Farming skill each time the seed bed is harvested.\n(Needs the Farming mod, does nothing if the skill does not exist).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.01f, 1f));
         SeedBedHerbalistExp = config.BindConfigInOrder("Seed Bed Settings", "Herbalist XP", 1f, "XP given to the Herbalist skill when a herb is harvested from the seed bed.\n(Needs the Herbalist mod, does nothing if the skill does not exist).\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(0.01f, 5f));
 
-        // Read live by every boar roaster, so changes apply without a restart.
         HogRoastCookDuration = config.BindConfigInOrder("Boar Roaster Settings", "Cook Duration", 120f, "How many seconds the boar roaster needs over a fire to turn 5 raw boar meat into 5 cooked boar meat.\n", synced: true, sectionOrder: true, settingOrder: true, new AcceptableValueRange<float>(30f, 3600f));
         HogRoastRequiredKey = config.BindConfigInOrder("Boar Roaster Settings", "Required Key", "defeated_eikthyr", "The boar roaster only shows in the build menu once this global key is set (defeated_eikthyr is set when Eikthyr is defeated).\n(Leave empty to always show it).\n", synced: true, sectionOrder: true, settingOrder: true);
 
-        // Local on purpose: the links are set by other players, so each player decides whether their game downloads them.
         pictureFrameWebImages = config.BindConfigInOrder("Picture Frame Settings", "Web Images", true, "If On, picture frames show images from http/https links written on them, downloading them from that address.\n(Off keeps your game from contacting sites other players link to; images from the Images folder always show).\n", synced: false, sectionOrder: true, settingOrder: true);
     }
 }

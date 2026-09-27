@@ -12,8 +12,6 @@ public class TriggerPlatform : MonoBehaviour
 			return;
 		}
 
-		// Every client sees the collider enter, so only one of them may start the trip:
-		// players start it on their own client, anything else (creatures, item drops) is handled by the elevator's owner.
 		Player player = other.GetComponentInParent<Player>();
 		if (player != null)
 		{

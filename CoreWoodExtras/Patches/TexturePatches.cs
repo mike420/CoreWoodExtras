@@ -28,10 +28,8 @@ public class TexturePatches
 
 	public static ZNetScene zNetScene;
 
-	// Original settings of every texture switched to point filtering, so it can be undone.
 	private static readonly Dictionary<Texture, TextureState> OriginalStates = new Dictionary<Texture, TextureState>();
 
-	// Applies the "Disable HD" setting: point filtering when on, the original filtering when off.
 	public static void ChangeTextureFilter()
 	{
 		if (!MainConfig.disableHDTextures.Value)

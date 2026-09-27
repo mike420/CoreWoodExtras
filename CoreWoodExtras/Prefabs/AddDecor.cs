@@ -11,8 +11,6 @@ namespace CoreWoodExtras;
 
 internal class AddDecor
 {
-    // The trough's restriction holds this set by reference, so AddTameFoodsToTrough can grow it after registration.
-    // These are the defaults until the tames' foods are gathered from ZNetScene.
     private static readonly HashSet<string> troughItems = new HashSet<string> {
         "Carrot",
         "Turnip",
@@ -21,7 +19,6 @@ internal class AddDecor
         "Blueberries"
         };
 
-    // Adds every food a tameable creature eats (vanilla or added by other mods) to the trough's allowed items.
     public static void AddTameFoodsToTrough(ZNetScene zNetScene)
     {
         int before = troughItems.Count;
@@ -417,7 +414,6 @@ internal class AddDecor
         {
             hogRoast = gameObject.AddComponent<HogRoast>();
         }
-        // Borrow the sizzle and done sounds from the vanilla cooking station.
         CookingStation cookingStation = PrefabManager.Instance.GetPrefab("piece_cookingstation")?.GetComponent<CookingStation>();
         if (cookingStation != null)
         {

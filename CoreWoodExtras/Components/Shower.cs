@@ -20,7 +20,6 @@ namespace CoreWoodExtras {
 
 		private static string m_attachAnimation = "";
 
-		// Per shower, so one player showering does not lock every other shower.
 		private float m_lastShowerTime = -100f;
 
 		public string GetHoverText()
@@ -70,7 +69,6 @@ namespace CoreWoodExtras {
 			m_lastShowerTime = Time.time;
 			if (m_fxobject != null)
 			{
-				// Switched off first so the effect starts over.
 				m_fxobject.SetActive(value: false);
 				m_fxobject.SetActive(value: true);
 			}

@@ -24,8 +24,6 @@ namespace CoreWoodExtras
 
         public EffectList m_deactivateSFX = null;
 
-        // When false the scarecrow is inert: no forcefield and no interaction.
-        // Mirrors MainConfig.EnableProtectionToggle, refreshed by ApplySettings.
         public bool m_toggleEnabled = true;
 
         private static readonly List<Scarecrow> Instances = new List<Scarecrow>();
@@ -38,19 +36,16 @@ namespace CoreWoodExtras
 
         private bool[] m_rendererDefaults = new bool[0];
 
-        // The no-monsters area under the forcefield, and the object it lives on.
         private EffectArea m_area;
 
         private GameObject m_areaHost;
 
-        // What the area was set up with in the prefab, so an identical one can be added again after it is destroyed.
         private EffectArea.Type m_areaType;
 
         private string m_areaStatusEffect = "";
 
         private bool m_areaPlayerOnly;
 
-        // False for the placement ghost, which has no valid ZDO and must not protect anything.
         private bool m_live;
 
         private void Awake()
@@ -94,7 +89,6 @@ namespace CoreWoodExtras
             Instances.Remove(this);
         }
 
-        // Re-applies the config to every live scarecrow.
         public static void ApplySettingsToAll()
         {
             foreach (Scarecrow scarecrow in Instances)
@@ -144,13 +138,9 @@ namespace CoreWoodExtras
             }
             if (protect)
             {
-                // A no-monsters area registers itself when it wakes up, which is when the forcefield first turns on.
                 m_forcefield.SetActive(true);
                 if (m_area == null && m_areaHost != null)
                 {
-                    // It was removed when protection was switched off, so a fresh one is needed. EffectArea reads its
-                    // type and status effect in Awake, and AddComponent runs Awake straight away, so the component is
-                    // added while its object is inactive and only switched on once it is set up.
                     m_areaHost.SetActive(false);
                     m_area = m_areaHost.AddComponent<EffectArea>();
                     m_area.m_type = m_areaType;
@@ -162,8 +152,6 @@ namespace CoreWoodExtras
             }
             else
             {
-                // EffectArea keeps no-monsters areas in a static list that is only cleared when the component is
-                // destroyed, so switching the object off would leave the protection in place. Destroy it instead.
                 if (m_area != null)
                 {
                     Destroy(m_area);

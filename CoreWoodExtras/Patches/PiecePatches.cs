@@ -7,8 +7,6 @@ namespace CoreWoodExtras
     {
         private const string HogRoastPrefab = "mm_corewood_hog_roast";
 
-        // Always registered, so "Enable Elevators" can follow the server's synced value, which arrives after the pieces
-        // are registered. When it is off they are only kept out of the build menu (and placed ones do not move).
         private static readonly HashSet<string> ElevatorPrefabs = new HashSet<string>
         {
             "mm_corewood_elevator_small",
@@ -21,14 +19,11 @@ namespace CoreWoodExtras
             "mm_corewood_elevator_04",
         };
 
-        // Pieces have no unlock key of their own, so a locked piece is taken back out of the build menu after the game
-        // fills it. Doing it here rather than in Player.HaveRequirements also hides it from players who already know it.
         [HarmonyPatch(typeof(PieceTable), nameof(PieceTable.UpdateAvailable))]
         public static class PieceTable_UpdateAvailable_Patch
         {
             private static void Postfix(PieceTable __instance, bool noPlacementCost)
             {
-                // The unlock key is left alone in no cost mode, like every other requirement.
                 bool hideRoast = !noPlacementCost && !IsUnlocked(MainConfig.HogRoastRequiredKey.Value);
                 bool hideElevators = !MainConfig.enableElevators.Value;
                 if (!hideRoast && !hideElevators)

@@ -7,7 +7,6 @@ namespace CoreWoodExtras;
 
 internal class FileWatcher
 {
-	// Watchers must stay referenced, otherwise they can be garbage collected and silently stop raising events.
 	private static readonly List<FileSystemWatcher> Watchers = new List<FileSystemWatcher>();
 
 	public static void WatchFileChanges(string path, Action onChanged, bool includeSubdirectories = false)
@@ -47,7 +46,6 @@ internal class FileWatcher
 		}
 		try
 		{
-			// Translations live in per-language subfolders (Translations/<Language>/*.json).
 			WatchFileChanges(Path.Combine(path, "*.*"), onChanged, includeSubdirectories: true);
 		}
 		catch
@@ -56,7 +54,6 @@ internal class FileWatcher
 		}
 	}
 
-	// Events arrive on a thread-pool thread and can fire while the editor still holds the file, so never let an exception escape.
 	private static void RaiseChanged(Action onChanged)
 	{
 		try

@@ -31,7 +31,6 @@ public class TroughVisualState : MonoBehaviour
 
     private void OnEnable()
     {
-        // Run an immediate check on enable, then keep polling every CheckInterval seconds.
         m_checkRoutine = StartCoroutine(CheckInventoryLoop());
     }
 

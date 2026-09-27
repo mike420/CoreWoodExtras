@@ -36,7 +36,6 @@ namespace CoreWoodExtras
             {
                 if (Player.m_localPlayer == null || !Player.m_localPlayer.m_teleporting)
                     return;
-                // Drops destroyed containers (Unity null) as well as ones without an inventory.
                 UtilityMethods.RegisteredContainers.RemoveWhere(container => container == null || container.GetInventory() == null);
 
                 UtilityMethods.LastFeedCheckTimes.Clear();
@@ -48,7 +47,6 @@ namespace CoreWoodExtras
         {
             public static void Postfix(Tameable __instance, ref bool __result)
             {
-                // Not hungry, or already feeding this tame from a trough (IsHungry is called again while it eats).
                 if (!__result || UtilityMethods.IsFeeding || !__instance.m_nview.IsOwner())
                     return;
 

@@ -11,7 +11,6 @@ internal class UpdateChestSettings
 		ApplyToPrefabs(PrefabManager.Instance.GetPrefab);
 	}
 
-	// Writes the current chest sizes onto the Core Wood chest prefabs.
 	internal static void ApplyToPrefabs(Func<string, GameObject> getPrefab)
 	{
 		ApplySize(getPrefab("mm_corewood_chest_public"), MainConfig.chestColumns.Value, MainConfig.chestRows.Value);

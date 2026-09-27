@@ -30,8 +30,6 @@ public class GamePatches
 			MeshRenderer[] componentsInChildren = prefab.GetComponentsInChildren<MeshRenderer>();
 			foreach (MeshRenderer meshRenderer in componentsInChildren)
 			{
-				// sharedMaterial, not material: material would give every prefab renderer its own copy, which stops
-				// placed pieces sharing (and batching) their materials.
 				Material material = meshRenderer.sharedMaterial;
 				if (material && material.HasProperty("_RippleDistance"))
 				{
@@ -43,7 +41,6 @@ public class GamePatches
 		}
 	}
     
-    // Scarecrow
     [HarmonyPatch(typeof(EffectArea))]
     internal static class EffectAreaPatch
     {
@@ -53,8 +50,6 @@ public class GamePatches
 
         private static readonly System.Predicate<Character> IsInvalidCollidedWithCharacter = item => !IsValidCollidedWithCharacter(item);
 
-        // The scarecrow's own area is set up in AddScarecrow (and re-created by Scarecrow), other no-monsters areas
-        // keep the status effect they were made with.
         [HarmonyPrefix]
         [HarmonyPatch("CustomFixedUpdate")]
         private static void CustomFixedUpdatePrefex(EffectArea __instance, float deltaTime)

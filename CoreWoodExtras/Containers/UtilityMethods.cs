@@ -6,8 +6,6 @@ namespace CoreWoodExtras.Containers
 {
     public class UtilityMethods
     {
-        // A set, so registering stays cheap however many containers are loaded. Entries leave it through
-        // ContainerRegistration when their object is destroyed.
         internal static readonly HashSet<Container> RegisteredContainers = new();
         internal static readonly Dictionary<Character, float> LastFeedCheckTimes = new();
         
@@ -22,7 +20,6 @@ namespace CoreWoodExtras.Containers
             }
         }
 
-        // No Unity null check: this also runs while the container is being destroyed, and a set removes by identity.
         internal static void DeRegisterContainer(Container container)
         {
             if ((object)container != null)
@@ -36,8 +33,6 @@ namespace CoreWoodExtras.Containers
             return container != null;
         }
 
-        // Container.IsInUse is only right on the chest's owner, and opening a chest makes the player who opened it the
-        // owner, so every other client has to read the in-use flag the owner writes to the ZDO.
         internal static bool IsInUse(Container container)
         {
             if (container.IsInUse())
@@ -61,8 +56,6 @@ namespace CoreWoodExtras.Containers
         {
             List<Container> nearbyContainers = GetNearbyContainers(character.transform.position, MainConfig.ContainerRange.Value);
 
-            // A trough can hold foods for different animals, so each animal eats what it can and leaves the rest.
-            // A trough a player has open is passed over, so the animal still eats from another one in range.
             foreach (Container container in nearbyContainers)
             {
                 if (IsInUse(container))
@@ -96,18 +89,13 @@ namespace CoreWoodExtras.Containers
         private static void FeedAnimal(MonsterAI animalAI, Tameable tamable, Character character, Container container, ItemDrop.ItemData item)
         {
             if (animalAI == null || tamable == null || character == null || container == null || item == null) return;
-            // Never take a trough from a player who has it open.
             if (IsInUse(container)) return;
             if (!container.IsOwner())
             {
-                // Only the container's owner may change its inventory. Claim it and retry on the next feed check,
-                // otherwise the animal would eat without the item ever being removed.
                 container.m_nview.ClaimOwnership();
                 return;
             }
 
-            // The item is taken first, and m_onConsumedItem ends up in Tameable.IsHungry, which is patched to feed from
-            // troughs again, so the guard keeps that from looping.
             if (container.GetInventory() != null)
             {
                 container.GetInventory().RemoveItem(item.m_shared.m_name, 1);

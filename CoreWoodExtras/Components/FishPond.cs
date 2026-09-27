@@ -26,7 +26,6 @@ namespace CoreWoodExtras {
 				return;
 			}
 			SyncState();
-			// Pick up changes made by other players.
 			InvokeRepeating(nameof(SyncState), 0.5f, 0.5f);
 		}
 
@@ -76,7 +75,6 @@ namespace CoreWoodExtras {
 			{
 				return false;
 			}
-			// Only the owner's ZDO changes are kept, so take ownership before writing.
 			m_nview.ClaimOwnership();
 			if (!m_fxobject.activeSelf)
 			{

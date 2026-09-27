@@ -56,11 +56,8 @@ namespace CoreWoodExtras
 
 		private static readonly int s_startTime = "mm_seedbed_start".GetStableHashCode();
 
-		// What the bed last grew, kept after a harvest so it can be refilled from a nearby chest.
 		private static readonly int s_lastContent = "mm_seedbed_last".GetStableHashCode();
 
-		// Produce that was harvested but has not appeared yet. Kept in the ZDO so it is not lost when the bed is unloaded,
-		// removed or changes owner during the harvest delay.
 		private static readonly int s_pendingItem = "mm_seedbed_pending_item".GetStableHashCode();
 
 		private static readonly int s_pendingAmount = "mm_seedbed_pending_amount".GetStableHashCode();
@@ -109,8 +106,6 @@ namespace CoreWoodExtras
 
 		private readonly List<GameObject> m_visuals = new List<GameObject>();
 
-		// Source material -> its green copy, shared by every sapling of this bed. [NonSerialized] also keeps Jotunn's mock
-		// scan from warning about the dictionary.
 		[NonSerialized]
 		private readonly Dictionary<Material, Material> m_tintedMaterials = new Dictionary<Material, Material>();
 
@@ -120,7 +115,6 @@ namespace CoreWoodExtras
 
 		private float m_nextReplantCheck;
 
-		// True while this bed's SpawnProduce coroutine runs.
 		private bool m_spawning;
 
 		private bool IsValid => m_nview != null && m_nview.IsValid();
@@ -193,8 +187,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// ---- conversions ----------------------------------------------------------------------------------------
-
 		private static List<Conversion> s_conversions = new List<Conversion>();
 
 		private static int s_conversionsVersion = -1;
@@ -246,7 +238,6 @@ namespace CoreWoodExtras
 			return GetConversions().Find(conversion => conversion.From.gameObject.name == prefabName);
 		}
 
-		// Counts every stack, so seeds split over several stacks still add up.
 		private static bool HasSeeds(Inventory inventory, Conversion conversion)
 		{
 			return inventory.CountItems(conversion.From.m_itemData.m_shared.m_name) >= conversion.SeedAmount;
@@ -265,8 +256,6 @@ namespace CoreWoodExtras
 			conversion = null;
 			return false;
 		}
-
-		// ---- state ----------------------------------------------------------------------------------------------
 
 		private string GetContent()
 		{
@@ -291,8 +280,6 @@ namespace CoreWoodExtras
 			}
 			return GetElapsedSeconds() >= MainConfig.SeedBedGerminationDuration.Value ? Status.Ready : Status.Germinating;
 		}
-
-		// ---- hover / interact -----------------------------------------------------------------------------------
 
 		public string GetHoverName()
 		{
@@ -348,7 +335,6 @@ namespace CoreWoodExtras
 					}
 					return Plant(user, conversion);
 				case Status.Ready:
-					// The XP comes back in RPC_Harvested, only when this player's harvest is the one that happened.
 					m_nview.InvokeRPC(RpcHarvest);
 					return true;
 				default:
@@ -356,7 +342,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// The Farming and Herbalist mods register their skills under the hash of the skill name.
 		private static readonly Skills.SkillType FarmingSkill = (Skills.SkillType)Mathf.Abs("Farming".GetStableHashCode());
 
 		private static readonly Skills.SkillType HerbalistSkill = (Skills.SkillType)Mathf.Abs("Herbalist".GetStableHashCode());
@@ -364,7 +349,6 @@ namespace CoreWoodExtras
 		private static void RaiseHarvestSkills(Humanoid user, Conversion harvested)
 		{
 			RaiseSkill(user, FarmingSkill, MainConfig.SeedBedFarmingExp.Value);
-			// Which harvested items count as herbs is set by the "herbs" list in SeedBedItems.json.
 			if (harvested != null && SeedBedConversions.IsHerb(harvested.To.gameObject.name, harvested.To.m_itemData.m_shared.m_name))
 			{
 				RaiseSkill(user, HerbalistSkill, MainConfig.SeedBedHerbalistExp.Value);
@@ -374,7 +358,6 @@ namespace CoreWoodExtras
 		private static void RaiseSkill(Humanoid user, Skills.SkillType skill, float amount)
 		{
 			Skills skills = user.GetSkills();
-			// Without the mod there is no such skill, and raising an unknown skill would throw.
 			if (skills == null || skills.GetSkillDef(skill) == null)
 			{
 				return;
@@ -413,13 +396,10 @@ namespace CoreWoodExtras
 			{
 				return false;
 			}
-			// Takes from as many stacks as it needs.
 			inventory.RemoveItem(conversion.From.m_itemData.m_shared.m_name, conversion.SeedAmount);
 			m_nview.InvokeRPC(RpcAdd, conversion.From.gameObject.name, conversion.SeedAmount);
 			return true;
 		}
-
-		// ---- rpc (run on the owner, except refund which runs on the planting player) ----------------------------
 
 		private void RPC_Add(long sender, string prefabName, int amount)
 		{
@@ -430,7 +410,6 @@ namespace CoreWoodExtras
 			Conversion conversion = FindConversion(prefabName);
 			if (conversion == null || GetStatus() != Status.Empty || amount < conversion.SeedAmount)
 			{
-				// Someone else planted first, or the item is not allowed: give the seeds back.
 				m_nview.InvokeRPC(sender, RpcRefund, prefabName, amount);
 				return;
 			}
@@ -442,7 +421,6 @@ namespace CoreWoodExtras
 			PlayEffect(EffectAdd);
 		}
 
-		// Runs on every client, so everyone nearby sees and hears the bed, not just its owner.
 		private void RPC_Effect(long sender, int effect)
 		{
 			EffectList effects = effect switch
@@ -484,7 +462,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Runs on the player who harvested by hand, once the owner has done the harvest.
 		private void RPC_Harvested(long sender, string prefabName)
 		{
 			if (Player.m_localPlayer != null)
@@ -493,7 +470,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Only the owner checks, so the bed is harvested once however many players are nearby.
 		private void AutoHarvest()
 		{
 			ResumePendingProduce();
@@ -503,8 +479,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// With store set the produce goes into the nearest chest, otherwise it drops at the bed for whoever harvested it.
-		// Returns what was harvested, or null when nothing was.
 		private Conversion HarvestAsOwner(bool store)
 		{
 			if (!IsValid || !m_nview.IsOwner() || GetStatus() != Status.Ready)
@@ -526,14 +500,12 @@ namespace CoreWoodExtras
 				ClearContent();
 				if (MainConfig.SeedBedAutoReplant.Value && conversion != null)
 				{
-					// Not enough of its own produce to replant: ReplantFromContainers refills the bed from a chest.
 					m_nview.GetZDO().Set(s_lastContent, content);
 					m_nextReplantCheck = 0f;
 				}
 			}
 			if (conversion != null)
 			{
-				// Anything still waiting from an earlier harvest drops now, so it is not overwritten.
 				DropPendingProduce();
 				ZDO zdo = m_nview.GetZDO();
 				zdo.Set(s_pendingItem, conversion.To.gameObject.name);
@@ -553,7 +525,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Picks up produce a harvest left behind: the bed was unloaded during the delay, or its owner changed.
 		private void ResumePendingProduce()
 		{
 			if (IsValid && m_nview.IsOwner() && !m_spawning && m_nview.GetZDO().GetInt(s_pendingAmount) > 0)
@@ -579,7 +550,6 @@ namespace CoreWoodExtras
 			zdo.Set(s_pendingStore, false);
 		}
 
-		// Drops whatever is waiting at the bed straight away.
 		private void DropPendingProduce()
 		{
 			bool found = GetPendingProduce(out ItemDrop item, out int amount, out _);
@@ -598,8 +568,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// The bed replants from its own produce when the conversion gives back what was planted (Barley -> Barley) with
-		// more produced than planted. Anything else (CarrotSeeds -> Carrot) is replanted from a chest instead.
 		private static bool CanReplant(Conversion conversion)
 		{
 			return MainConfig.SeedBedAutoReplant.Value
@@ -608,8 +576,6 @@ namespace CoreWoodExtras
 				&& conversion.ProducedItems > conversion.SeedAmount;
 		}
 
-		// Only the owner hands out the produce. It stops without clearing anything when the bed changes owner, so the new
-		// owner picks it up from the ZDO instead of both spawning it.
 		private IEnumerator SpawnProduce()
 		{
 			yield return new WaitForSeconds(MainConfig.SeedBedHarvestDelay.Value);
@@ -626,8 +592,6 @@ namespace CoreWoodExtras
 
 			if (store && Player.m_localPlayer != null)
 			{
-				// Feeding troughs first (they only take their own food), then the nearest chest, moving on once one is full.
-				// Whatever does not fit drops at the bed.
 				foreach (Container chest in GetNearbyContainers(includeTroughs: true))
 				{
 					if (amount <= 0)
@@ -638,8 +602,6 @@ namespace CoreWoodExtras
 					{
 						continue;
 					}
-					// Only the owner may change a chest's inventory, so claim it and give the claim a moment to land. A
-					// chest someone has open is never taken from them.
 					for (int attempt = 0; attempt < ClaimAttempts && chest != null && !chest.IsOwner() && !UtilityMethods.IsInUse(chest); attempt++)
 					{
 						chest.m_nview.ClaimOwnership();
@@ -669,15 +631,11 @@ namespace CoreWoodExtras
 			m_spawning = false;
 		}
 
-		// Restricted containers (the feeding trough, the market crates) only take certain items, and complain to the local
-		// player when offered anything else, so those are skipped up front.
 		private static bool CanHold(Container chest, ItemDrop item)
 		{
 			return !RestrictContainers.IsRestrictedContainer(chest.GetInventory().m_name, out HashSet<string> allowed) || allowed.Contains(item.gameObject.name);
 		}
 
-		// Returns how many of the items fitted. Counting the chest before and after keeps this right when a stack is only
-		// partly added.
 		private static int StoreInContainer(Container chest, ItemDrop item, int amount)
 		{
 			Inventory inventory = chest.GetInventory();
@@ -687,11 +645,8 @@ namespace CoreWoodExtras
 			for (int added = 0; added < amount; added += maxStack)
 			{
 				ItemDrop.ItemData data = item.m_itemData.Clone();
-				// A chest saves the prefab name with each item, without it the item is lost when the chest reloads.
 				data.m_dropPrefab = item.gameObject;
 				data.m_stack = Mathf.Min(maxStack, amount - added);
-				// AddItem logs "Trying to add item to occupied slot" when nothing fits, so with no empty slot only what the
-				// existing stacks can take is added, and a full chest is skipped.
 				if (!inventory.HaveEmptySlot())
 				{
 					int room = inventory.FindFreeStackSpace(sharedName, data.m_worldLevel);
@@ -722,15 +677,12 @@ namespace CoreWoodExtras
 			zdo.Set(s_lastContent, "");
 		}
 
-		// Runs on the owner. An empty bed that last grew something takes the seeds for it from a nearby chest, so it also
-		// picks up again when someone refills a chest that ran out.
 		private void ReplantFromContainers()
 		{
 			if (!MainConfig.SeedBedAutoReplant.Value || !IsValid || !m_nview.IsOwner() || Time.time < m_nextReplantCheck)
 			{
 				return;
 			}
-			// Chest access (wards) is checked for the local player, so there is nothing to check without one.
 			string last = m_nview.GetZDO().GetString(s_lastContent, "");
 			if (string.IsNullOrEmpty(last) || Player.m_localPlayer == null || GetStatus() != Status.Empty)
 			{
@@ -743,7 +695,6 @@ namespace CoreWoodExtras
 			}
 
 			string sharedName = conversion.From.m_itemData.m_shared.m_name;
-			// The closest chest with enough seeds is used.
 			Container nearest = GetNearbyContainers(includeTroughs: false).Find(chest => chest.GetInventory().CountItems(sharedName) >= conversion.SeedAmount);
 			if (nearest == null)
 			{
@@ -752,7 +703,6 @@ namespace CoreWoodExtras
 			}
 			if (!nearest.IsOwner())
 			{
-				// Only the owner may change a chest's inventory. Claim it and try again on the next check.
 				nearest.m_nview.ClaimOwnership();
 				return;
 			}
@@ -762,9 +712,6 @@ namespace CoreWoodExtras
 			PlayEffect(EffectAdd);
 		}
 
-		// The chests the bed may use, feeding troughs first and then nearest first: in range, not open, and openable by the
-		// person who built the bed. Tombstones are always left alone. Feeding troughs only count when storing produce, seeds
-		// are never taken from them because that would empty the food for the tames.
 		private List<Container> GetNearbyContainers(bool includeTroughs)
 		{
 			float range = MainConfig.SeedBedChestRange.Value;
@@ -810,14 +757,12 @@ namespace CoreWoodExtras
 			return origin + Vector3.up * 0.3f;
 		}
 
-		// Removing the bed drops what is in it: the produce when it is ready, the seeds otherwise.
 		private void OnDestroyed()
 		{
 			if (!IsValid || !m_nview.IsOwner())
 			{
 				return;
 			}
-			// Produce from a harvest that has not appeared yet.
 			DropPendingProduce();
 			Conversion conversion = FindConversion(GetContent());
 			if (conversion == null)
@@ -836,9 +781,6 @@ namespace CoreWoodExtras
 			ClearContent();
 		}
 
-		// ---- visuals --------------------------------------------------------------------------------------------
-
-		// Runs on every client so the bed looks the same for everyone, whoever planted or harvested.
 		private void SyncVisuals()
 		{
 			if (!IsValid)
@@ -881,7 +823,6 @@ namespace CoreWoodExtras
 			}
 			m_visuals.Clear();
 
-			// The tinted copies are ours, Unity does not free them along with the renderers that used them.
 			foreach (Material tinted in m_tintedMaterials.Values)
 			{
 				Destroy(tinted);
@@ -935,7 +876,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Copies every visual part of the pickable into each slot of the container.
 		private void Place(Transform container, GameObject plant, bool sapling, float scale, bool resetPosition)
 		{
 			if (container == null)
@@ -964,7 +904,6 @@ namespace CoreWoodExtras
 			}
 		}
 
-		// Saplings are tinted green and lose their lights and particles.
 		private void MakeSapling(GameObject visual)
 		{
 			foreach (LightLod lightLod in visual.GetComponentsInChildren<LightLod>(true))
@@ -985,7 +924,6 @@ namespace CoreWoodExtras
 			}
 			foreach (Renderer renderer in visual.GetComponentsInChildren<Renderer>(true))
 			{
-				// renderer.material would make a new copy per renderer, so the first material is swapped for a shared copy.
 				Material[] materials = renderer.sharedMaterials;
 				if (materials.Length == 0 || materials[0] == null || !materials[0].HasProperty("_Color"))
 				{
@@ -1024,9 +962,6 @@ namespace CoreWoodExtras
 			return Layout.None;
 		}
 
-		// ---- plant lookup ---------------------------------------------------------------------------------------
-
-		// Item name -> the vanilla pickable whose visuals are shown when that item is planted.
 		private static Dictionary<string, GameObject> s_plants;
 
 		private static ZNetScene s_plantsScene;
@@ -1076,8 +1011,6 @@ namespace CoreWoodExtras
 			return plants;
 		}
 
-		// The grown carrot/onion/turnip plant yields the vegetable, but it is what you see when you plant the seeds
-		// (and the other way round), so those items are swapped.
 		private static string GetPlantKey(string sharedName)
 		{
 			switch (sharedName)

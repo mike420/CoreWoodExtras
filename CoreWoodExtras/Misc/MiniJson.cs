@@ -5,8 +5,6 @@ using System.Text;
 
 namespace CoreWoodExtras;
 
-// Small JSON reader for the mod's config files. Objects become Dictionary<string, object>, arrays List<object>,
-// numbers double, and strings/bools/null map to their .NET equivalents.
 internal static class MiniJson
 {
     public static object Parse(string json)
@@ -39,7 +37,7 @@ internal static class MiniJson
         }
         if (c == 'n')
         {
-            index += 4; // "null"
+            index += 4;
             return null;
         }
 
@@ -49,7 +47,7 @@ internal static class MiniJson
     private static Dictionary<string, object> ParseObject(string json, ref int index)
     {
         Dictionary<string, object> result = new Dictionary<string, object>();
-        index++; // skip '{'
+        index++;
         SkipWhitespace(json, ref index);
 
         if (json[index] == '}')
@@ -63,7 +61,7 @@ internal static class MiniJson
             SkipWhitespace(json, ref index);
             string key = ParseString(json, ref index);
             SkipWhitespace(json, ref index);
-            index++; // skip ':'
+            index++;
             object value = ParseValue(json, ref index);
             result[key] = value;
 
@@ -74,7 +72,7 @@ internal static class MiniJson
                 continue;
             }
 
-            index++; // skip '}'
+            index++;
             break;
         }
 
@@ -84,7 +82,7 @@ internal static class MiniJson
     private static List<object> ParseArray(string json, ref int index)
     {
         List<object> result = new List<object>();
-        index++; // skip '['
+        index++;
         SkipWhitespace(json, ref index);
 
         if (json[index] == ']')
@@ -105,7 +103,7 @@ internal static class MiniJson
                 continue;
             }
 
-            index++; // skip ']'
+            index++;
             break;
         }
 
@@ -114,7 +112,7 @@ internal static class MiniJson
 
     private static string ParseString(string json, ref int index)
     {
-        index++; // skip opening quote
+        index++;
         StringBuilder sb = new StringBuilder();
 
         while (json[index] != '"')
@@ -152,7 +150,7 @@ internal static class MiniJson
             index++;
         }
 
-        index++; // skip closing quote
+        index++;
         return sb.ToString();
     }
 
@@ -160,11 +158,11 @@ internal static class MiniJson
     {
         if (json[index] == 't')
         {
-            index += 4; // "true"
+            index += 4;
             return true;
         }
 
-        index += 5; // "false"
+        index += 5;
         return false;
     }
 

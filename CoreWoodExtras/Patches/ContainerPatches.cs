@@ -25,7 +25,6 @@ internal class ContainerPatches
 		}
 	}
 
-	// Runs last so creatures other mods add in their own ZNetScene.Awake postfixes are already registered.
 	[HarmonyPatch(typeof(ZNetScene), "Awake")]
 	private static class ZNetSceneAwakeTroughFoodPatch
 	{
@@ -43,7 +42,6 @@ internal class ContainerPatches
 		}
 	}
 
-	// Scans again once in the world, for mods that make creatures tameable later (e.g. after server config sync).
 	[HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
 	private static class PlayerOnSpawnedTroughFoodPatch
 	{
@@ -179,7 +177,6 @@ internal class ContainerPatches
 		}
     }
 
-    // Visual Containers
     [HarmonyPatch]
     public class PlacementPatch
     {

@@ -38,7 +38,6 @@ public class ElevatorSwitch : MonoBehaviour, Hoverable, Interactable
 		{
 			return false;
 		}
-		// Already moving: nothing to do (and no sound).
 		if (m_elevator.Activate(2f, playSound: true))
 		{
 			PlayStartSound();
