@@ -7,7 +7,7 @@
 </thead>
 <tbody>
   <tr>
-    <td>2.3.4</td>
+    <td>2.3.3</td>
     <td>
     <ul>
       <li>Added Wall Banner 04.</li>
@@ -15,13 +15,6 @@
       <li>Fixed the Small Bookshelf showing as "Cabinet", and added the missing Paving Curve and Wall Banner 04 names.</li>
       <li>A broken translation file no longer stops the mod from loading.</li>
       <li>Fixed the lights missing from the build menu when their Shadow Type setting was None or Hard.</li>
-    </ul>
-	</td>
-  </tr>
-  <tr>
-    <td>2.3.3</td>
-    <td>
-    <ul>
       <li>Moved all assets into a single asset bundle and rebuilt against valheim 1.0.16.</li>
     </ul>
 	</td>
