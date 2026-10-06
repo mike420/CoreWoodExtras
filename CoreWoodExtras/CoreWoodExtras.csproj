@@ -9,7 +9,7 @@
     <RootNamespace>CoreWoodExtras</RootNamespace>
     <AssemblyName>CoreWoodExtras</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -26,7 +26,6 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,7 +37,6 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <StartAction>Program</StartAction>
@@ -47,11 +45,11 @@
     <StartWorkingDirectory>$(VALHEIM_INSTALL)</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\corewoodextras" />
     <None Include="Assets\Translations\English\CoreWoodExtras.json" />
     <EmbeddedResource Include="Resources\corewood_new" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Nexus\README.txt" />
     <Compile Include="Components\Elevator.cs" />
     <Compile Include="Components\ElevatorSwitch.cs" />
     <Compile Include="Components\FishPond.cs" />
@@ -64,6 +62,7 @@
     <Compile Include="Components\PictureFrameBase.cs" />
     <Compile Include="Components\PictureFrameSquare.cs" />
     <Compile Include="Components\PictureFrameVertical.cs" />
+    <Compile Include="Components\RainBlocker.cs" />
     <Compile Include="Components\SchoolBubbles.cs" />
     <Compile Include="Components\SchoolChild.cs" />
     <Compile Include="Components\SchoolController.cs" />
@@ -79,6 +78,7 @@
     <Compile Include="Containers\UtilityMethods.cs" />
     <Compile Include="Containers\ContainerRegistration.cs" />
     <Compile Include="Prefabs\PieceAssets.cs" />
+    <Compile Include="Prefabs\PieceBuilder.cs" />
     <Compile Include="Components\TroughVisualState.cs" />
     <Compile Include="Components\TroughAutoCollect.cs" />
     <Compile Include="Misc\FileWatcher.cs" />
@@ -122,12 +122,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" Visible="false" />
-    <None Include="packages.config" Visible="false" />
     <None Include="README.md" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>D:\SteamLibrary\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +151,6 @@
       <PackageVersion>$(Major).$(Minor).$(Patch)</PackageVersion>
       <VersionString>$(Major).$(Minor).$(Patch)</VersionString>
       <ThunderPackage>$(ProjectDir)\ThunderStore\$(PackageName)</ThunderPackage>
-      <NexusPackage>$(ProjectDir)\Nexus\$(PackageName)</NexusPackage>
       <AssetsDir>$(ProjectDir)\Assets</AssetsDir>
     </PropertyGroup>
   </Target>
@@ -193,7 +191,7 @@ string content = @"{
   ""description"": ""Your mod description goes here. Do not forget to replace the icon.png file with your own. Must be 256x256. Your Readme.md file will be copied from the one in your project folder."",
   ""dependencies"": [
     ""denikson-BepInExPack_Valheim-5.4.2350"",
-    ""ValheimModding-Jotunn-2.30.0""
+    ""ValheimModding-Jotunn-2.30.2""
 ]
 }";
 System.IO.File.WriteAllText(ManifestFile, content);
@@ -209,6 +207,10 @@ System.IO.File.WriteAllText(ManifestFile, content);
     <Message Text="ManifestFile is @(ManifestFile)" />
     <Message Text="Updating version number in Package\manifest.json" Condition="Exists(@(ManifestFile))" />
     <Exec Command="powershell.exe -ExecutionPolicy Bypass -Command &quot;&amp; { &amp; '$(ProjectDir)UpdateManifest.ps1' -manifestFile '@(ManifestFile)' -versionString '$(PackageVersion)' }&quot;" />
+  </Target>
+  <Target Name="UpdateNexusReadme" AfterTargets="UpdateManifestVersion" Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU') And ('$(OS)' == 'Windows_NT') ">
+    <Message Text="Updating Nexus\README.txt from Package\README.md" />
+    <Exec Command="powershell.exe -ExecutionPolicy Bypass -Command &quot;&amp; { &amp; '$(ProjectDir)UpdateNexusReadme.ps1' -readmeFile '$(ProjectDir)Package\README.md' -nexusFile '$(ProjectDir)Nexus\README.txt' }&quot;" />
   </Target>
   <Target Name="MakeThunderstorePackage" AfterTargets="UpdateManifestVersion" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Error Text="manifest.json not found in Package directory." Condition="!Exists('$(ProjectDir)\Package\manifest.json')" />

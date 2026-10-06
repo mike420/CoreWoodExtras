@@ -44,6 +44,10 @@ namespace CoreWoodExtras {
 
 		public string GetHoverText()
 		{
+			if (Player.m_localPlayer == null)
+			{
+				return "";
+			}
 			if (!InUseDistance(Player.m_localPlayer))
 			{
 				return Localization.instance.Localize("<color=#888888>$piece_toofar</color>");
@@ -66,8 +70,8 @@ namespace CoreWoodExtras {
 			{
 				return false;
 			}
-			Player human2 = human as Player;
-			if (!InUseDistance(human2))
+			Player player = human as Player;
+			if (player == null || !InUseDistance(player))
 			{
 				return false;
 			}
@@ -80,12 +84,10 @@ namespace CoreWoodExtras {
 			{
 				m_nview.GetZDO().Set(_isFishEnabled, value: true);
 				m_fxobject.SetActive(value: true);
-				ZDOMan.instance.ForceSendZDO(ZNetView.Everybody, m_nview.GetZDO().m_uid);
 				return false;
 			}
 			m_nview.GetZDO().Set(_isFishEnabled, value: false);
 			m_fxobject.SetActive(value: false);
-			ZDOMan.instance.ForceSendZDO(ZNetView.Everybody, m_nview.GetZDO().m_uid);
 			return false;
 		}
 

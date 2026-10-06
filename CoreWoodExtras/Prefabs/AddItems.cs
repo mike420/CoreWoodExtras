@@ -1,7 +1,4 @@
-using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using UnityEngine;
+using static CoreWoodExtras.PieceBuilder;
 
 namespace CoreWoodExtras;
 
@@ -9,105 +6,10 @@ internal class AddItems
 {
 	public static void LoadItems()
 	{
-		AddPlanterSmall();
-		AddPlanterLarge();
-		AddVase01();
-		AddVase02();
-		AddVase03();
-	}
-
-	public static void AddPlanterSmall()
-	{
-		CustomItem customItem = new CustomItem(CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_planter_small"), fixReference: true, new ItemConfig
-		{
-			Amount = 1,
-			CraftingStation = "mm_corewood_greenhouse_workbench",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		ItemManager.Instance.AddItem(customItem);
-	}
-
-	public static void AddPlanterLarge()
-	{
-		CustomItem customItem = new CustomItem(CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_corewood_planter_large"), fixReference: true, new ItemConfig
-		{
-			Amount = 1,
-			CraftingStation = "mm_corewood_greenhouse_workbench",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "RoundLog",
-					Amount = 2,
-					Recover = true
-				}
-			}
-		});
-		ItemManager.Instance.AddItem(customItem);
-	}
-
-	public static void AddVase01()
-	{
-		CustomItem customItem = new CustomItem(CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_vase_01"), fixReference: true, new ItemConfig
-		{
-			Amount = 1,
-			CraftingStation = "mm_corewood_greenhouse_workbench",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "Stone",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		ItemManager.Instance.AddItem(customItem);
-	}
-
-	public static void AddVase02()
-	{
-		CustomItem customItem = new CustomItem(CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_vase_02"), fixReference: true, new ItemConfig
-		{
-			Amount = 1,
-			CraftingStation = "mm_corewood_greenhouse_workbench",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "Stone",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		ItemManager.Instance.AddItem(customItem);
-	}
-
-	public static void AddVase03()
-	{
-		CustomItem customItem = new CustomItem(CoreWoodPlugin.cwextras.LoadAsset<GameObject>("mm_vase_03"), fixReference: true, new ItemConfig
-		{
-			Amount = 1,
-			CraftingStation = "mm_corewood_greenhouse_workbench",
-			Requirements = new RequirementConfig[1]
-			{
-				new RequirementConfig
-				{
-					Item = "Stone",
-					Amount = 1,
-					Recover = true
-				}
-			}
-		});
-		ItemManager.Instance.AddItem(customItem);
+		AddItem("mm_corewood_planter_small", "mm_corewood_greenhouse_workbench", Req("RoundLog", 1));
+		AddItem("mm_corewood_planter_large", "mm_corewood_greenhouse_workbench", Req("RoundLog", 2));
+		AddItem("mm_vase_01", "mm_corewood_greenhouse_workbench", Req("Stone", 1));
+		AddItem("mm_vase_02", "mm_corewood_greenhouse_workbench", Req("Stone", 1));
+		AddItem("mm_vase_03", "mm_corewood_greenhouse_workbench", Req("Stone", 1));
 	}
 }

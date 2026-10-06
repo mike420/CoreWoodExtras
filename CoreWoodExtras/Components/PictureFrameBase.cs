@@ -20,7 +20,9 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 
 	private int _characterLimit = 100;
 
-	private float _interval = 5f;
+	private const float DefaultInterval = 5f;
+
+	private float _interval = DefaultInterval;
 
 	private static TextureCache textureCache;
 
@@ -193,6 +195,7 @@ public abstract class PictureFrameBase : MonoBehaviour, Hoverable, Interactable,
 		base.transform.localScale = Vector3.one;
 		transform.transform.localPosition = Vector3.zero;
 		_frameRenderer.enabled = true;
+		_interval = DefaultInterval;
 		string text = array[0].Trim();
 		if (text.StartsWith("http") && array.Length > 1)
 		{

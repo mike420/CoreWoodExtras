@@ -49,7 +49,9 @@ For Nexus downloads you will need to install manually.
 
 ## 💥 Plugins Created by Magic Mike:
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CoreWoodExtras/">Corewood Extras</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/">My Dirty Hoe</a> 
+  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CorewoodAdditions/">Corewood Additions</a>
+  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/">My Dirty Hoe</a>
+  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/ChestPreview/">Chest Preview</a>
 
 <br>
 
@@ -75,7 +77,7 @@ For Nexus downloads you will need to install manually.
     <summary><strong> How do I add/remove items from Burt the trader?</strong></summary>
 Edit BurtItems.json in the BepInEx\config\CoreWoodExtras folder to add extra items for Burt to sell.
 <br><br>
-Each entry in the ""items"" array supports:<br><br>
+Each entry in the "items" array supports:<br><br>
 prefabName -------- the internal Valheim/mod prefab name for the item (not its display name).<br>
 stack ---------------- how many are sold per purchase.<br>
 price ---------------- coin price per stack.<br>
@@ -94,19 +96,19 @@ Restart the game after editing BurtItems.json for changes to take effect.
     Any other item (CarrotSeeds -> Carrot, or one that gives back no more than you plant) takes its seeds from a chest within the "Chest Range" setting instead, the nearest one with enough is used. Keep a chest with seeds near the bed. If the chest runs out the bed waits empty, and starts again as soon as you add more seeds.<br>
     The Seed Bed only uses chests that its builder could open, so a private chest belonging to someone else is left alone. Seeds are never taken from feeding troughs (that would empty the food for your tames), and tombstones are never used.<br><br>
     Edit SeedBedItems.json in the BepInEx\config\CoreWoodExtras folder to change what it can grow. The file is created for you and reloads when you save it.<br><br>
-    Each entry in the ""conversions"" array supports:<br><br>
+    Each entry in the "conversions" array supports:<br><br>
     from ----------------- the prefab name of the item you plant (for example CarrotSeeds).<br>
     to -------------------- the prefab name of the item you get back (for example Carrot).<br>
     seedAmount ------ how many you plant.<br>
     producedItems --- how many you harvest.<br><br>
-    The ""herbs"" array lists the harvested items that give Herbalist XP. Each entry can be a prefab name (Dandelion) or a shared name ($item_dandelion). Leave the array out to use the default list, or leave it empty for no Herbalist XP.<br><br>
+    The "herbs" array lists the harvested items that give Herbalist XP. Each entry can be a prefab name (Dandelion) or a shared name ($item_dandelion). Leave the array out to use the default list, or leave it empty for no Herbalist XP.<br><br>
     If you play on a server, use the same SeedBedItems.json on the server and every client. Delete the file and restart if you want it regenerated with the defaults.
 </details>  
 
 <br>
 
   
-## 💬 Comments/Suggestions/Help: <a href="https://www.nexusmods.com/valheim/mods/2806">Nexus</a>.
+## 💬 Comments/Suggestions/Help: <a href="https://www.nexusmods.com/valheim/mods/2806">Nexus</a>, <a href="https://discord.gg/mnr36G6J4x">Discord</a>.
 
 <br>
 

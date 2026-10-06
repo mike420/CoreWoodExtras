@@ -21,11 +21,11 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.3.1";
+	public const string PluginVersion = "2.3.3";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
-	public const string PluginLink = "https://www.nexusmods.com/profile/MagicMikeMods/mods";
+	public const string PluginLink = "https://discord.gg/mnr36G6J4x";
 
 	private static char pds = Path.DirectorySeparatorChar;
 	public static readonly string _basePath = BepInEx.Paths.ConfigPath + pds + "CoreWoodExtras";
@@ -35,12 +35,10 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static CoreWoodPlugin plugininstance;
 
-	public static AssetBundle cwextras;
-	public static string extrasBundle = "corewoodextras";
     public static AssetBundle cwextras_new;
     public static string newBundle = "corewood_new"; 
 
-    private Harmony harmony = new Harmony(PluginGUID);
+    private Harmony harmony;
 
 	internal static ConfigFile ConfigFile;
 	internal static ConfigFileWatcher ConfigFileWatcher;
@@ -63,7 +61,14 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		{
             CheckForFolders();
 			LocalisedText.AddLocalisations();
-			LoadLocalisationData(TranslationFilePath);
+			try
+			{
+				LoadLocalisationData(TranslationFilePath);
+			}
+			catch (Exception ex)
+			{
+				Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not load the translation files: " + ex.Message);
+			}
 			FileWatcher.WatchTranslationChanges(TranslationFilePath, delegate
 			{
 				translationsChanged = true;
@@ -150,18 +155,12 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		foreach (string path in fileSystemEntries)
 		{
 			string language = new DirectoryInfo(Path.GetDirectoryName(path)).Name;
-			Path.GetFileNameWithoutExtension(path);
 			Localization.AddJsonFile(language, File.ReadAllText(path));
 		}
     }
 
     public static void LoadAssetBundles()
     {
-        cwextras = AssetUtils.LoadAssetBundleFromResources(extrasBundle, Assembly.GetExecutingAssembly());
-        if (cwextras == null)
-        {
-            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + extrasBundle);
-        }
         cwextras_new = AssetUtils.LoadAssetBundleFromResources(newBundle, Assembly.GetExecutingAssembly());
         if (cwextras_new == null)
         {
@@ -173,43 +172,43 @@ public class CoreWoodPlugin : BaseUnityPlugin
     {
         try
         {
-            CustomPrefab customPrefab = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_open_gate_mm"), fixReference: false);
+            CustomPrefab customPrefab = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_open_gate_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab);
-            CustomPrefab customPrefab2 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_close_gate_mm"), fixReference: false);
+            CustomPrefab customPrefab2 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_close_gate_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab2);
-            CustomPrefab customPrefab3 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_open_bridge_mm"), fixReference: false);
+            CustomPrefab customPrefab3 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_open_bridge_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab3);
-            CustomPrefab customPrefab4 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_break_glass_mm"), fixReference: false);
+            CustomPrefab customPrefab4 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_break_glass_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab4);
-            CustomPrefab customPrefab5 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_tower_bridge_mm"), fixReference: false);
+            CustomPrefab customPrefab5 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_tower_bridge_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab5);
-            CustomPrefab customPrefab6 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_mm"), fixReference: false);
+            CustomPrefab customPrefab6 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab6);
-            CustomPrefab customPrefab7 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_long_mm"), fixReference: false);
+            CustomPrefab customPrefab7 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_long_mm"), fixReference: false);
             PrefabManager.Instance.AddPrefab(customPrefab7);
-            CustomPrefab customPrefab8 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_water_fountain"), fixReference: true);
+            CustomPrefab customPrefab8 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_water_fountain"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab8);
-            CustomPrefab customPrefab9 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_frog_croaking"), fixReference: true);
+            CustomPrefab customPrefab9 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_frog_croaking"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab9);
-            CustomPrefab customPrefab10 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_water_bucket"), fixReference: true);
+            CustomPrefab customPrefab10 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_water_bucket"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab10);
-            CustomPrefab customPrefab11 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_bartender_bye"), fixReference: true);
+            CustomPrefab customPrefab11 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_bartender_bye"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab11);
-            CustomPrefab customPrefab12 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_bartender_greet"), fixReference: true);
+            CustomPrefab customPrefab12 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_bartender_greet"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab12);
-            CustomPrefab customPrefab13 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_bartender_random"), fixReference: true);
+            CustomPrefab customPrefab13 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_bartender_random"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab13);
-            CustomPrefab customPrefab14 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_bartender_trade"), fixReference: true);
+            CustomPrefab customPrefab14 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_bartender_trade"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab14);
-            CustomPrefab customPrefab15 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_shower_cwe"), fixReference: true);
+            CustomPrefab customPrefab15 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_shower_cwe"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab15);
-            CustomPrefab customPrefab16 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_cwe_01"), fixReference: true);
+            CustomPrefab customPrefab16 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_cwe_01"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab16);
-            CustomPrefab customPrefab17 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_cwe_02"), fixReference: true);
+            CustomPrefab customPrefab17 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_cwe_02"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab17);
-            CustomPrefab customPrefab18 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_cwe_03"), fixReference: true);
+            CustomPrefab customPrefab18 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_cwe_03"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab18);
-            CustomPrefab customPrefab19 = new CustomPrefab(cwextras.LoadAsset<GameObject>("sfx_elevator_cwe_04"), fixReference: true);
+            CustomPrefab customPrefab19 = new CustomPrefab(cwextras_new.LoadAsset<GameObject>("sfx_elevator_cwe_04"), fixReference: true);
             PrefabManager.Instance.AddPrefab(customPrefab19);
         }
         catch (Exception ex)
@@ -220,10 +219,10 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     private void AddTraderItems()
     {
-        GameObject seed = cwextras != null ? cwextras.LoadAsset<GameObject>("mm_mystical_seed") : null;
+        GameObject seed = cwextras_new != null ? cwextras_new.LoadAsset<GameObject>("mm_mystical_seed") : null;
         if (seed == null)
         {
-            Jotunn.Logger.LogError("Could not load 'mm_mystical_seed' from the '" + extrasBundle + "' asset bundle, skipping the mystical seed.");
+            Jotunn.Logger.LogError("Could not load 'mm_mystical_seed' from the '" + newBundle + "' asset bundle, skipping the mystical seed.");
             return;
         }
         CustomItem customItem = new CustomItem(seed, fixReference: true);
