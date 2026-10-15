@@ -7,10 +7,45 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.3.7</td>
+    <td>
+    <ul>
+      <li>Fixed items moved in or out of a Stackable Chest sometimes being lost in multiplayer. Renaming the chest (Shift + Use or 1-8) while another player had it open took the chest away from them, and their changes were not saved. The chest can no longer be renamed while someone else has it open.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.3.6</td>
+    <td>
+    <ul>
+      <li>Fixed the Seed Bed showing no plants for items added to SeedBedItems.json, like the Deep North Oats, Kale, Lingonberries and Poteitr. The Seed Bed now shows the plant that grows the harvested item, so modded crops show up too.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.3.5</td>
+    <td>
+    <ul>
+      <li>Fixed Magic Mike's Mod Settings (F7) not saving: settings changed in the panel were lost when the game was closed. Changed server-synced settings are now also sent on to the other players when the panel closes.</li>
+      <li>Fixed more shader issues!</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.3.4</td>
+    <td>
+    <ul>
+      <li>Added Magic Mike's Mod Settings: press F7, in game or on the main menu, to open a panel with the settings of all your installed Magic Mike mods. Change them with sliders, toggles, dropdowns and key buttons, search them, and reset them to their defaults; changes are saved when the panel closes. Server-synced settings can only be changed by an admin. The key and scroll speed can be changed in the panel's own Mod Settings Panel tab.</li>
+      <li>Fixed several shader issues.</li>
+      <li>Updated for Valheim 1.0.17</li>
+      <li>When CorewoodFortified is installed, the Palisade Entrance, Wall, Corner, Gates, Lift Gate, fences and drawbridge are hidden from the hammer menu. Pieces already built are kept.</li>
+    </ul>
+	</td>
+  </tr>
+  <tr>
     <td>2.3.3</td>
     <td>
     <ul>
-      <li>Added Wall Banner 04.</li>
       <li>The footbridges are now in the Decor tab.</li>
       <li>Fixed the Small Bookshelf showing as "Cabinet", and added the missing Paving Curve and Wall Banner 04 names.</li>
       <li>A broken translation file no longer stops the mod from loading.</li>

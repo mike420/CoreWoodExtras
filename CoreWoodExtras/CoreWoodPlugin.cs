@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.3.3";
+	public const string PluginVersion = "2.3.7";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -36,7 +36,9 @@ public class CoreWoodPlugin : BaseUnityPlugin
 	public static CoreWoodPlugin plugininstance;
 
     public static AssetBundle cwextras_new;
-    public static string newBundle = "corewood_new"; 
+    public static string newBundle = "corewood_new";
+    public static AssetBundle cwextras_fixed;
+    public static string fixedBundle = "corewood_fixed";
 
     private Harmony harmony;
 
@@ -55,6 +57,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		ConfigFileWatcher = new ConfigFileWatcher(base.Config, 1000L);
 		base.Config.SaveOnConfigSet = false;
 		MainConfig.InitConfigs(base.Config);
+		MagicMike.ModSettings.ModSettings.Init(this);
 		UpdatePlugin();
 
 		if (MainConfig.modEnabled.Value)
@@ -165,6 +168,11 @@ public class CoreWoodPlugin : BaseUnityPlugin
         if (cwextras_new == null)
         {
             Jotunn.Logger.LogError("Failed to load asset bundle with name: " + newBundle);
+        }
+        cwextras_fixed = AssetUtils.LoadAssetBundleFromResources(fixedBundle, Assembly.GetExecutingAssembly());
+        if (cwextras_fixed == null)
+        {
+            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + fixedBundle);
         }
     }
 
@@ -379,6 +387,10 @@ public class CoreWoodPlugin : BaseUnityPlugin
 			base.Config.Save();
 		}
     }
+
+    internal const string FortifiedGUID = "MagicMike.CorewoodFortified";
+
+    internal static bool FortifiedInstalled => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(FortifiedGUID);
 
     internal static void TryAddPiece(Action addPiece)
     {

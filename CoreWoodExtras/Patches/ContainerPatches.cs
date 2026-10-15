@@ -65,7 +65,7 @@ internal class ContainerPatches
 	[HarmonyPatch(typeof(Container), "Interact")]
 	public static class ContainerInteractPatch
 	{
-		private static bool Prefix(Container __instance, Humanoid character, bool hold, bool alt)
+		private static bool Prefix(Container __instance, Humanoid character, bool hold, bool alt, ref bool __result)
 		{
 			Piece component = __instance.GetComponent<Piece>();
 			if (component == null || component.m_name != "$piece_mm_corewood_chest_stackable")
@@ -81,8 +81,23 @@ internal class ContainerPatches
 			{
 				return true;
 			}
+			if (IsOpenedByOther(__instance))
+			{
+				character.Message(MessageHud.MessageType.Center, "$msg_inuse");
+				__result = true;
+				return false;
+			}
 			return !component2.Interact(character, hold, alt: true);
 		}
+	}
+
+	internal static bool IsOpenedByOther(Container container)
+	{
+		if (container == null || container.IsInUse() || container.m_nview == null || !container.m_nview.IsValid())
+		{
+			return false;
+		}
+		return container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) == 1;
 	}
 
 	[HarmonyPatch(typeof(Container), "GetHoverText")]
@@ -135,6 +150,11 @@ internal class ContainerPatches
 			if (itemData == null)
 			{
 				return true;
+			}
+			if (IsOpenedByOther(componentInParent.GetComponent<Container>()))
+			{
+				__instance.Message(MessageHud.MessageType.Center, "$msg_inuse");
+				return false;
 			}
 			string text = (itemData.m_dropPrefab ? itemData.m_dropPrefab.name : itemData.m_shared.m_name);
 			component.SetText(text);

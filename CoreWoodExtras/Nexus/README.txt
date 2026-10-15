@@ -5,20 +5,18 @@
 
 [size=5][b]Donations[/b][/size]
 
-Please support this project if you can and prevent it from becoming abandoned!
+If you enjoy using this Valheim mod, please consider making a small donation to help support its development and future updates.
 
-Creating mods is a labor of love, a mix of long hours, personal investment, and a bit of green alchemy. From custom models to scripts and endless tweaks, each piece is hand-grown with care to enhance your Valheim experience.
+Even £1 or $1 would be greatly appreciated and would help more than you might think!
 
-If you enjoy the journey, the worlds, and the weirdness I create, there is a way to help keep the garden growing. Whether it is brewing up new features or snagging fresh assets, every bit of support helps keep the magic rolling.
-
-Thanks for being part of the adventure. Stay lifted, stay curious!
+Thank you for your support, and happy gaming! ...... (A Paypal account is NOT required!)
 
 [url=https://www.paypal.com/donate/?hosted_button_id=BN8HEWHRMAREU][img]https://imgup.uk/i/n7Sg7WK9.png[/img][/url]
 
 
 [size=5][b]Configuration[/b][/size]
 
-Configuration options can be modified in-game (using [url=https://thunderstore.io/c/valheim/p/Azumatt/Official_BepInEx_ConfigurationManager/]Configuration Manager[/url] plugin).
+Settings are in [b]BepInEx/config/MagicMike.CoreWoodExtras.cfg[/b] (or press F7, in game or on the main menu, to open a panel with the settings of all your installed Magic Mike mods).
 
 Most settings apply straight away. Any setting that needs a restart or a rebuilt piece says so in its description.
 
@@ -51,6 +49,7 @@ For Nexus downloads you will need to install manually.
 
 [list]
 [*][url=https://thunderstore.io/c/valheim/p/MagicMike/CoreWoodExtras/]Corewood Extras[/url]
+[*][url=https://thunderstore.io/c/valheim/p/MagicMike/CorewoodFortified/]Corewood Fortified[/url]
 [*][url=https://thunderstore.io/c/valheim/p/MagicMike/CorewoodAdditions/]Corewood Additions[/url]
 [*][url=https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/]My Dirty Hoe[/url]
 [*][url=https://thunderstore.io/c/valheim/p/MagicMike/ChestPreview/]Chest Preview[/url]
@@ -126,7 +125,7 @@ If you play on a server, use the same SeedBedItems.json on the server and every 
 
 [size=5][b]Comments/Suggestions/Help[/b][/size]
 
-[url=https://www.nexusmods.com/valheim/mods/2806]Nexus[/url]
+[url=https://www.nexusmods.com/valheim/mods/2806]Nexus[/url], [url=https://discord.gg/mnr36G6J4x]Discord[/url]
 
 
 [size=5][b]Donations[/b][/size]

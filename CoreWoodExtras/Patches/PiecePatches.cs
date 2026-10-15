@@ -19,6 +19,18 @@ namespace CoreWoodExtras
             "mm_corewood_elevator_04",
         };
 
+        private static readonly HashSet<string> FortifiedReplacedPrefabs = new HashSet<string>
+        {
+            "mm_corewood_palisade_entrance",
+            "mm_corewood_palisade_wall",
+            "mm_corewood_palisade_corner",
+            "mm_corewood_palisadefence_gates",
+            "mm_corewood_liftgate",
+            "mm_corewood_palisadefence",
+            "mm_corewood_palisadefenceTall",
+            "mm_corewood_drawbridge2",
+        };
+
         [HarmonyPatch(typeof(PieceTable), nameof(PieceTable.UpdateAvailable))]
         public static class PieceTable_UpdateAvailable_Patch
         {
@@ -26,7 +38,8 @@ namespace CoreWoodExtras
             {
                 bool hideRoast = !noPlacementCost && !IsUnlocked(MainConfig.HogRoastRequiredKey.Value);
                 bool hideElevators = !MainConfig.enableElevators.Value;
-                if (!hideRoast && !hideElevators)
+                bool hideFortified = CoreWoodPlugin.FortifiedInstalled;
+                if (!hideRoast && !hideElevators && !hideFortified)
                 {
                     return;
                 }
@@ -37,7 +50,7 @@ namespace CoreWoodExtras
                         return false;
                     }
                     string name = piece.gameObject.name;
-                    return (hideRoast && name == HogRoastPrefab) || (hideElevators && ElevatorPrefabs.Contains(name));
+                    return (hideRoast && name == HogRoastPrefab) || (hideElevators && ElevatorPrefabs.Contains(name)) || (hideFortified && FortifiedReplacedPrefabs.Contains(name));
                 }
                 __instance.m_availablePieces.RemoveWhere(IsHidden);
                 __instance.m_enabledPieces.RemoveWhere(IsHidden);

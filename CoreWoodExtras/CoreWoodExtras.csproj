@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Visual Studio solution builds get this through JotunnLib (from the solution folder); this covers building the project on its own -->
+  <Import Project="$(MSBuildThisFileDirectory)..\Environment.props" Condition="'$(SolutionDir)' == '' And Exists('$(MSBuildThisFileDirectory)..\Environment.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -47,6 +49,7 @@
   <ItemGroup>
     <None Include="Assets\Translations\English\CoreWoodExtras.json" />
     <EmbeddedResource Include="Resources\corewood_new" />
+    <EmbeddedResource Include="Resources\corewood_fixed" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Nexus\README.txt" />
@@ -78,7 +81,6 @@
     <Compile Include="Containers\UtilityMethods.cs" />
     <Compile Include="Containers\ContainerRegistration.cs" />
     <Compile Include="Prefabs\PieceAssets.cs" />
-    <Compile Include="Prefabs\PieceBuilder.cs" />
     <Compile Include="Components\TroughVisualState.cs" />
     <Compile Include="Components\TroughAutoCollect.cs" />
     <Compile Include="Misc\FileWatcher.cs" />
@@ -112,6 +114,11 @@
     <Compile Include="CoreWoodPlugin.cs" />
     <Compile Include="MainConfig.cs" />
     <Compile Include="Updates\UpdateScarecrowSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ModSettings\*.cs">
+      <Link>ModSettings\%(Filename)%(Extension)</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Package\icon.png" />

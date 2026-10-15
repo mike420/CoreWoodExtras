@@ -6,22 +6,21 @@
 
 ## 💶 Donations: 
 
-Please support this project if you can and prevent it from becoming abandoned!
+If you enjoy using this Valheim mod, please consider making a small donation to help support its development and future updates.
 
-Creating mods is a labor of love, a mix of long hours, personal investment, and a bit of green alchemy. From custom models to scripts and endless tweaks, each piece is hand-grown with care to enhance your Valheim experience.
+Even £1 or $1 would be greatly appreciated and would help more than you might think!
 
-If you enjoy the journey, the worlds, and the weirdness I create, there is a way to help keep the garden growing. Whether it is brewing up new features or snagging fresh assets, every bit of support helps keep the magic rolling.
+Thank you for your support, and happy gaming! ⚔️  ...... (A Paypal account is NOT required!)
 
-Thanks for being part of the adventure. Stay lifted, stay curious!
-
-<a href="https://www.paypal.com/donate/?hosted_button_id=BN8HEWHRMAREU">![](https://imgup.uk/i/n7Sg7WK9.png)</a> 
-
+<a href="https://www.paypal.com/donate/?hosted_button_id=BN8HEWHRMAREU">![](https://imgup.uk/i/n7Sg7WK9.png)</a>
+<br>
+<br>
 <br>
 
   
 ## 🎚️ Configuration:
 
-Configuration options can be modified in-game (using <a href="https://thunderstore.io/c/valheim/p/Azumatt/Official_BepInEx_ConfigurationManager/">Configuration Manager</a> plugin).
+Settings are in `BepInEx/config/MagicMike.CoreWoodExtras.cfg` (or press F7, in game or on the main menu, to open a panel with the settings of all your installed Magic Mike mods).
 
 Most settings apply straight away. Any setting that needs a restart or a rebuilt piece says so in its description.
 
@@ -49,6 +48,7 @@ For Nexus downloads you will need to install manually.
 
 ## 💥 Plugins Created by Magic Mike:
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CoreWoodExtras/">Corewood Extras</a>
+  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CorewoodFortified/">Corewood Fortified</a>
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CorewoodAdditions/">Corewood Additions</a>
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/">My Dirty Hoe</a>
   * <a href="https://thunderstore.io/c/valheim/p/MagicMike/ChestPreview/">Chest Preview</a>

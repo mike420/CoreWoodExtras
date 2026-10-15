@@ -17,7 +17,6 @@ namespace CoreWoodExtras
 
 		private enum Layout
 		{
-			None,
 			Grid5x5,
 			Grid3x1,
 			Vine
@@ -838,7 +837,7 @@ namespace CoreWoodExtras
 		private void BuildVisuals(string prefabName)
 		{
 			Conversion conversion = FindConversion(prefabName);
-			GameObject plant = conversion != null ? FindPlant(conversion.From.m_itemData.m_shared.m_name) : null;
+			GameObject plant = conversion != null ? FindPlant(conversion.To.m_itemData.m_shared.m_name) ?? FindPlant(conversion.From.m_itemData.m_shared.m_name) : null;
 			if (plant == null)
 			{
 				return;
@@ -947,19 +946,19 @@ namespace CoreWoodExtras
 			{
 				return Layout.Grid5x5;
 			}
-			if (name.Contains("blueberrybush") || name.Contains("raspberrybush") || name.EndsWith("plant"))
-			{
-				return Layout.Grid3x1;
-			}
 			if (name.Contains("cloudberrybush"))
 			{
 				return Layout.Grid5x5;
+			}
+			if (name.Contains("bush") || name.EndsWith("plant"))
+			{
+				return Layout.Grid3x1;
 			}
 			if (name.Contains("vineash"))
 			{
 				return Layout.Vine;
 			}
-			return Layout.None;
+			return Layout.Grid5x5;
 		}
 
 		private static Dictionary<string, GameObject> s_plants;
@@ -1002,30 +1001,13 @@ namespace CoreWoodExtras
 				{
 					continue;
 				}
-				string key = GetPlantKey(drop.m_itemData.m_shared.m_name);
+				string key = drop.m_itemData.m_shared.m_name;
 				if (!plants.ContainsKey(key))
 				{
 					plants.Add(key, prefab);
 				}
 			}
 			return plants;
-		}
-
-		private static string GetPlantKey(string sharedName)
-		{
-			switch (sharedName)
-			{
-				case "$item_carrot":
-				case "$item_onion":
-				case "$item_turnip":
-					return sharedName + "seeds";
-				case "$item_carrotseeds":
-				case "$item_onionseeds":
-				case "$item_turnipseeds":
-					return sharedName.Replace("seeds", "");
-				default:
-					return sharedName;
-			}
 		}
 	}
 }
