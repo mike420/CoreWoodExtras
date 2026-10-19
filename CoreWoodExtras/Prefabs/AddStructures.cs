@@ -144,7 +144,7 @@ internal class AddStructures
 
     public static void AddCoreWoodPalisadeBeacon()
     {
-        GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_corewood_palisade_beacon");
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_palisade_beacon");
         CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
         {
             CraftingStation = "forge",

@@ -13,7 +13,7 @@
       <li>Fixed the Seed Bed giving seeds back, or growing and then giving nothing, in multiplayer when players had different SeedBedItems.json files. The server's SeedBedItems.json is now sent to everyone who joins (and again when the server's file changes), so every player uses the same list. Your own file is used again when you leave the server.</li>
       <li>A Seed Bed growing something that isn't in the seed bed items is no longer emptied at harvest time, so the seeds aren't lost. It waits for a player who can harvest it.</li>
       <li>Fixed modded items added to SeedBedItems.json sometimes being skipped as "unknown item" when the mod that adds them registers its items late.</li>
-      <li>The asset bundles (corewood_new and corewood_fixed) are now separate files next to CoreWoodExtras.dll instead of being packed inside it. This lowers memory use and speeds up loading. If you install manually, copy the whole plugins folder, not just the dll.</li>
+      <li>The asset bundle (corewood_new) is now a separate file next to CoreWoodExtras.dll instead of being packed inside it. This lowers memory use and speeds up loading. If you install manually, copy the whole plugins folder, not just the dll.</li>
     </ul>
     </td>
   </tr>

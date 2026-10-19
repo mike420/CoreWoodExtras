@@ -154,7 +154,7 @@ internal class AddBuilding
 
 	public static void AddSharpSteaks02()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_corewood_stakes_02");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_stakes_02");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "piece_workbench",

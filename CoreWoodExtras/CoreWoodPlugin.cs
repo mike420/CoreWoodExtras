@@ -37,8 +37,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static AssetBundle cwextras_new;
     public static string newBundle = "corewood_new";
-    public static AssetBundle cwextras_fixed;
-    public static string fixedBundle = "corewood_fixed";
 
     private Harmony harmony;
 
@@ -166,7 +164,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
     public static void LoadAssetBundles()
     {
         cwextras_new = LoadAssetBundle(newBundle);
-        cwextras_fixed = LoadAssetBundle(fixedBundle);
     }
 
     private static AssetBundle LoadAssetBundle(string bundleName)

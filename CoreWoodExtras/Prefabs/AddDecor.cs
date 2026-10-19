@@ -2585,7 +2585,7 @@ internal class AddDecor
 
     public static void AddWallTorch()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_horn_walltorch");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_horn_walltorch");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "forge",
@@ -2632,7 +2632,7 @@ internal class AddDecor
 
 	public static void AddDeerChandelier()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_deerchandelier");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_deerchandelier");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "forge",
@@ -2679,7 +2679,7 @@ internal class AddDecor
 
 	public static void AddSkullCandles()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_corewood_skull_candles");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_skull_candles");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "piece_workbench",
@@ -2948,7 +2948,7 @@ internal class AddDecor
 
 	public static void AddBrazier()
 	{
-		GameObject gameObject = CoreWoodPlugin.cwextras_fixed.LoadAsset<GameObject>("mm_corewood_brazier");
+		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_brazier");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
 		{
 			CraftingStation = "forge",
