@@ -116,6 +116,8 @@ namespace CoreWoodExtras
 
 		private bool m_spawning;
 
+		private string m_unknownContentWarned = "";
+
 		private bool IsValid => m_nview != null && m_nview.IsValid();
 
 		private string DisplayName => m_piece != null ? m_piece.m_name : FallbackName;
@@ -192,6 +194,8 @@ namespace CoreWoodExtras
 
 		private static ObjectDB s_conversionsDb;
 
+		private static int s_conversionsItemCount = -1;
+
 		private static List<Conversion> GetConversions()
 		{
 			ObjectDB db = ObjectDB.instance;
@@ -199,10 +203,11 @@ namespace CoreWoodExtras
 			{
 				return s_conversions;
 			}
-			if (s_conversionsVersion != SeedBedConversions.Version || s_conversionsDb != db)
+			if (s_conversionsVersion != SeedBedConversions.Version || s_conversionsDb != db || s_conversionsItemCount != db.m_items.Count)
 			{
 				s_conversionsVersion = SeedBedConversions.Version;
 				s_conversionsDb = db;
+				s_conversionsItemCount = db.m_items.Count;
 				List<Conversion> list = new List<Conversion>();
 				foreach (SeedBedConversions.Conversion entry in SeedBedConversions.Items)
 				{
@@ -486,6 +491,15 @@ namespace CoreWoodExtras
 			}
 			string content = GetContent();
 			Conversion conversion = FindConversion(content);
+			if (conversion == null)
+			{
+				if (m_unknownContentWarned != content)
+				{
+					m_unknownContentWarned = content;
+					Jotunn.Logger.LogWarning($"[CoreWoodExtras] Seed bed is growing '{content}', which is not in your seed bed items, leaving it for a player who can harvest it.");
+				}
+				return null;
+			}
 			PlayEffect(EffectHarvest);
 
 			int replanted = CanReplant(conversion) ? conversion.SeedAmount : 0;
@@ -497,21 +511,18 @@ namespace CoreWoodExtras
 			else
 			{
 				ClearContent();
-				if (MainConfig.SeedBedAutoReplant.Value && conversion != null)
+				if (MainConfig.SeedBedAutoReplant.Value)
 				{
 					m_nview.GetZDO().Set(s_lastContent, content);
 					m_nextReplantCheck = 0f;
 				}
 			}
-			if (conversion != null)
-			{
-				DropPendingProduce();
-				ZDO zdo = m_nview.GetZDO();
-				zdo.Set(s_pendingItem, conversion.To.gameObject.name);
-				zdo.Set(s_pendingAmount, conversion.ProducedItems - replanted);
-				zdo.Set(s_pendingStore, store);
-				StartSpawning();
-			}
+			DropPendingProduce();
+			ZDO zdo = m_nview.GetZDO();
+			zdo.Set(s_pendingItem, conversion.To.gameObject.name);
+			zdo.Set(s_pendingAmount, conversion.ProducedItems - replanted);
+			zdo.Set(s_pendingStore, store);
+			StartSpawning();
 			return conversion;
 		}
 

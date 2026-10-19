@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.3.7";
+	public const string PluginVersion = "2.3.9";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -115,6 +115,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 	public void Update()
     {
         ReloadTranslationsIfChanged();
+        SeedBedConversions.BroadcastIfChanged();
     }
 
     private void ReloadTranslationsIfChanged()
@@ -164,16 +165,19 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static void LoadAssetBundles()
     {
-        cwextras_new = AssetUtils.LoadAssetBundleFromResources(newBundle, Assembly.GetExecutingAssembly());
-        if (cwextras_new == null)
+        cwextras_new = LoadAssetBundle(newBundle);
+        cwextras_fixed = LoadAssetBundle(fixedBundle);
+    }
+
+    private static AssetBundle LoadAssetBundle(string bundleName)
+    {
+        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), bundleName);
+        AssetBundle bundle = File.Exists(path) ? AssetBundle.LoadFromFile(path) : null;
+        if (bundle == null)
         {
-            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + newBundle);
+            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + bundleName + " (expected at " + path + ")");
         }
-        cwextras_fixed = AssetUtils.LoadAssetBundleFromResources(fixedBundle, Assembly.GetExecutingAssembly());
-        if (cwextras_fixed == null)
-        {
-            Jotunn.Logger.LogError("Failed to load asset bundle with name: " + fixedBundle);
-        }
+        return bundle;
     }
 
     public static void AddFXAssets()

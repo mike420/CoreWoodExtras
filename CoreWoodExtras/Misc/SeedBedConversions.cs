@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Jotunn.Entities;
+using Jotunn.Managers;
 
 namespace CoreWoodExtras;
 
@@ -29,6 +32,14 @@ internal static class SeedBedConversions
 
     private static int s_version;
 
+    private static volatile string s_localJson;
+
+    private static volatile bool s_usingServerItems;
+
+    private static volatile bool s_broadcastPending;
+
+    private static CustomRPC s_rpc;
+
     public static IReadOnlyList<Conversion> Items => s_items;
 
     public static bool IsHerb(string prefabName, string sharedName)
@@ -43,6 +54,7 @@ internal static class SeedBedConversions
 
     public static void Load()
     {
+        s_rpc = NetworkManager.Instance.AddRPC("MM_SeedBedItems", OnServerReceive, OnClientReceive);
         Reload();
         FileWatcher.WatchFileChanges(FilePath, Reload);
     }
@@ -57,16 +69,102 @@ internal static class SeedBedConversions
                 Jotunn.Logger.LogInfo($"[CoreWoodExtras] Created default seed bed items file at {FilePath}");
             }
 
-            List<Conversion> parsed = ParseItems(File.ReadAllText(FilePath), out HashSet<string> herbs);
-            s_items = parsed;
-            s_herbs = herbs;
-            Interlocked.Increment(ref s_version);
-            Jotunn.Logger.LogInfo($"[CoreWoodExtras] Loaded {parsed.Count} seed bed conversion(s) and {herbs.Count} herb(s) from {FileName}.");
+            string json = File.ReadAllText(FilePath);
+            List<Conversion> parsed = ParseItems(json, out HashSet<string> herbs);
+            s_localJson = json;
+            s_broadcastPending = true;
+            if (s_usingServerItems)
+            {
+                Jotunn.Logger.LogInfo($"[CoreWoodExtras] {FileName} changed, but the server's seed bed items are in use until you disconnect.");
+                return;
+            }
+            Apply(parsed, herbs, FileName);
         }
         catch (Exception ex)
         {
             Jotunn.Logger.LogError($"[CoreWoodExtras] Failed to load {FileName}: {ex.Message}");
         }
+    }
+
+    private static void Apply(List<Conversion> items, HashSet<string> herbs, string source)
+    {
+        s_items = items;
+        s_herbs = herbs;
+        Interlocked.Increment(ref s_version);
+        Jotunn.Logger.LogInfo($"[CoreWoodExtras] Loaded {items.Count} seed bed conversion(s) and {herbs.Count} herb(s) from {source}.");
+    }
+
+    public static void SendToPeer(ZNetPeer peer)
+    {
+        string json = s_localJson;
+        if (s_rpc != null && peer != null && !string.IsNullOrEmpty(json))
+        {
+            s_rpc.SendPackage(peer.m_uid, CreatePackage(json));
+        }
+    }
+
+    public static void BroadcastIfChanged()
+    {
+        if (!s_broadcastPending)
+        {
+            return;
+        }
+        s_broadcastPending = false;
+        string json = s_localJson;
+        ZNet znet = ZNet.instance;
+        if (s_rpc != null && znet != null && znet.IsServer() && znet.m_peers.Count > 0 && !string.IsNullOrEmpty(json))
+        {
+            s_rpc.SendPackage(znet.m_peers, CreatePackage(json));
+        }
+    }
+
+    public static void UseLocalItems()
+    {
+        if (!s_usingServerItems)
+        {
+            return;
+        }
+        s_usingServerItems = false;
+        string json = s_localJson;
+        if (string.IsNullOrEmpty(json))
+        {
+            return;
+        }
+        try
+        {
+            Apply(ParseItems(json, out HashSet<string> herbs), herbs, FileName);
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError($"[CoreWoodExtras] Failed to load {FileName}: {ex.Message}");
+        }
+    }
+
+    private static ZPackage CreatePackage(string json)
+    {
+        ZPackage package = new ZPackage();
+        package.Write(json);
+        return package;
+    }
+
+    private static IEnumerator OnServerReceive(long sender, ZPackage package)
+    {
+        yield break;
+    }
+
+    private static IEnumerator OnClientReceive(long sender, ZPackage package)
+    {
+        try
+        {
+            List<Conversion> parsed = ParseItems(package.ReadString(), out HashSet<string> herbs);
+            s_usingServerItems = true;
+            Apply(parsed, herbs, "the server");
+        }
+        catch (Exception ex)
+        {
+            Jotunn.Logger.LogError($"[CoreWoodExtras] Failed to load the server's seed bed items: {ex.Message}");
+        }
+        yield break;
     }
 
     private static List<Conversion> ParseItems(string json, out HashSet<string> herbs)

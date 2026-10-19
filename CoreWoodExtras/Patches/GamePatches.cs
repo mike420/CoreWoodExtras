@@ -17,6 +17,32 @@ public class GamePatches
 		}
 	}
 
+	[HarmonyPatch(typeof(ZNet), "RPC_PeerInfo")]
+	private class ZNetPeerInfoSeedBedPatch
+	{
+		private static void Postfix(ZNet __instance, ZRpc rpc)
+		{
+			if (!__instance.IsServer())
+			{
+				return;
+			}
+			ZNetPeer peer = __instance.GetPeer(rpc);
+			if (peer != null && peer.IsReady())
+			{
+				SeedBedConversions.SendToPeer(peer);
+			}
+		}
+	}
+
+	[HarmonyPatch(typeof(ZNet), "OnDestroy")]
+	private class ZNetDestroySeedBedPatch
+	{
+		private static void Postfix()
+		{
+			SeedBedConversions.UseLocalItems();
+		}
+	}
+
 	public static ZNetScene zNetScene;
 
 	public static void FixGameObjects()
