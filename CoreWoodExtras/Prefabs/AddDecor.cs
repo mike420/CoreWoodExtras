@@ -1,4 +1,5 @@
 using CoreWoodExtras.Containers;
+using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -240,6 +241,8 @@ internal class AddDecor
         {
             return;
         }
+        // Resolve mocks before adding the runtime TMP components; Jotunn's reflection walk over TMP reaches the skybox material and logs "_MainTex" errors
+        gameObject.FixReferences(true);
         GameObject prefab = PrefabManager.Instance.GetPrefab("sign");
         if (!(prefab == null))
         {
@@ -262,7 +265,7 @@ internal class AddDecor
             namedChest.textFront = SignHelper.CreateText(gameObject2.transform, "TextFront");
             namedChest.textFront.rectTransform.localEulerAngles = new Vector3(0f, 180f, 0f);
             namedChest.textFront.fontSize = 0.13f;
-            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+            CustomPiece customPiece = new CustomPiece(gameObject, fixReference: false, new PieceConfig
             {
                 CraftingStation = "piece_workbench",
                 PieceTable = "_HammerPieceTable",
