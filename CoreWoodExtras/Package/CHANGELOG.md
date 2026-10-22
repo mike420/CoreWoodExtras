@@ -7,6 +7,14 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.4.1</td>
+    <td>
+    <ul>
+      <li>Fixed "Material 'skybox' with Shader" error. It is a Jotunn error, but my plugin was triggering it.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
     <td>2.4.0</td>
     <td>
     <ul>
