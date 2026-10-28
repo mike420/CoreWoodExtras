@@ -38,22 +38,6 @@ internal class FileWatcher
 		Watchers.Add(fileSystemWatcher);
 	}
 
-	public static void WatchTranslationChanges(string path, Action onChanged)
-	{
-		if (!Directory.Exists(CoreWoodPlugin.TranslationFilePath))
-		{
-			return;
-		}
-		try
-		{
-			WatchFileChanges(Path.Combine(path, "*.*"), onChanged, includeSubdirectories: true);
-		}
-		catch
-		{
-			Logger.LogError("There was an issue loading Translation files!");
-		}
-	}
-
 	private static void RaiseChanged(Action onChanged)
 	{
 		try

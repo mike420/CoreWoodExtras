@@ -47,7 +47,10 @@
     <StartWorkingDirectory>$(VALHEIM_INSTALL)</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Assets\Translations\English\CoreWoodExtras.json" />
+    <EmbeddedResource Include="Assets\Translations\English\CoreWoodExtras.json">
+      <LogicalName>translations/English.json</LogicalName>
+    </EmbeddedResource>
+    <None Include="Assets\Translations\**\CoreWoodExtras.json" Exclude="Assets\Translations\English\CoreWoodExtras.json" />
     <None Include="Resources\corewood_new" />
   </ItemGroup>
   <ItemGroup>
@@ -83,7 +86,6 @@
     <Compile Include="Components\TroughVisualState.cs" />
     <Compile Include="Components\TroughAutoCollect.cs" />
     <Compile Include="Misc\FileWatcher.cs" />
-    <Compile Include="Misc\LocalisedText.cs" />
     <Compile Include="Misc\CustomTraderItems.cs" />
     <Compile Include="Misc\MiniJson.cs" />
     <Compile Include="Misc\SeedBedConversions.cs" />
@@ -103,6 +105,7 @@
     <Compile Include="Prefabs\AddMarket.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Misc\Translations.cs" />
     <Compile Include="Components\Scarecrow.cs" />
     <Compile Include="Components\SeedBed.cs" />
     <Compile Include="Components\TraderToggle.cs" />
@@ -177,10 +180,10 @@
       <ImageFiles Include="$(AssetsDir)\Images\image-3_h.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_h.jpg')" />
       <ImageFiles Include="$(AssetsDir)\Images\image-3_s.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_s.jpg')" />
       <ImageFiles Include="$(AssetsDir)\Images\image-3_v.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_v.jpg')" />
-      <LanguageFiles Include="$(AssetsDir)\Translations\English\CoreWoodExtras.json" Condition="Exists('$(AssetsDir)\Translations\English\CoreWoodExtras.json')" />
+      <LanguageFiles Include="$(AssetsDir)\Translations\**\CoreWoodExtras.json" />
     </ItemGroup>
     <Copy SourceFiles="@(ImageFiles)" DestinationFolder="$(MOD_CONFIGPATH)\CoreWoodExtras\Images" OverwriteReadOnlyFiles="true" />
-    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(MOD_CONFIGPATH)\CoreWoodExtras\Translations\English" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFiles="@(LanguageFiles->'$(MOD_CONFIGPATH)\CoreWoodExtras\Translations\%(RecursiveDir)%(Filename)%(Extension)')" OverwriteReadOnlyFiles="true" />
   </Target>
   <UsingTask TaskName="WriteManifestFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <ParameterGroup>
@@ -232,7 +235,7 @@ System.IO.File.WriteAllText(ManifestFile, content);
       <ImageFiles Include="$(AssetsDir)\Images\image-3_h.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_h.jpg')" />
       <ImageFiles Include="$(AssetsDir)\Images\image-3_s.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_s.jpg')" />
       <ImageFiles Include="$(AssetsDir)\Images\image-3_v.jpg" Condition="Exists('$(AssetsDir)\Images\image-3_v.jpg')" />
-      <LanguageFiles Include="$(AssetsDir)\Translations\English\CoreWoodExtras.json" Condition="Exists('$(AssetsDir)\Translations\English\CoreWoodExtras.json')" />
+      <LanguageFiles Include="$(AssetsDir)\Translations\**\CoreWoodExtras.json" />
       <PluginFiles Include="$(TargetDir)$(AssemblyName).dll" Condition="Exists('$(TargetDir)$(AssemblyName).dll')" />
       <PluginFiles Include="$(ProjectDir)Resources\corewood_new" />
       <PackageFiles Include="$(ProjectDir)\Package\CHANGELOG.md" Condition="Exists('$(ProjectDir)\Package\CHANGELOG.md')" />
@@ -242,7 +245,7 @@ System.IO.File.WriteAllText(ManifestFile, content);
     </ItemGroup>
     <MakeDir Directories="$(ThunderPackage)" />
     <Copy SourceFiles="@(ImageFiles)" DestinationFolder="$(ThunderPackage)\config\CoreWoodExtras\Images" />
-    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(ThunderPackage)\config\CoreWoodExtras\Translations\English" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFiles="@(LanguageFiles->'$(ThunderPackage)\config\CoreWoodExtras\Translations\%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(ThunderPackage)\plugins" />
     <Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(ThunderPackage)" />
     <ZipDirectory SourceDirectory="$(ThunderPackage)" DestinationFile="ThunderStore\$(PackageName).zip" Overwrite="true" />

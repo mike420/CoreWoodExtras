@@ -29,9 +29,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	private static char pds = Path.DirectorySeparatorChar;
 	public static readonly string _basePath = BepInEx.Paths.ConfigPath + pds + "CoreWoodExtras";
-	public static readonly string TranslationFilePath = _basePath + pds + "Translations";
-
-	private CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
 	public static CoreWoodPlugin plugininstance;
 
@@ -44,9 +41,6 @@ public class CoreWoodPlugin : BaseUnityPlugin
 	internal static ConfigFileWatcher ConfigFileWatcher;
 
     public static CustomStatusEffect noMonstersStatus;
-
-    private volatile bool translationsChanged;
-    private float translationReloadAt = -1f;
 
     public void Awake()
 	{
@@ -61,19 +55,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 		if (MainConfig.modEnabled.Value)
 		{
             CheckForFolders();
-			LocalisedText.AddLocalisations();
-			try
-			{
-				LoadLocalisationData(TranslationFilePath);
-			}
-			catch (Exception ex)
-			{
-				Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not load the translation files: " + ex.Message);
-			}
-			FileWatcher.WatchTranslationChanges(TranslationFilePath, delegate
-			{
-				translationsChanged = true;
-			});
+			Translations.Load(this);
 
             LoadAssetBundles();
             AddFXAssets();
@@ -112,29 +94,13 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public void Update()
     {
-        ReloadTranslationsIfChanged();
+        Translations.Tick();
         SeedBedConversions.BroadcastIfChanged();
     }
 
-    private void ReloadTranslationsIfChanged()
+    public void OnDestroy()
     {
-        if (translationsChanged)
-        {
-            translationsChanged = false;
-            translationReloadAt = Time.time + 0.5f;
-        }
-        if (translationReloadAt >= 0f && Time.time >= translationReloadAt)
-        {
-            translationReloadAt = -1f;
-            try
-            {
-                LoadLocalisationData(TranslationFilePath);
-            }
-            catch (Exception ex)
-            {
-                Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not reload the translation files: " + ex.Message);
-            }
-        }
+        Translations.Unload();
     }
 
     public static void CheckForFolders()
@@ -144,22 +110,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 			Jotunn.Logger.LogInfo("Creating CoreWoodExtras Directory");
 			Directory.CreateDirectory(_basePath);
 		}
-		if (!Directory.Exists(TranslationFilePath))
-		{
-			Jotunn.Logger.LogInfo("Creating Translations folder");
-			Directory.CreateDirectory(TranslationFilePath);
-		}
 	}
-
-	public void LoadLocalisationData(string directory)
-	{
-		string[] fileSystemEntries = Directory.GetFileSystemEntries(directory, "*.json", SearchOption.AllDirectories);
-		foreach (string path in fileSystemEntries)
-		{
-			string language = new DirectoryInfo(Path.GetDirectoryName(path)).Name;
-			Localization.AddJsonFile(language, File.ReadAllText(path));
-		}
-    }
 
     public static void LoadAssetBundles()
     {
