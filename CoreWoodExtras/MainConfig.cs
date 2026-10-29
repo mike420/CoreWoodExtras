@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using Jotunn.Extensions;
 
@@ -207,5 +211,79 @@ internal static class MainConfig
         HogRoastRequiredKey = config.BindConfigInOrder("Boar Roaster Settings", "Required Key", "defeated_eikthyr", "The boar roaster only shows in the build menu once this global key is set (defeated_eikthyr is set when Eikthyr is defeated).\n(Leave empty to always show it).\n", synced: true, sectionOrder: true, settingOrder: true);
 
         pictureFrameWebImages = config.BindConfigInOrder("Picture Frame Settings", "Web Images", true, "If On, picture frames show images from http/https links written on them, downloading them from that address.\n(Off keeps your game from contacting sites other players link to; images from the Images folder always show).\n", synced: false, sectionOrder: true, settingOrder: true);
+
+        CarryOverOldSections(config);
+    }
+
+    private static readonly Dictionary<string, string[]> OldSections = new Dictionary<string, string[]>
+    {
+    };
+
+    private static void CarryOverOldSections(ConfigFile config)
+    {
+        Dictionary<ConfigDefinition, string> orphans;
+        try
+        {
+            PropertyInfo property = typeof(ConfigFile).GetProperty("OrphanedEntries", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            orphans = property?.GetValue(config) as Dictionary<ConfigDefinition, string>;
+        }
+        catch (System.Exception e)
+        {
+            Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not look for settings under old section names: " + e.Message);
+            return;
+        }
+        if (orphans == null || orphans.Count == 0)
+        {
+            return;
+        }
+
+        int carried = 0, dropped = 0;
+        HashSet<ConfigEntryBase> handled = new HashSet<ConfigEntryBase>();
+        bool saveOnSet = config.SaveOnConfigSet;
+        config.SaveOnConfigSet = false;
+        try
+        {
+            foreach (ConfigDefinition old in orphans.Keys.OrderByDescending(d => SectionNumber(d.Section)).ToList())
+            {
+                string oldName = SectionName(old.Section);
+                ConfigEntryBase entry = ((IDictionary<ConfigDefinition, ConfigEntryBase>)config).Values.FirstOrDefault(e => e.Definition.Key == old.Key && e.Definition.Section != old.Section
+                    && (SectionName(e.Definition.Section) == oldName || OldSections.TryGetValue(SectionName(e.Definition.Section), out string[] before) && before.Contains(oldName)));
+                if (entry == null)
+                {
+                    continue;
+                }
+                if (handled.Add(entry) && Equals(entry.BoxedValue, entry.DefaultValue))
+                {
+                    try
+                    {
+                        entry.SetSerializedValue(orphans[old]);
+                        carried++;
+                    }
+                    catch (System.Exception e)
+                    {
+                        Jotunn.Logger.LogWarning("[CoreWoodExtras] Could not carry over " + old.Section + " / " + old.Key + ": " + e.Message);
+                    }
+                }
+                orphans.Remove(old);
+                dropped++;
+            }
+        }
+        finally
+        {
+            config.SaveOnConfigSet = saveOnSet;
+        }
+        if (dropped > 0)
+        {
+            config.Save();
+            Jotunn.Logger.LogInfo("[CoreWoodExtras] Carried " + carried + " setting(s) over from old section names in the config file.");
+        }
+    }
+
+    private static string SectionName(string section) => Regex.Replace(section ?? "", @"^\d+\s*-\s*", "");
+
+    private static int SectionNumber(string section)
+    {
+        Match match = Regex.Match(section ?? "", @"^(\d+)\s*-");
+        return match.Success ? int.Parse(match.Groups[1].Value) : -1;
     }
 }

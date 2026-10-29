@@ -21,11 +21,12 @@ internal class AddBuilding
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodDecking2m);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodDecking);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloorHalf);
-		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor);
-		CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor4m);
-		CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodFloor4m);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks1x1);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanks4m);
-		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingStraight);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingStraight);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCross);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCorner);
 		CoreWoodPlugin.TryAddPiece(AddCoreWoodPavingCurve);
@@ -98,7 +99,12 @@ internal class AddBuilding
 		CoreWoodPlugin.TryAddPiece(AddWoodWallLog4Thin);
 		CoreWoodPlugin.TryAddPiece(AddWoodLog26);
 		CoreWoodPlugin.TryAddPiece(AddWoodLog45);
-	}
+
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanksCarved01);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanksCarved02);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanksCarved03);
+        CoreWoodPlugin.TryAddPiece(AddCoreWoodPlanksCarved04);
+    }
 
 	public static void AddSteakWall()
 	{
@@ -358,9 +364,9 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		PieceManager.Instance.AddPiece(customPiece);
-	}
+    }
 
-	public static void AddCoreWoodFloor()
+    public static void AddCoreWoodFloor()
 	{
 		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_floor");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
@@ -410,9 +416,41 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		PieceManager.Instance.AddPiece(customPiece);
-	}
+    }
 
-	public static void AddCoreWoodPlanks()
+    public static void AddCoreWoodPlanks1x1()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks_1x1");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Building",
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 1,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Wood",
+                    Amount = 1,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
+
+    public static void AddCoreWoodPlanks()
 	{
 		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
@@ -426,13 +464,13 @@ internal class AddBuilding
 				new RequirementConfig
 				{
 					Item = "RoundLog",
-					Amount = 1,
+					Amount = 2,
 					Recover = true
 				},
 				new RequirementConfig
 				{
 					Item = "Wood",
-					Amount = 1,
+					Amount = 2,
 					Recover = true
 				}
 			}
@@ -458,13 +496,13 @@ internal class AddBuilding
 				new RequirementConfig
 				{
 					Item = "RoundLog",
-					Amount = 2,
+					Amount = 4,
 					Recover = true
 				},
 				new RequirementConfig
 				{
 					Item = "Wood",
-					Amount = 2,
+					Amount = 4,
 					Recover = true
 				}
 			}
@@ -474,9 +512,9 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		PieceManager.Instance.AddPiece(customPiece);
-	}
+    }
 
-	public static void AddCoreWoodPavingStraight()
+    public static void AddCoreWoodPavingStraight()
 	{
 		GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_paving_straight");
 		CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
@@ -2537,5 +2575,133 @@ internal class AddBuilding
 		component.m_destroyedEffect = breakWood;
 		component.m_hitEffect = hitWood;
 		PieceManager.Instance.AddPiece(customPiece);
-	}
+    }
+
+    public static void AddCoreWoodPlanksCarved01()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks_carved_01");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Building",
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 2,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Wood",
+                    Amount = 2,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
+
+    public static void AddCoreWoodPlanksCarved02()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks_carved_02");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Building",
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 2,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Wood",
+                    Amount = 2,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
+
+    public static void AddCoreWoodPlanksCarved03()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks_carved_03");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Building",
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 2,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Wood",
+                    Amount = 2,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
+
+    public static void AddCoreWoodPlanksCarved04()
+    {
+        GameObject gameObject = CoreWoodPlugin.cwextras_new.LoadAsset<GameObject>("mm_corewood_planks_carved_04");
+        CustomPiece customPiece = new CustomPiece(gameObject, fixReference: true, new PieceConfig
+        {
+            CraftingStation = "piece_workbench",
+            PieceTable = "_HammerPieceTable",
+            Category = "CoreWood-Building",
+            Usage = new[] { PieceUsages.Building, PieceUsages.Floor },
+            Requirements = new RequirementConfig[2]
+            {
+                new RequirementConfig
+                {
+                    Item = "RoundLog",
+                    Amount = 2,
+                    Recover = true
+                },
+                new RequirementConfig
+                {
+                    Item = "Wood",
+                    Amount = 2,
+                    Recover = true
+                }
+            }
+        });
+        gameObject.GetComponent<Piece>().m_placeEffect = buildWood;
+        WearNTear component = gameObject.GetComponent<WearNTear>();
+        component.m_destroyedEffect = breakWood;
+        component.m_hitEffect = hitWood;
+        PieceManager.Instance.AddPiece(customPiece);
+    }
 }

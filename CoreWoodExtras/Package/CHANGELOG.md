@@ -7,6 +7,31 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.4.4</td>
+    <td>
+    <ul>
+      <li>Added carved planks 2m</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.4.3</td>
+    <td>
+    <ul>
+      <li>Added 1x1 planks (request).</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.4.2</td>
+    <td>
+    <ul>
+      <li>Updated F7 control panel.</li>
+      <li>Fixed some small issues.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
     <td>2.4.1</td>
     <td>
     <ul>
