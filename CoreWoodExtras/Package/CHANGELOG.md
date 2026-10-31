@@ -7,6 +7,12 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.4.5</td>
+    <td>
+    <li>Re-built for Valheim 1.0.21.</li>
+    </td>
+  </tr>
+  <tr>
     <td>2.4.4</td>
     <td>
     <ul>
