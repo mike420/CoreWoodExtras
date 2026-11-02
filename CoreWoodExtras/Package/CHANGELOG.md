@@ -9,7 +9,9 @@
   <tr>
     <td>2.4.5</td>
     <td>
-    <li>Re-built for Valheim 1.0.21.</li>
+    <ul>
+        <li>Re-built for Valheim 1.0.21.</li>
+    </ul>
     </td>
   </tr>
   <tr>
