@@ -213,6 +213,9 @@ internal static class MainConfig
         pictureFrameWebImages = config.BindConfigInOrder("Picture Frame Settings", "Web Images", true, "If On, picture frames show images from http/https links written on them, downloading them from that address.\n(Off keeps your game from contacting sites other players link to; images from the Images folder always show).\n", synced: false, sectionOrder: true, settingOrder: true);
 
         CarryOverOldSections(config);
+
+		// Decimal settings rounded (and kept in range) whichever editor sets them
+		MagicMike.ModSettings.ConfigRounding.RoundAll(config);
     }
 
     private static readonly Dictionary<string, string[]> OldSections = new Dictionary<string, string[]>
