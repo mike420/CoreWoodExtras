@@ -9,7 +9,7 @@ internal class UpdateMainSettings
 
 	public static void MainSettingsChanged()
 	{
-		TexturePatches.ChangeTextureFilter();
+		TexturePatches.ApplyTextureQuality();
 		ApplyToiletEffects();
 	}
 

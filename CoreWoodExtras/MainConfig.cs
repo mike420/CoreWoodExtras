@@ -99,7 +99,7 @@ internal static class MainConfig
     public static void InitConfigs(ConfigFile config)
 	{
 		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n(Restart required. It is read before connecting to a server, so it is a local setting).\n", synced: false, sectionOrder: true, settingOrder: true);
-		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this will set the textures look more vanilla like.\n(using point filter instead of trilinear).\n", synced: false, sectionOrder: true, settingOrder: true);
+		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this swaps the piece materials for low quality versions that look more vanilla like.\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
 		toiletEffects = config.BindConfigInOrder("General Settings", "Toilet Effects", defaultValue: true, "Enable the toilet effects.\n", synced: true, sectionOrder: true, settingOrder: true);
 		toiletEffects.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;

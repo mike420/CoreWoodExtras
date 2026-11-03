@@ -7,6 +7,14 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.4.6</td>
+    <td>
+    <ul>
+        <li>Disable HD now swaps the piece materials for low quality versions instead of changing the texture filtering. Toggling it applies straight away, including to pieces already built.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
     <td>2.4.5</td>
     <td>
     <ul>
