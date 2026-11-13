@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.4.6";
+	public const string PluginVersion = "2.4.8";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";
@@ -302,7 +302,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static void OnMainConfigChanged(object obj, EventArgs args)
 	{
-		if (SceneManager.GetActiveScene().name.Equals("main"))
+		if (SceneManager.GetActiveScene().name == "main")
 		{
 			UpdateMainSettings.MainSettingsChanged();
 		}
@@ -310,7 +310,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static void OnChestConfigChanged(object obj, EventArgs args)
 	{
-		if (SceneManager.GetActiveScene().name.Equals("main"))
+		if (SceneManager.GetActiveScene().name == "main")
 		{
 			UpdateChestSettings.ChestSettingsChanged();
 		}
@@ -318,7 +318,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
 	public static void OnLightConfigChanged(object obj, EventArgs args)
 	{
-		if (SceneManager.GetActiveScene().name.Equals("main"))
+		if (SceneManager.GetActiveScene().name == "main")
 		{
 			UpdateLightSettings.LightSettingsChanged();
 		}
@@ -326,7 +326,7 @@ public class CoreWoodPlugin : BaseUnityPlugin
 
     public static void OnScarecrowConfigChanged(object obj, EventArgs args)
     {
-        if (SceneManager.GetActiveScene().name.Equals("main"))
+        if (SceneManager.GetActiveScene().name == "main")
         {
             UpdateScarecrowSettings.ScarecrowSettingsChanged();
         }

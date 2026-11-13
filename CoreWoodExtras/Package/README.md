@@ -39,6 +39,14 @@ For Nexus downloads you will need to install manually.
 
 <br>
 
+## 🌐 Multiplayer:
+
+  * Every player and the server need this mod installed.
+  * Versions only need to match on the first number: anyone on 1.x.x can play with anyone else on 1.x.x, so a server and its players do not all have to update at the same time.
+  * Settings marked "synced from the server" use the server's values for everyone.
+
+<br>
+
   
 ## 💜 Credits: 
   * blacks7ar for the original idea, and for the Seed Bed idea.
@@ -47,12 +55,18 @@ For Nexus downloads you will need to install manually.
 <br>
 
 ## 💥 Plugins Created by Magic Mike:
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CoreWoodExtras/">Corewood Extras</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CorewoodFortified/">Corewood Fortified</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/CorewoodAdditions/">Corewood Additions</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/MyDirtyHoe/">My Dirty Hoe</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/ChestPreview/">Chest Preview</a>
-  * <a href="https://thunderstore.io/c/valheim/p/MagicMike/YabbaDabbaDoo/">YabbaDabbaDoo</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/CoreWoodExtras">Corewood Extras</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/CorewoodFortified">Corewood Fortified</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/CorewoodAdditions">Corewood Additions</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/MyDirtyHoe">My Dirty Hoe</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/ChestPreview">Chest Preview</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/YabbaDabbaDoo">YabbaDabbaDoo</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/BetterBuildMenu">Better Build Menu</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/BetterCrafting">Better Crafting</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/BetterEquipSlots">Better Equip Slots</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/ExtraInventorySlots">Extra Inventory Slots</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/VillagePlebs">Village Plebs</a>
+  * <a href="https://valheim.hexium.gg/mods/MagicMike/BodyReplacer">Body Replacer</a>
 
 <br>
 

@@ -7,10 +7,27 @@
 </thead>
 <tbody>
   <tr>
+    <td>2.4.8</td>
+    <td>
+    <ul>
+      <li>Fixed items being lost from Core Wood chests when the chest rows or columns setting was reduced or differed from the server. Stored items now keep their slots and the chest grows to fit them.</li>
+      <li>Fixed items being discarded when a chest loaded two items saved in the same slot; they are now moved to a free slot, and a warning is logged when this happens. Removed the container restriction code that could block item removal and cause items to jump slots.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
+    <td>2.4.7</td>
+    <td>
+    <ul>
+      <li>Updated readme and links.</li>
+    </ul>
+    </td>
+  </tr>
+  <tr>
     <td>2.4.6</td>
     <td>
     <ul>
-        <li>Disable HD now swaps the piece materials for low quality versions instead of changing the texture filtering. Toggling it applies straight away, including to pieces already built.</li>
+        <li>(Experimental): Disable HD now swaps the piece materials for low quality versions instead of changing the texture filtering. Toggling it applies straight away, including to pieces already built.</li>
     </ul>
     </td>
   </tr>

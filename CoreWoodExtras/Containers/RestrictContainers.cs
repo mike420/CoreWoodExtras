@@ -9,10 +9,6 @@ internal static class RestrictContainers
 {
 	private static string _loadingContainer;
 
-	private static string _targetContainer;
-
-	private static HashSet<string> _allowedItems;
-
     public static Dictionary<string, HashSet<string>> _allowedItemsByContainer = new Dictionary<string, HashSet<string>>();
 
     public static void SetContainerRestrictions(Dictionary<string, HashSet<string>> allowedItemByContainer)
@@ -113,7 +109,7 @@ internal static class RestrictContainers
     }
 
     [HarmonyPatch(typeof(Inventory), "Load", new Type[] { typeof(ZPackage) })]
-    [HarmonyPostfix]
+    [HarmonyFinalizer]
     [HarmonyPatch(typeof(Inventory), "Load", new Type[]
     {
         typeof(ZPackage),
@@ -122,51 +118,6 @@ internal static class RestrictContainers
     private static void LoadPostfix()
     {
         _loadingContainer = null;
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Inventory), "MoveAll", new Type[] { typeof(Inventory) })]
-    [HarmonyPriority(800)]
-    private static void MoveAllPrefix(Inventory __instance, Inventory fromInventory)
-    {
-        if (__instance != null && fromInventory != null)
-        {
-            if (IsRestrictedContainer(__instance.m_name, out var allowedItems))
-            {
-                _targetContainer = __instance.m_name;
-                _allowedItems = allowedItems;
-            }
-        }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Inventory), "MoveAll", new Type[] { typeof(Inventory) })]
-    [HarmonyPriority(800)]
-    private static void MoveAllPostfix()
-    {
-        _targetContainer = null;
-        _allowedItems = null;
-    }
-
-    [HarmonyPriority(800)]
-    [HarmonyPatch(typeof(Inventory), "RemoveItem", new Type[]
-    {
-        typeof(ItemDrop.ItemData),
-        typeof(int)
-    })]
-    [HarmonyPatch(typeof(Inventory), "RemoveItem", new Type[] { typeof(ItemDrop.ItemData) })]
-    [HarmonyPrefix]
-    private static bool RemoveItemPrefix(Inventory __instance, ItemDrop.ItemData item)
-    {
-        return ShouldRemoveItem(__instance, item);
-    }
-
-    [HarmonyPriority(800)]
-    [HarmonyPatch(typeof(Inventory), "RemoveOneItem", new Type[] { typeof(ItemDrop.ItemData) })]
-    [HarmonyPrefix]
-    private static bool RemoveOneItemPrefix(Inventory __instance, ItemDrop.ItemData item)
-    {
-        return ShouldRemoveItem(__instance, item);
     }
 
     private static bool CanAddItem(Inventory inventory, ItemDrop.ItemData item)
@@ -188,21 +139,6 @@ internal static class RestrictContainers
                 Player.m_localPlayer?.Message(MessageHud.MessageType.Center, msg);
             }
             return flag;
-        }
-        return true;
-    }
-
-    private static bool ShouldRemoveItem(Inventory __instance, ItemDrop.ItemData item)
-    {
-        if (__instance == null || item == null)
-        {
-            return false;
-        }
-        bool flag = !string.IsNullOrEmpty(_targetContainer);
-
-        if (flag && _allowedItems != null)
-        {
-            return _allowedItems.Contains(item.PrefabName());
         }
         return true;
     }
