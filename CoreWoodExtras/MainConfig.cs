@@ -18,6 +18,7 @@ internal static class MainConfig
 
 	public static ConfigEntry<bool> modEnabled;
 	public static ConfigEntry<bool> disableHDTextures;
+	public static ConfigEntry<bool> biomeOverlays;
 	public static ConfigEntry<bool> toiletEffects;
 	public static ConfigEntry<bool> enableElevators;
 	public static ConfigEntry<bool> autoTriggers;
@@ -101,6 +102,8 @@ internal static class MainConfig
 		modEnabled = config.BindConfigInOrder("General Settings", "Enable Plugin", defaultValue: true, "Enable the CoreWoodExtras plugin.\n(Restart required. It is read before connecting to a server, so it is a local setting).\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures = config.BindConfigInOrder("General Settings", "Disable HD", defaultValue: false, "Enabling this swaps the piece materials for low quality versions that look more vanilla like.\n", synced: false, sectionOrder: true, settingOrder: true);
 		disableHDTextures.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
+		biomeOverlays = config.BindConfigInOrder("General Settings", "Enable Biome Overlays", defaultValue: false, "If On, the wood, log and stone materials of the CoreWood pieces get a faint overlay that depends on the biome the piece stands in: ice and snow in the Mountain and the Deep North, moss everywhere else. Only materials used by CoreWoodExtras pieces change. It also works with Disable HD.\n", synced: false, sectionOrder: true, settingOrder: true);
+		biomeOverlays.SettingChanged += (_, _) => BiomeOverlays.OnSettingChanged();
 		toiletEffects = config.BindConfigInOrder("General Settings", "Toilet Effects", defaultValue: true, "Enable the toilet effects.\n", synced: true, sectionOrder: true, settingOrder: true);
 		toiletEffects.SettingChanged += CoreWoodPlugin.OnMainConfigChanged;
 		enableElevators = config.BindConfigInOrder("General Settings", "Enable Elevators", defaultValue: true, "If Off, elevators are hidden from the build menu and placed elevators do not move.\n", synced: true, sectionOrder: true, settingOrder: true);

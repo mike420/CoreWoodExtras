@@ -12,6 +12,7 @@
     <ul>
       <li>Fixed items being lost from Core Wood chests when the chest rows or columns setting was reduced or differed from the server. Stored items now keep their slots and the chest grows to fit them.</li>
       <li>Fixed items being discarded when a chest loaded two items saved in the same slot; they are now moved to a free slot, and a warning is logged when this happens. Removed the container restriction code that could block item removal and cause items to jump slots.</li>
+      <li>Added an Enable Biome Overlays setting (default off). It gives the wood, log and carved panel materials of the CoreWood pieces a faint overlay that depends on the biome each piece stands in: ice and snow in the Mountain and the Deep North, moss everywhere else. Only materials used by this mod's pieces change. It also works with the Disable HD materials, and applies straight away, including to pieces already built.</li>
     </ul>
     </td>
   </tr>

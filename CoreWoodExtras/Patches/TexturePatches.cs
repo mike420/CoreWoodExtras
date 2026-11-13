@@ -71,30 +71,39 @@ public class TexturePatches
 		{
 			return;
 		}
-		foreach (GameObject prefab in zNetScene.m_prefabs)
+		// Biome overlays are taken off the placed pieces first so the swap below sees the real materials, and put back after
+		BiomeOverlays.Suspend();
+		try
 		{
-			if (!prefab || !prefab.name.ToLower().Contains(PieceTag))
+			foreach (GameObject prefab in zNetScene.m_prefabs)
 			{
-				continue;
+				if (!prefab || !prefab.name.ToLower().Contains(PieceTag))
+				{
+					continue;
+				}
+				foreach (Renderer renderer in prefab.GetComponentsInChildren<Renderer>(includeInactive: true))
+				{
+					if (lowQuality)
+					{
+						SwapToLowQuality(renderer);
+					}
+					else if (OriginalPrefabMaterials.TryGetValue(renderer, out Material[] originals))
+					{
+						renderer.sharedMaterials = originals;
+					}
+				}
 			}
-			foreach (Renderer renderer in prefab.GetComponentsInChildren<Renderer>(includeInactive: true))
+			if (!lowQuality)
 			{
-				if (lowQuality)
-				{
-					SwapToLowQuality(renderer);
-				}
-				else if (OriginalPrefabMaterials.TryGetValue(renderer, out Material[] originals))
-				{
-					renderer.sharedMaterials = originals;
-				}
+				OriginalPrefabMaterials.Clear();
 			}
+			prefabsSwapped = lowQuality;
+			UpdatePlacedPieces();
 		}
-		if (!lowQuality)
+		finally
 		{
-			OriginalPrefabMaterials.Clear();
+			BiomeOverlays.Resume();
 		}
-		prefabsSwapped = lowQuality;
-		UpdatePlacedPieces();
 	}
 
 	private static bool LoadLowQualityMaterials()
