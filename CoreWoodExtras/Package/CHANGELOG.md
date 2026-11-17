@@ -10,7 +10,9 @@
     <td>2.4.9</td>
     <td>
     <ul>
-      <li></li>
+      <li>The biome overlay materials are now in their own asset bundle (corewood_overlays) that is only loaded when Enable Biome Overlays is on, and the main bundle is smaller.</li>
+      <li>Fixed snow and rain only showing along one edge of the logs and carved panels: the log, flat log and carved panel materials (and their Disable HD versions) now cull back faces and use value noise like the base game's wood materials.</li>
+      <li>The ice in the biome overlays is weaker, so more of the wood shows through the white.</li>
     </ul>
     </td>
   </tr>
