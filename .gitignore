@@ -402,3 +402,7 @@ FodyWeavers.xsd
 
 # Thunderstore release zips built by the Release configuration
 CoreWoodExtras/ThunderStore/
+
+# Asset bundles are built in Unity (CoreWood > Build AssetBundle) and shipped in the release, not kept in git
+CoreWoodExtras/Resources/corewood_new
+CoreWoodExtras/Resources/corewood_overlays

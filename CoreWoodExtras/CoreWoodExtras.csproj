@@ -52,6 +52,7 @@
     </EmbeddedResource>
     <None Include="Assets\Translations\**\CoreWoodExtras.json" Exclude="Assets\Translations\English\CoreWoodExtras.json" />
     <None Include="Resources\corewood_new" />
+    <None Include="Resources\corewood_overlays" Condition="Exists('Resources\corewood_overlays')" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Nexus\README.txt" />
@@ -169,6 +170,7 @@
     <Error Text="DLL not found in target directory." Condition="!Exists('$(TargetDir)$(AssemblyName).dll')" />
     <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(MOD_DEPLOYPATH)\CoreWoodExtras" OverwriteReadOnlyFiles="true" />
     <Copy SourceFiles="$(ProjectDir)Resources\corewood_new" DestinationFolder="$(MOD_DEPLOYPATH)\CoreWoodExtras" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)Resources\corewood_overlays" DestinationFolder="$(MOD_DEPLOYPATH)\CoreWoodExtras" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="true" Condition="Exists('$(ProjectDir)Resources\corewood_overlays')" />
   </Target>
   <Target Name="CopyOutputAssets" AfterTargets="CopyOutputDLL">
     <Error Text="Assets directory not found." Condition="!Exists('$(AssetsDir)')" />
@@ -240,6 +242,7 @@ System.IO.File.WriteAllText(ManifestFile, content);
       <LanguageFiles Include="$(AssetsDir)\Translations\**\CoreWoodExtras.json" />
       <PluginFiles Include="$(TargetDir)$(AssemblyName).dll" Condition="Exists('$(TargetDir)$(AssemblyName).dll')" />
       <PluginFiles Include="$(ProjectDir)Resources\corewood_new" />
+      <PluginFiles Include="$(ProjectDir)Resources\corewood_overlays" Condition="Exists('$(ProjectDir)Resources\corewood_overlays')" />
       <PackageFiles Include="$(ProjectDir)\Package\CHANGELOG.md" Condition="Exists('$(ProjectDir)\Package\CHANGELOG.md')" />
       <PackageFiles Include="$(ProjectDir)\Package\README.md" Condition="Exists('$(ProjectDir)\Package\README.md')" />
       <PackageFiles Include="$(ProjectDir)\Package\manifest.json" Condition="Exists('$(ProjectDir)\Package\manifest.json')" />

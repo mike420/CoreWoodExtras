@@ -21,7 +21,7 @@ namespace CoreWoodExtras;
 public class CoreWoodPlugin : BaseUnityPlugin
 {
 	public const string PluginName = "CoreWoodExtras";
-	public const string PluginVersion = "2.4.8";
+	public const string PluginVersion = "2.4.9";
 	public const string PluginAuthor = "MagicMike";
 	internal const string PluginGUID = "MagicMike.CoreWoodExtras";
 	internal const string PluginCopy = "Copyright © MagicMike 2026";

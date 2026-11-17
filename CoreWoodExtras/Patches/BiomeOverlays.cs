@@ -7,7 +7,7 @@ namespace CoreWoodExtras;
 
 // Enable Biome Overlays: swaps the wood, log and stone materials on each CoreWood piece for a "<name>_icy" version if
 // the piece stands in the Mountain or Deep North, and a "<name>_mossy" version anywhere else. The versions are in the
-// corewood_new bundle (made in Unity). Any material with a "<name>_mossy" and "<name>_icy" material in the bundle gets
+// corewood_overlays bundle (made in Unity), which is only loaded when the setting is on. Any material with a "<name>_mossy" and "<name>_icy" material in the bundle gets
 // swapped, so adding a new overlay only takes adding those two materials. Nothing is built at runtime, and only
 // materials used by CoreWood pieces change. The prefabs are left alone: each piece is decided by where it stands,
 // when it appears and when the setting is switched on.
@@ -37,6 +37,25 @@ public static class BiomeOverlays
 
 	private const string PieceTag = "mm_corewood";
 
+	// The overlay materials are in their own bundle, loaded the first time the setting is switched on
+	public const string OverlayBundleName = "corewood_overlays";
+
+	private static AssetBundle overlayBundle;
+
+	private static AssetBundle GetOverlayBundle()
+	{
+		if (!overlayBundle)
+		{
+			string path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), OverlayBundleName);
+			overlayBundle = File.Exists(path) ? AssetBundle.LoadFromFile(path) : null;
+			if (!overlayBundle)
+			{
+				Jotunn.Logger.LogError("Biome Overlays: failed to load asset bundle " + OverlayBundleName + " (expected at " + path + ").");
+			}
+		}
+		return overlayBundle;
+	}
+
 	// Names (lower case) of the overlay materials in the bundle, e.g. "wood_planks_lq_mossy"
 	private static HashSet<string> overlayAssets;
 
@@ -47,9 +66,10 @@ public static class BiomeOverlays
 			return overlayAssets;
 		}
 		overlayAssets = new HashSet<string>();
-		if (CoreWoodPlugin.cwextras_new)
+		AssetBundle bundle = GetOverlayBundle();
+		if (bundle)
 		{
-			foreach (string assetPath in CoreWoodPlugin.cwextras_new.GetAllAssetNames())
+			foreach (string assetPath in bundle.GetAllAssetNames())
 			{
 				string name = Path.GetFileNameWithoutExtension(assetPath);
 				if (assetPath.EndsWith(".mat") && (name.EndsWith("_mossy") || name.EndsWith("_icy")))
@@ -90,9 +110,9 @@ public static class BiomeOverlays
 		{
 			return;
 		}
-		if (wanted && !CoreWoodPlugin.cwextras_new)
+		if (wanted && !GetOverlayBundle())
 		{
-			Jotunn.Logger.LogWarning("Biome Overlays: asset bundle " + CoreWoodPlugin.newBundle + " is not loaded.");
+			Jotunn.Logger.LogWarning("Biome Overlays: asset bundle " + OverlayBundleName + " is not loaded.");
 			return;
 		}
 		applied = wanted;
@@ -292,14 +312,14 @@ public static class BiomeOverlays
 			EnsureRealShader(material);
 			if (!AssetsByName.TryGetValue(assetName, out Material asset))
 			{
-				asset = CoreWoodPlugin.cwextras_new.LoadAsset<Material>(assetName);
+				asset = GetOverlayBundle().LoadAsset<Material>(assetName);
 				if (asset)
 				{
 					FixShader(asset, material);
 				}
 				else
 				{
-					Jotunn.Logger.LogWarning("Biome Overlays: material '" + assetName + "' not found in " + CoreWoodPlugin.newBundle + ".");
+					Jotunn.Logger.LogWarning("Biome Overlays: material '" + assetName + "' not found in " + OverlayBundleName + ".");
 				}
 				AssetsByName[assetName] = asset;
 				overlay = asset;
