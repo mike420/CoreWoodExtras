@@ -1,6 +1,6 @@
-[size=6][b]HD Corewood Extras[/b][/size]
+[img]https://imgup.uk/i/RlDzGrHb.png[/img]
 
-[img]https://imgup.uk/i/uAKTdABf.png[/img]
+[size=6][b]HD Corewood Extras[/b][/size]
 
 
 [size=5][b]Donations[/b][/size]
@@ -57,18 +57,21 @@ For Nexus downloads you will need to install manually.
 [size=5][b]Plugins Created by Magic Mike[/b][/size]
 
 [list]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/AuroraBorealis]Aurora Borealis[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/BetterBuildMenu]Better Build Menu[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/BetterEquipSlots]Better Equip Slots[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/CorewoodAdditions]Corewood Additions[/url]
 [*][url=https://valheim.hexium.gg/mods/MagicMike/CoreWoodExtras]Corewood Extras[/url]
 [*][url=https://valheim.hexium.gg/mods/MagicMike/CorewoodFortified]Corewood Fortified[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/CorewoodAdditions]Corewood Additions[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/MyDirtyHoe]My Dirty Hoe[/url]
 [*][url=https://valheim.hexium.gg/mods/MagicMike/ChestPreview]Chest Preview[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/YabbaDabbaDoo]YabbaDabbaDoo[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/BetterBuildMenu]Better Build Menu[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/BetterCrafting]Better Crafting[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/BetterEquipSlots]Better Equip Slots[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/DestroyIt]Destroy It[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/EinherjarBodies]Einherjar Bodies[/url]
 [*][url=https://valheim.hexium.gg/mods/MagicMike/ExtraInventorySlots]Extra Inventory Slots[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/MyDirtyHoe]My Dirty Hoe[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/ValheimSkies]Valheim Skies[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/VanityWardrobe]Vanity Wardrobe[/url]
 [*][url=https://valheim.hexium.gg/mods/MagicMike/VillagePlebs]Village Plebs[/url]
-[*][url=https://valheim.hexium.gg/mods/MagicMike/BodyReplacer]Body Replacer[/url]
+[*][url=https://valheim.hexium.gg/mods/MagicMike/YabbaDabbaDoo]YabbaDabbaDoo[/url]
 [/list]
 
 
@@ -141,11 +144,4 @@ If you play on a server, use the same SeedBedItems.json on the server and every 
 
 [size=5][b]Comments/Suggestions/Help[/b][/size]
 
-[url=https://www.nexusmods.com/valheim/mods/2806]Nexus[/url], [url=https://discord.gg/mnr36G6J4x]Discord[/url]
-
-
-[size=5][b]Donations[/b][/size]
-
-Please support this project if you can!
-
-[url=https://www.paypal.com/donate/?hosted_button_id=BN8HEWHRMAREU][img]https://imgup.uk/i/n7Sg7WK9.png[/img][/url]
+[url=https://discord.gg/mnr36G6J4x]Discord[/url]
